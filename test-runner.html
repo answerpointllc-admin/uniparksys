@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UniPark — Test Runner</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=DM+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ─── Reset & tokens ─────────────────────────────────────── */
+:root {
+  --navy:   #1B2A4A;
+  --teal:   #2BA4B5;
+  --green:  #48BB78;
+  --red:    #FC8181;
+  --yellow: #F6E05E;
+  --orange: #E8952E;
+  --bg:     #0d1b2e;
+  --surf:   #162238;
+  --surf2:  #1e2f47;
+  --bdr:    rgba(255,255,255,.08);
+  --text:   rgba(255,255,255,.85);
+  --muted:  rgba(255,255,255,.35);
+  --mono:   'JetBrains Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text);
+       min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ─── Topbar ────────────────────────────────────────────── */
+.topbar {
+  background: var(--navy); border-bottom: 1px solid var(--bdr);
+  padding: 11px 24px; display: flex; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 100; flex-shrink: 0;
+}
+.t-logo { font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 800; color: #fff; }
+.t-logo span { color: var(--teal); }
+.t-site { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase;
+          letter-spacing: .1em; border-left: 1px solid var(--bdr); padding-left: 14px; }
+.t-score { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800;
+           color: #fff; margin-left: auto; }
+.t-score .s-pass { color: var(--green); }
+.t-score .s-fail { color: var(--red); }
+.t-score .s-pct  { font-size: 11px; color: var(--muted); margin-left: 4px; font-family: 'DM Sans', sans-serif; }
+.t-btn { padding: 8px 16px; border-radius: 7px; border: none; font-size: 12px; font-weight: 700;
+         cursor: pointer; font-family: 'DM Sans', sans-serif; display: flex; align-items: center;
+         gap: 6px; transition: filter .15s; white-space: nowrap; }
+.t-btn:hover:not(:disabled) { filter: brightness(1.1); }
+.t-btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn-rerun  { background: var(--teal);   color: #fff; }
+.btn-export { background: var(--surf2);  color: var(--text); border: 1px solid var(--bdr); }
+
+/* ─── Progress ──────────────────────────────────────────── */
+.prog-track { height: 4px; background: rgba(255,255,255,.06); flex-shrink: 0; }
+.prog-fill  { height: 4px; background: linear-gradient(90deg, var(--teal), var(--green));
+              width: 0%; transition: width .3s ease; }
+
+/* ─── Layout ────────────────────────────────────────────── */
+.wrap { flex: 1; padding: 22px 24px; max-width: 1360px; width: 100%;
+        margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+
+/* ─── Status strip ──────────────────────────────────────── */
+.status-strip { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
+.pulse { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; transition: background .3s; }
+.pulse-idle    { background: var(--muted); }
+.pulse-running { background: var(--orange); animation: blink .9s ease-in-out infinite; }
+.pulse-done    { background: var(--green); }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:.3} }
+.elapsed { margin-left: auto; font-family: var(--mono); font-size: 11px; }
+
+/* ─── Summary cards ─────────────────────────────────────── */
+.cards { display: flex; gap: 10px; flex-wrap: wrap; }
+.card { background: var(--surf); border: 1px solid var(--bdr); border-radius: 9px;
+        padding: 13px 16px; flex: 1; min-width: 110px; }
+.card-lbl { font-size: 9px; font-weight: 700; color: var(--muted); text-transform: uppercase;
+            letter-spacing: .09em; margin-bottom: 5px; }
+.card-val { font-family: 'Montserrat', sans-serif; font-size: 22px; font-weight: 800; }
+.cv-teal   { color: var(--teal); }
+.cv-green  { color: var(--green); }
+.cv-red    { color: var(--red); }
+.cv-orange { color: var(--orange); }
+.cv-muted  { color: var(--muted); }
+
+/* ─── Section label ─────────────────────────────────────── */
+.sec-lbl { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase;
+           letter-spacing: .09em; margin-bottom: -6px; }
+
+/* ─── Results table ─────────────────────────────────────── */
+.tbl-wrap { background: var(--surf); border: 1px solid var(--bdr); border-radius: 11px; overflow: hidden; }
+.tbl-head { padding: 12px 18px 10px; border-bottom: 1px solid var(--bdr);
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.tbl-title { font-size: 13px; font-weight: 700; }
+.legend { display: flex; gap: 12px; font-size: 10px; color: var(--muted); }
+.leg { display: flex; align-items: center; gap: 4px; }
+.leg-dot { width: 7px; height: 7px; border-radius: 50%; }
+.tbl-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+thead th { padding: 8px 6px; font-size: 9px; font-weight: 700; color: var(--muted);
+           text-transform: uppercase; letter-spacing: .07em; border-bottom: 1px solid var(--bdr);
+           text-align: center; background: rgba(255,255,255,.02); white-space: nowrap; }
+thead th:first-child { text-align: left; padding-left: 18px; width: 175px; }
+tbody td { padding: 9px 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,.04);
+           vertical-align: middle; }
+tbody td:first-child { text-align: left; padding-left: 18px; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: rgba(255,255,255,.018); }
+/* left border stripe */
+tbody tr.r-pass { border-left: 3px solid var(--green); }
+tbody tr.r-fail { border-left: 3px solid var(--red); }
+tbody tr.r-run  { border-left: 3px solid var(--orange); }
+tbody tr.r-pend { border-left: 3px solid transparent; }
+
+.page-label { font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap;
+              overflow: hidden; text-overflow: ellipsis; }
+.page-url   { font-size: 10px; color: var(--muted); font-family: var(--mono); margin-top: 1px; }
+
+/* ─── Test cells ────────────────────────────────────────── */
+.tc { display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px; border-radius: 6px; font-size: 11px; font-weight: 700;
+      cursor: default; transition: all .15s; position: relative; }
+.tc-pend { background: rgba(255,255,255,.05); color: rgba(255,255,255,.18); }
+.tc-run  { background: rgba(232,149,46,.12); color: var(--orange);
+           animation: blink .7s ease-in-out infinite; }
+.tc-pass { background: rgba(72,187,120,.14); color: var(--green); }
+.tc-fail { background: rgba(252,129,129,.14); color: var(--red); }
+.tc-warn { background: rgba(246,224,94,.12); color: var(--yellow); }
+
+/* tooltip on hover */
+.tc[title]:hover::after {
+  content: attr(title);
+  position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  background: #0d1b2e; border: 1px solid var(--bdr); border-radius: 6px;
+  padding: 4px 9px; font-size: 10px; white-space: nowrap; color: #fff; z-index: 50;
+  pointer-events: none; font-weight: 400;
+}
+
+/* ─── API & Link tests ──────────────────────────────────── */
+.test-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 10px; }
+.test-card { background: var(--surf); border: 1px solid var(--bdr); border-radius: 10px; padding: 14px 16px; }
+.tc-hdr { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.tc-title { font-size: 13px; font-weight: 700; line-height: 1.3; }
+.tc-sub   { font-size: 10px; color: var(--muted); margin-top: 2px; font-family: var(--mono); }
+.badge { padding: 3px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+.b-pend { background: rgba(255,255,255,.07);  color: var(--muted); }
+.b-run  { background: rgba(232,149,46,.12);  color: var(--orange); border: 1px solid rgba(232,149,46,.2); }
+.b-pass { background: rgba(72,187,120,.14);  color: var(--green);  border: 1px solid rgba(72,187,120,.25); }
+.b-fail { background: rgba(252,129,129,.14); color: var(--red);    border: 1px solid rgba(252,129,129,.25); }
+.tc-detail { font-family: var(--mono); font-size: 10px; color: var(--muted); line-height: 1.6;
+             white-space: pre-wrap; word-break: break-all; max-height: 72px; overflow-y: auto; }
+.td-pass { color: rgba(72,187,120,.8); }
+.td-fail { color: rgba(252,129,129,.8); }
+.td-warn { color: rgba(246,224,94,.8); }
+
+/* ─── Export box ────────────────────────────────────────── */
+.export-wrap { display: none; background: var(--surf); border: 1px solid var(--bdr);
+               border-radius: 10px; overflow: hidden; }
+.export-wrap.open { display: block; }
+.export-hdr { padding: 10px 16px; border-bottom: 1px solid var(--bdr);
+              display: flex; align-items: center; justify-content: space-between; }
+.export-hdr-title { font-size: 12px; font-weight: 700; }
+.export-copy { background: var(--teal); color: #fff; border: none; border-radius: 6px;
+               padding: 5px 12px; font-size: 11px; font-weight: 700; cursor: pointer;
+               font-family: 'DM Sans', sans-serif; }
+.export-copy:hover { filter: brightness(1.1); }
+textarea#exportOut { width: 100%; background: transparent; border: none; outline: none;
+                     color: rgba(255,255,255,.65); font-family: var(--mono); font-size: 10px;
+                     line-height: 1.7; padding: 14px 16px; resize: vertical; min-height: 220px; }
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ───────────────────────────────────────────── -->
+<div class="topbar">
+  <div class="t-logo">Uni<span>Park</span></div>
+  <div class="t-site" id="siteLabel">Test Runner</div>
+  <div class="t-score" id="scoreDisplay">
+    <span class="s-pass" id="sPassed">–</span> /
+    <span id="sTotal">–</span>
+    <span class="s-pct" id="sPct"></span>
+  </div>
+  <button class="t-btn btn-rerun"  id="rerunBtn"  onclick="rerun()" disabled>↺ Re-run</button>
+  <button class="t-btn btn-export" id="exportBtn" onclick="toggleExport()" disabled>↓ Export</button>
+</div>
+<div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+
+<!-- ── Main ─────────────────────────────────────────────── -->
+<div class="wrap">
+
+  <div class="status-strip">
+    <div class="pulse pulse-idle" id="pulse"></div>
+    <div id="statusTxt">Initialising…</div>
+    <div class="elapsed" id="elapsed"></div>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="cards">
+    <div class="card"><div class="card-lbl">Pages</div>       <div class="card-val cv-teal"   id="cPages">0/0</div></div>
+    <div class="card"><div class="card-lbl">Passed</div>      <div class="card-val cv-green"  id="cPass">–</div></div>
+    <div class="card"><div class="card-lbl">Failed</div>      <div class="card-val cv-red"    id="cFail">–</div></div>
+    <div class="card"><div class="card-lbl">Parker Cover</div><div class="card-val cv-orange" id="cParker">–</div></div>
+    <div class="card"><div class="card-lbl">Duration</div>    <div class="card-val cv-muted"  id="cDur">–</div></div>
+  </div>
+
+  <!-- Page results table -->
+  <div class="sec-lbl">Page Tests</div>
+  <div class="tbl-wrap">
+    <div class="tbl-head">
+      <div class="tbl-title">Results per page</div>
+      <div class="legend">
+        <div class="leg"><div class="leg-dot" style="background:var(--green)"></div>Pass</div>
+        <div class="leg"><div class="leg-dot" style="background:var(--red)"></div>Fail</div>
+        <div class="leg"><div class="leg-dot" style="background:var(--yellow)"></div>Warn</div>
+        <div class="leg"><div class="leg-dot" style="background:rgba(255,255,255,.15)"></div>Pending</div>
+      </div>
+    </div>
+    <div class="tbl-scroll">
+      <table id="pageTable">
+        <thead>
+          <tr>
+            <th style="text-align:left">Page</th>
+            <th title="HTTP 200 response">HTTP</th>
+            <th title="Parker widget in HTML">Parker</th>
+            <th title="&lt;title&gt; present and non-empty">Title</th>
+            <th title="meta[name=description] present">Desc</th>
+            <th title="meta[name=viewport] present">VP</th>
+            <th title="&lt;footer&gt; element present">Footer</th>
+            <th title="Nav with ≥2 valid links">Nav</th>
+            <th title="Phone number matches expected">Phone</th>
+            <th title="OG meta tags (og:title or og:description)">OG</th>
+            <th title="Same-origin images return 200">Imgs</th>
+          </tr>
+        </thead>
+        <tbody id="pageBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- API & infrastructure tests -->
+  <div class="sec-lbl">API &amp; Infrastructure</div>
+  <div class="test-grid" id="apiGrid"></div>
+
+  <!-- Internal links test -->
+  <div class="sec-lbl">Internal Links (crawl all pages)</div>
+  <div class="test-grid" id="linksGrid"></div>
+
+  <!-- Export -->
+  <div class="export-wrap" id="exportWrap">
+    <div class="export-hdr">
+      <div class="export-hdr-title">Test Report</div>
+      <button class="export-copy" onclick="copyExport()">Copy</button>
+    </div>
+    <textarea id="exportOut" readonly></textarea>
+  </div>
+
+  <div style="height:20px"></div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════
+   SITE CONFIG — edit this block to adapt for K&G / APMS / DPSMF
+   ════════════════════════════════════════════════════════ */
+const CONFIG = {
+  site:          'UniPark',
+  siteTagline:   'uniparksystems.com',
+  base:          'https://uniparksystems.com',  // no trailing slash
+  expectedPhone: '216-616-3188',                // normalised digits compared
+  phoneRegex:    /\(?\d{3}\)?[-.\s]?\d{3}[-.\s]\d{4}/g,
+
+  pages: [
+    { name: 'Homepage',          url: '/' },
+    { name: 'Trial',             url: '/trial/' },
+    { name: 'App — Locator',     url: '/app/locator/' },
+    { name: 'App — Main',        url: '/app/' },
+    { name: 'App — MAE',         url: '/app/mae/' },
+    { name: 'App — Compliance',  url: '/app/compliance/' },
+    { name: 'Consumer Portal',   url: '/portal/consumer/' },
+    { name: 'Client Portal',     url: '/portal/client/' },
+    { name: 'Global Admin',      url: '/admin/global/' },
+    { name: 'Global — DB Setup', url: '/admin/global/ups-customer-db-setup.html' },
+    { name: 'Global — Instance', url: '/admin/global/ups-instance-setup.html' },
+    { name: 'Global — Verifier', url: '/admin/global/ups-verifier.html' },
+    { name: 'Local Admin',       url: '/admin/local/' },
+    { name: 'Login',             url: '/login/' },
+    { name: 'App Download',      url: '/app-download/' },
+  ],
+
+  apiTests: [
+    {
+      id:    'parker-api',
+      name:  'Parker Chat API',
+      sub:   'POST /api/chat · product=parker',
+      run: async () => {
+        const t0 = Date.now();
+        const r = await fetch('https://answerpointintelligence.ai/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: 'What is UniPark?', product: 'parker', history: [] }),
+        });
+        const ms = Date.now() - t0;
+        if (!r.ok) return fail(`HTTP ${r.status}`, ms);
+        const d = await r.json();
+        const reply = (d?.reply || d?.message || '').substring(0, 100);
+        return pass(`${r.status} OK · ${ms}ms\n"${reply || '(no reply field)'}"`, ms);
+      },
+    },
+    {
+      id:    'api-reach',
+      name:  'AnswerPoint API Host',
+      sub:   'Reachability check (no-cors)',
+      run: async () => {
+        const t0 = Date.now();
+        await fetch('https://answerpointintelligence.ai/', { mode: 'no-cors', cache: 'no-store' });
+        const ms = Date.now() - t0;
+        return pass(`Host responded in ${ms}ms\n(opaque response — expected for no-cors)`, ms);
+      },
+    },
+    {
+      id:    'hero-asset',
+      name:  'Hero Asset',
+      sub:   'HEAD /assets/hero-car.jpg',
+      run: async () => {
+        const t0 = Date.now();
+        const r = await fetch('/assets/hero-car.jpg', { method: 'HEAD', cache: 'no-store' });
+        const ms = Date.now() - t0;
+        const kb = r.headers.get('content-length');
+        const size = kb ? `${(parseInt(kb)/1024).toFixed(0)} KB` : 'size unknown';
+        return r.ok ? pass(`HTTP ${r.status} · ${size} · ${ms}ms`, ms) : fail(`HTTP ${r.status}`, ms);
+      },
+    },
+    {
+      id:    'privacy-terms',
+      name:  'Privacy &amp; Terms Pages',
+      sub:   'HEAD /privacy/ + /terms/',
+      run: async () => {
+        const [pr, tr] = await Promise.all([
+          fetch('/privacy/', { method: 'HEAD', cache: 'no-store' }),
+          fetch('/terms/',   { method: 'HEAD', cache: 'no-store' }),
+        ]);
+        const ok = pr.ok && tr.ok;
+        const detail = `/privacy/ → ${pr.status}${pr.ok?' ✓':' ✗'}\n/terms/   → ${tr.status}${tr.ok?' ✓':' ✗'}`;
+        return ok ? pass(detail) : fail(detail);
+      },
+    },
+    {
+      id:    'og-image',
+      name:  'OG Image Asset',
+      sub:   'HEAD /assets/og-image.svg',
+      run: async () => {
+        const r = await fetch('/assets/og-image.svg', { method: 'HEAD', cache: 'no-store' });
+        return r.ok ? pass(`HTTP ${r.status}`) : fail(`HTTP ${r.status} — og-image.svg missing`);
+      },
+    },
+  ],
+};
+
+/* ════════════════════════════════════════════════════════
+   TEST HELPERS
+   ════════════════════════════════════════════════════════ */
+const pass = (detail = '', ms = null) => ({ ok: true,  detail, ms });
+const fail = (detail = '', ms = null) => ({ ok: false, detail, ms });
+const warn = (detail = '', ms = null) => ({ ok: true, warn: true, detail, ms });
+
+/* ════════════════════════════════════════════════════════
+   PAGE TEST DEFINITIONS
+   Each fn receives (html: string, doc: Document, url: string)
+   Returns pass/fail/warn result object
+   ════════════════════════════════════════════════════════ */
+const PAGE_TESTS = [
+  {
+    id: 'http',
+    label: 'HTTP',
+    run: async (url) => {
+      const t0 = Date.now();
+      const r = await fetch(CONFIG.base + url, { cache: 'no-store' });
+      const ms = Date.now() - t0;
+      return r.ok ? pass(`HTTP ${r.status} · ${ms}ms`, ms) : fail(`HTTP ${r.status}`, ms);
+    },
+    needsHTML: true,   // signal runner to also fetch HTML for other tests
+  },
+  {
+    id: 'parker',
+    label: 'Parker',
+    run: (html) => {
+      const found = html.includes('parker-btn') || html.includes('parkerPanel') || html.includes('parker-panel');
+      return found ? pass('parker-btn detected') : fail('widget not in HTML');
+    },
+  },
+  {
+    id: 'title',
+    label: 'Title',
+    run: (html, doc) => {
+      const el = doc.querySelector('title');
+      const t = el ? el.textContent.trim() : '';
+      return t.length > 0 ? pass(`"${t.substring(0,45)}"`) : fail('missing <title>');
+    },
+  },
+  {
+    id: 'desc',
+    label: 'Desc',
+    run: (html, doc) => {
+      const el = doc.querySelector('meta[name="description"]');
+      const c = el ? (el.getAttribute('content') || '').trim() : '';
+      return c.length > 5 ? pass(`"${c.substring(0,45)}"`) : fail('meta description missing/empty');
+    },
+  },
+  {
+    id: 'viewport',
+    label: 'VP',
+    run: (html, doc) => {
+      const el = doc.querySelector('meta[name="viewport"]');
+      return el ? pass(el.getAttribute('content') || 'present') : fail('meta viewport missing');
+    },
+  },
+  {
+    id: 'footer',
+    label: 'Footer',
+    run: (html) => {
+      return html.toLowerCase().includes('<footer')
+        ? pass('footer element found')
+        : fail('no <footer> in HTML');
+    },
+  },
+  {
+    id: 'nav',
+    label: 'Nav',
+    run: (html, doc) => {
+      const nav = doc.querySelector('nav');
+      if (!nav) return fail('no <nav> element');
+      const links = [...nav.querySelectorAll('a[href]')];
+      if (links.length < 2) return fail(`only ${links.length} nav link(s)`);
+      const dead = links.filter(a => a.getAttribute('href') === '#');
+      if (dead.length > 0) return warn(`${links.length} links · ${dead.length} dead (#) href`);
+      return pass(`${links.length} links`);
+    },
+  },
+  {
+    id: 'phone',
+    label: 'Phone',
+    run: (html) => {
+      const matches = html.match(CONFIG.phoneRegex);
+      if (!matches) return warn('no phone number found');
+      const found = [...new Set(matches)];
+      const expected = CONFIG.expectedPhone.replace(/\D/g, '');
+      const hasMatch = found.some(p => p.replace(/\D/g, '') === expected);
+      if (!hasMatch) return warn(`found: ${found.join(', ')} — expected ${CONFIG.expectedPhone}`);
+      return pass(found[0]);
+    },
+  },
+  {
+    id: 'og',
+    label: 'OG',
+    run: (html, doc) => {
+      const title = doc.querySelector('meta[property="og:title"]');
+      const desc  = doc.querySelector('meta[property="og:description"]');
+      if (title || desc) return pass(`og:title ${title?'✓':'✗'} · og:desc ${desc?'✓':'✗'}`);
+      return warn('no OG meta tags');
+    },
+  },
+  {
+    id: 'images',
+    label: 'Imgs',
+    run: async (html, doc, url) => {
+      const imgs = [...doc.querySelectorAll('img[src]')]
+        .map(i => i.getAttribute('src'))
+        .filter(s => s && s.startsWith('/'));   // same-origin only
+      if (imgs.length === 0) return pass('no same-origin images');
+      const unique = [...new Set(imgs)].slice(0, 12); // cap at 12
+      const results = await Promise.all(
+        unique.map(src =>
+          fetch(CONFIG.base + src, { method: 'HEAD', cache: 'no-store' })
+            .then(r => ({ src, ok: r.ok, status: r.status }))
+            .catch(() => ({ src, ok: false, status: 'ERR' }))
+        )
+      );
+      const broken = results.filter(r => !r.ok);
+      if (broken.length === 0) return pass(`${unique.length}/${unique.length} ok`);
+      return fail(`${broken.length} broken:\n${broken.map(b => `${b.src} → ${b.status}`).join('\n')}`);
+    },
+  },
+];
+
+/* ════════════════════════════════════════════════════════
+   STATE
+   ════════════════════════════════════════════════════════ */
+let state = {
+  running:    false,
+  startTime:  null,
+  pageRes:    {},   // { url: { testId: result } }
+  apiRes:     {},   // { id: result }
+  linksRes:   null, // { ok, detail, broken[] }
+  htmlCache:  {},   // { url: { html, doc } }
+  elTimer:    null,
+};
+
+/* ════════════════════════════════════════════════════════
+   RUNNER
+   ════════════════════════════════════════════════════════ */
+async function run() {
+  if (state.running) return;
+  state.running   = true;
+  state.startTime = Date.now();
+  state.pageRes   = {};
+  state.apiRes    = {};
+  state.linksRes  = null;
+  state.htmlCache = {};
+
+  // UI reset
+  setPulse('running');
+  setStatus('Starting test suite…');
+  document.getElementById('rerunBtn').disabled  = true;
+  document.getElementById('exportBtn').disabled = true;
+  document.getElementById('progFill').style.width = '0%';
+  buildTable();
+  buildApiCards();
+  buildLinksCard();
+  resetCards();
+  clearScore();
+
+  state.elTimer = setInterval(updateElapsed, 250);
+
+  // ── Phase 1: page tests (batches of 4) ──────────────────
+  const batches = chunk(CONFIG.pages, 4);
+  let donePages = 0;
+  for (const batch of batches) {
+    await Promise.all(batch.map(p => runPageTests(p)));
+    donePages += batch.length;
+    setProgress(donePages / (CONFIG.pages.length + 1));  // +1 for API phase
+    updateScoreBar();
+  }
+
+  // ── Phase 2: API tests ───────────────────────────────────
+  setStatus('Running API and infrastructure tests…');
+  await Promise.all(CONFIG.apiTests.map(t => runApiTest(t)));
+  setProgress(1);
+
+  // ── Phase 3: internal links crawl ───────────────────────
+  setStatus('Crawling internal links…');
+  await runLinksTest();
+
+  // ── Done ─────────────────────────────────────────────────
+  clearInterval(state.elTimer);
+  state.running = false;
+  updateElapsed();
+  updateScoreBar();
+  updateCards();
+  setPulse('done');
+  setStatus('All tests complete');
+  document.getElementById('rerunBtn').disabled  = false;
+  document.getElementById('exportBtn').disabled = false;
+}
+
+async function runPageTests(page) {
+  const id = rowId(page.url);
+  setRowState(id, 'run');
+  TEST_IDS.forEach(t => setCell(id, t, 'run', '…'));
+
+  state.pageRes[page.url] = {};
+
+  let html = '', doc = null;
+  try {
+    const t0 = Date.now();
+    const resp = await fetch(CONFIG.base + page.url, { cache: 'no-store' });
+    const ms = Date.now() - t0;
+    html = resp.ok ? await resp.text() : '';
+    doc  = resp.ok ? new DOMParser().parseFromString(html, 'text/html') : null;
+
+    // HTTP result
+    const httpRes = resp.ok
+      ? pass(`HTTP ${resp.status} · ${ms}ms`, ms)
+      : fail(`HTTP ${resp.status}`, ms);
+    state.pageRes[page.url].http = httpRes;
+    setCell(id, 'http', httpRes.ok ? 'pass' : 'fail', httpRes.ok ? '✓' : '✗', httpRes.detail);
+
+    if (html && doc) {
+      state.htmlCache[page.url] = { html, doc };
+      // Run remaining tests
+      for (const test of PAGE_TESTS.filter(t => t.id !== 'http')) {
+        let res;
+        try {
+          res = await test.run(html, doc, page.url);
+        } catch(e) {
+          res = fail(e.message);
+        }
+        state.pageRes[page.url][test.id] = res;
+        const cls = res.warn ? 'warn' : res.ok ? 'pass' : 'fail';
+        const icon = res.warn ? '⚠' : res.ok ? '✓' : '✗';
+        setCell(id, test.id, cls, icon, res.detail);
+      }
+    } else {
+      // Page failed to load — mark all remaining as fail
+      PAGE_TESTS.filter(t => t.id !== 'http').forEach(t => {
+        state.pageRes[page.url][t.id] = fail('page did not load');
+        setCell(id, t.id, 'fail', '✗', 'page did not load');
+      });
+    }
+  } catch(e) {
+    state.pageRes[page.url].http = fail(e.message);
+    setCell(id, 'http', 'fail', '✗', e.message);
+    PAGE_TESTS.filter(t => t.id !== 'http').forEach(t => {
+      state.pageRes[page.url][t.id] = fail('fetch error');
+      setCell(id, t.id, 'fail', '✗', 'fetch error');
+    });
+  }
+
+  // Row stripe
+  const res = state.pageRes[page.url];
+  const allOk = TEST_IDS.every(t => res[t] && (res[t].ok));
+  setRowState(id, allOk ? 'pass' : 'fail');
+  updateScoreBar();
+}
+
+async function runApiTest(test) {
+  setBadge(test.id, 'run', 'Testing…');
+  setDetail(test.id, '');
+  let res;
+  try {
+    res = await test.run();
+  } catch(e) {
+    res = fail(e.message);
+  }
+  state.apiRes[test.id] = res;
+  setBadge(test.id, res.ok ? 'pass' : 'fail', res.ok ? (res.ms ? `${res.ms}ms` : 'OK') : 'FAIL');
+  setDetail(test.id, res.detail, res.ok ? 'td-pass' : 'td-fail');
+}
+
+async function runLinksTest() {
+  const cardId = 'links-result';
+  setBadge(cardId, 'run', 'Crawling…');
+  setDetail(cardId, 'Collecting links from all pages…');
+
+  // Collect unique same-origin hrefs from cached HTML
+  const allHrefs = new Set();
+  for (const [url, { doc }] of Object.entries(state.htmlCache)) {
+    doc.querySelectorAll('a[href]').forEach(a => {
+      const h = a.getAttribute('href') || '';
+      if (h.startsWith('/') && !h.startsWith('//') && !h.includes('#') && !h.startsWith('/ups-demo') && !h.startsWith('/test-runner')) {
+        allHrefs.add(h.split('?')[0]);  // strip query strings
+      }
+    });
+  }
+
+  const links = [...allHrefs].filter(h => h !== '/').concat(['/']);
+  // Dedup + limit
+  const toCheck = [...new Set(links)].slice(0, 80);
+  setDetail(cardId, `Checking ${toCheck.length} unique internal links…`);
+
+  const results = [];
+  const batches = chunk(toCheck, 8);
+  for (const b of batches) {
+    const bRes = await Promise.all(b.map(href =>
+      fetch(CONFIG.base + href, { method: 'HEAD', cache: 'no-store' })
+        .then(r => ({ href, ok: r.ok, status: r.status }))
+        .catch(e => ({ href, ok: false, status: 'ERR' }))
+    ));
+    results.push(...bRes);
+  }
+
+  const broken = results.filter(r => !r.ok);
+  state.linksRes = { ok: broken.length === 0, broken, total: results.length };
+
+  if (broken.length === 0) {
+    setBadge(cardId, 'pass', `${results.length}/${results.length}`);
+    setDetail(cardId, `All ${results.length} internal links resolve ✓`, 'td-pass');
+  } else {
+    setBadge(cardId, 'fail', `${broken.length} broken`);
+    const detail = `${results.length - broken.length}/${results.length} OK\nBroken:\n`
+      + broken.map(b => `  ${b.href} → ${b.status}`).join('\n');
+    setDetail(cardId, detail, 'td-fail');
+  }
+}
+
+/* ════════════════════════════════════════════════════════
+   UI BUILDERS
+   ════════════════════════════════════════════════════════ */
+const TEST_IDS = PAGE_TESTS.map(t => t.id);
+
+function buildTable() {
+  const tbody = document.getElementById('pageBody');
+  tbody.innerHTML = CONFIG.pages.map(p => {
+    const id = rowId(p.url);
+    return `<tr class="r-pend" id="row-${id}">
+      <td>
+        <div class="page-label">${p.name}</div>
+        <div class="page-url">${p.url}</div>
+      </td>
+      ${TEST_IDS.map(t => `<td><div class="tc tc-pend" id="c-${id}-${t}">·</div></td>`).join('')}
+    </tr>`;
+  }).join('');
+}
+
+function buildApiCards() {
+  const grid = document.getElementById('apiGrid');
+  grid.innerHTML = CONFIG.apiTests.map(t => `
+    <div class="test-card">
+      <div class="tc-hdr">
+        <div><div class="tc-title">${t.name}</div><div class="tc-sub">${t.sub}</div></div>
+        <div class="badge b-pend" id="b-${t.id}">Pending</div>
+      </div>
+      <div class="tc-detail" id="d-${t.id}">Waiting…</div>
+    </div>`).join('');
+}
+
+function buildLinksCard() {
+  document.getElementById('linksGrid').innerHTML = `
+    <div class="test-card" style="grid-column: 1/-1">
+      <div class="tc-hdr">
+        <div>
+          <div class="tc-title">Internal Link Crawl</div>
+          <div class="tc-sub">HEAD all same-origin hrefs found across all 15 pages</div>
+        </div>
+        <div class="badge b-pend" id="b-links-result">Pending</div>
+      </div>
+      <div class="tc-detail" id="d-links-result">Waiting for page tests to complete…</div>
+    </div>`;
+}
+
+function resetCards() {
+  ['cPages','cPass','cFail','cParker','cDur'].forEach(id => {
+    document.getElementById(id).textContent = '–';
+  });
+  document.getElementById('cPages').textContent = `0/${CONFIG.pages.length}`;
+}
+
+function updateCards() {
+  let pass = 0, fail = 0, parker = 0;
+  for (const [url, res] of Object.entries(state.pageRes)) {
+    TEST_IDS.forEach(t => {
+      const r = res[t];
+      if (r) { if (r.ok) pass++; else fail++; }
+    });
+    if (res.parker && res.parker.ok) parker++;
+  }
+  const dur = state.startTime ? ((Date.now() - state.startTime) / 1000).toFixed(1) + 's' : '–';
+  document.getElementById('cPages').textContent  = `${Object.keys(state.pageRes).length}/${CONFIG.pages.length}`;
+  document.getElementById('cPass').textContent   = pass;
+  document.getElementById('cFail').textContent   = fail;
+  document.getElementById('cParker').textContent = `${parker}/${CONFIG.pages.length}`;
+  document.getElementById('cDur').textContent    = dur;
+}
+
+function updateScoreBar() {
+  let passed = 0, total = 0;
+  for (const res of Object.values(state.pageRes)) {
+    TEST_IDS.forEach(t => {
+      const r = res[t];
+      if (r !== undefined) { total++; if (r.ok) passed++; }
+    });
+  }
+  const expectedTotal = CONFIG.pages.length * TEST_IDS.length;
+  document.getElementById('sPassed').textContent = passed;
+  document.getElementById('sTotal').textContent  = expectedTotal;
+  document.getElementById('sPct').textContent    = total > 0 ? `(${Math.round(passed/total*100)}%)` : '';
+  // colour score red if failing
+  document.getElementById('sPassed').style.color = (total > 0 && passed/total < .9) ? 'var(--red)' : 'var(--green)';
+  document.getElementById('cPages').textContent  = `${Object.keys(state.pageRes).length}/${CONFIG.pages.length}`;
+}
+
+function clearScore() {
+  document.getElementById('sPassed').textContent = '–';
+  document.getElementById('sTotal').textContent  = '–';
+  document.getElementById('sPct').textContent    = '';
+}
+
+/* ════════════════════════════════════════════════════════
+   CELL / ROW HELPERS
+   ════════════════════════════════════════════════════════ */
+function setCell(rowId, test, state, icon, tip) {
+  const el = document.getElementById(`c-${rowId}-${test}`);
+  if (!el) return;
+  el.className = `tc tc-${state}`;
+  el.textContent = icon;
+  if (tip) el.setAttribute('title', tip.substring(0, 80));
+  else el.removeAttribute('title');
+}
+
+function setRowState(id, s) {
+  const row = document.getElementById(`row-${id}`);
+  if (row) row.className = `r-${s}`;
+}
+
+function setBadge(id, state, text) {
+  const el = document.getElementById(`b-${id}`);
+  if (!el) return;
+  el.className = `badge b-${state}`;
+  el.textContent = text;
+}
+
+function setDetail(id, text, cls) {
+  const el = document.getElementById(`d-${id}`);
+  if (!el) return;
+  el.className = `tc-detail ${cls || ''}`;
+  el.textContent = text;
+}
+
+function setPulse(s) {
+  const el = document.getElementById('pulse');
+  el.className = `pulse pulse-${s}`;
+}
+
+function setStatus(t) { document.getElementById('statusTxt').textContent = t; }
+
+function setProgress(frac) {
+  document.getElementById('progFill').style.width = Math.round(Math.min(frac, 1) * 100) + '%';
+}
+
+function updateElapsed() {
+  if (!state.startTime) return;
+  const s = ((Date.now() - state.startTime) / 1000).toFixed(1);
+  document.getElementById('elapsed').textContent = `${s}s`;
+}
+
+/* ════════════════════════════════════════════════════════
+   EXPORT
+   ════════════════════════════════════════════════════════ */
+function generateExport() {
+  const lines = [];
+  const now = new Date().toLocaleString();
+  const passed = countPassed();
+  const total  = CONFIG.pages.length * TEST_IDS.length;
+
+  lines.push(`${CONFIG.site} — Automated Test Report`);
+  lines.push(`Generated: ${now}`);
+  lines.push(`Overall:   ${passed}/${total} page tests passed (${Math.round(passed/total*100)}%)`);
+  lines.push('');
+  lines.push('═'.repeat(60));
+  lines.push('PAGE TESTS');
+  lines.push('═'.repeat(60));
+
+  for (const page of CONFIG.pages) {
+    const res = state.pageRes[page.url] || {};
+    lines.push('');
+    lines.push(`▸ ${page.name} (${page.url})`);
+    TEST_IDS.forEach(t => {
+      const r = res[t];
+      if (!r) { lines.push(`  · ${t.padEnd(10)} pending`); return; }
+      const icon = r.warn ? '⚠' : r.ok ? '✓' : '✗';
+      lines.push(`  ${icon} ${t.padEnd(10)} ${r.detail || ''}`);
+    });
+  }
+
+  lines.push('');
+  lines.push('═'.repeat(60));
+  lines.push('API & INFRASTRUCTURE');
+  lines.push('═'.repeat(60));
+  CONFIG.apiTests.forEach(t => {
+    const r = state.apiRes[t.id];
+    if (!r) return;
+    const icon = r.ok ? '✓' : '✗';
+    lines.push(`${icon} ${t.name.replace(/&amp;/g,'&')}`);
+    lines.push(`  ${r.detail}`);
+  });
+
+  if (state.linksRes) {
+    lines.push('');
+    lines.push('═'.repeat(60));
+    lines.push('INTERNAL LINKS');
+    lines.push('═'.repeat(60));
+    const l = state.linksRes;
+    lines.push(`${l.ok ? '✓' : '✗'} ${l.total - l.broken.length}/${l.total} links resolve`);
+    if (l.broken.length) {
+      lines.push('Broken:');
+      l.broken.forEach(b => lines.push(`  ✗ ${b.href} → ${b.status}`));
+    }
+  }
+
+  return lines.join('\n');
+}
+
+function countPassed() {
+  let n = 0;
+  Object.values(state.pageRes).forEach(res =>
+    TEST_IDS.forEach(t => { if (res[t] && res[t].ok) n++; })
+  );
+  return n;
+}
+
+function toggleExport() {
+  const wrap = document.getElementById('exportWrap');
+  const isOpen = wrap.classList.toggle('open');
+  document.getElementById('exportBtn').textContent = isOpen ? '✕ Close' : '↓ Export';
+  if (isOpen) {
+    document.getElementById('exportOut').value = generateExport();
+    wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function copyExport() {
+  const ta = document.getElementById('exportOut');
+  ta.select();
+  document.execCommand('copy');
+  const btn = document.querySelector('.export-copy');
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = 'Copy', 1500);
+}
+
+/* ════════════════════════════════════════════════════════
+   UTILS
+   ════════════════════════════════════════════════════════ */
+function rowId(url) { return url.replace(/[^a-z0-9]/gi, '_'); }
+function chunk(arr, n) {
+  const out = [];
+  for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n));
+  return out;
+}
+function rerun() {
+  document.getElementById('exportWrap').classList.remove('open');
+  document.getElementById('exportBtn').textContent = '↓ Export';
+  run();
+}
+
+/* ════════════════════════════════════════════════════════
+   INIT
+   ════════════════════════════════════════════════════════ */
+document.getElementById('siteLabel').textContent = `${CONFIG.site} — Test Runner`;
+document.getElementById('cPages').textContent    = `0/${CONFIG.pages.length}`;
+buildTable();
+buildApiCards();
+buildLinksCard();
+window.addEventListener('load', run);
+</script>
+</body>
+</html>
