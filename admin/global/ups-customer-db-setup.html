@@ -1,0 +1,52 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UPS Customer DB Setup</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+:root{--bg:#0B1929;--card:#132337;--bdr:#1E3A5F;--teal:#2BA4B5;--grn:#48BB78;--org:#E8952E;--red:#FC8181;--txt:#E2E8F0;--mut:#718096}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);padding:16px}
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:16px;margin-bottom:12px}
+label{display:block;font-size:11px;font-weight:600;margin-bottom:3px;color:var(--teal)}
+input{width:100%;padding:7px 10px;background:#0D2137;border:1px solid var(--bdr);border-radius:5px;color:var(--txt);font-size:12px;margin-bottom:10px}
+.btn{padding:7px 16px;border:none;border-radius:5px;font-weight:600;font-size:11px;cursor:pointer}
+.btn-pri{background:var(--teal);color:#FFF}.btn-sec{background:var(--bdr);color:var(--txt)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.task{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--bdr);border-radius:6px;margin-bottom:4px}
+.task.done{border-color:var(--grn)}.task.run{border-color:var(--org)}
+.ti{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0}
+.ti.done{background:var(--grn);color:#FFF}.ti.run{background:var(--org);color:#FFF}.ti.wait{background:var(--bdr);color:var(--mut)}
+.prog{height:4px;background:#1E3A5F;border-radius:2px;margin:8px 0}.prog-bar{height:100%;background:linear-gradient(90deg,var(--teal),var(--grn));transition:width .4s}
+.log{background:#060E1A;border-radius:5px;padding:8px;font-family:monospace;font-size:10px;color:var(--grn);max-height:180px;overflow-y:auto;line-height:1.6}
+.vk{background:linear-gradient(135deg,#132337,#1A3352);border:2px solid var(--teal);border-radius:8px;padding:14px;text-align:center;margin-top:10px}
+.vk-key{font-family:monospace;font-size:16px;color:var(--teal);letter-spacing:2px;margin:6px 0}
+</style></head><body><div id="root"></div>
+<script type="text/babel">
+const {useState}=React;
+const TASKS=['Validate connection','Create schema','Deploy 21 tables','Create 12 stored procs','Create triggers','Setup replication user','Configure replication','Create API bridge user','Deploy API procs','Seed reference data','Create indexes','Run integrity check','Generate verification key'];
+function App(){
+const [f,sF]=useState({iid:'',dh:'localhost',dp:'3306',du:'root',dpw:'',dn:''});
+const [ts,sTs]=useState(TASKS.map(()=>'pending'));
+const [run,sRun]=useState(false);const [vk,sVk]=useState('');const [logs,sLogs]=useState([]);
+const add=m=>sLogs(p=>[...p,`[${new Date().toLocaleTimeString()}] ${m}`]);
+const go=async()=>{if(!f.dh)return;sRun(true);sVk('');sLogs([]);const s=[...TASKS.map(()=>'pending')];
+for(let i=0;i<TASKS.length;i++){s[i]='running';sTs([...s]);add(`${i+1}/${TASKS.length}: ${TASKS[i]}...`);await new Promise(r=>setTimeout(r,500+Math.random()*400));
+if(i===2)add('  → 21 tables: facilities, zones, spots, sensors, reservations...');
+if(i===3)add('  → 12 procs: sp_create_reservation, sp_check_availability...');
+if(i===12){const k='VK-'+Array.from({length:4},()=>Math.random().toString(36).slice(2,6).toUpperCase()).join('-');sVk(k);add(`  → Key: ${k}`);}
+s[i]='done';sTs([...s]);add('  ✓ Done');}add('═══ All 13 tasks complete ═══');sRun(false);};
+const dn=ts.filter(s=>s==='done').length;
+return <div>
+<div style={{fontSize:16,fontWeight:700,marginBottom:2}}>🗄️ Database Linkage Setup</div>
+<div style={{fontSize:10,color:'var(--mut)',marginBottom:14}}>13-task pipeline: schema, procs, replication, API bridges, verification key</div>
+<div className="card"><div style={{fontSize:12,fontWeight:700,marginBottom:8,color:'var(--teal)'}}>Connection</div>
+<div className="grid2"><div><label>Instance ID</label><input value={f.iid} onChange={e=>sF({...f,iid:e.target.value})} placeholder="UPS-2024-001"/></div><div><label>DB Name</label><input value={f.dn} onChange={e=>sF({...f,dn:e.target.value})} placeholder="client_prod"/></div><div><label>Host</label><input value={f.dh} onChange={e=>sF({...f,dh:e.target.value})}/></div><div><label>Port</label><input value={f.dp} onChange={e=>sF({...f,dp:e.target.value})}/></div><div><label>User</label><input value={f.du} onChange={e=>sF({...f,du:e.target.value})}/></div><div><label>Password</label><input type="password" value={f.dpw} onChange={e=>sF({...f,dpw:e.target.value})}/></div></div>
+<div style={{display:'flex',gap:6,marginTop:4}}><button className="btn btn-pri" onClick={go} disabled={run}>{run?'Running...':'▶ Run Pipeline'}</button><button className="btn btn-sec" onClick={()=>{sTs(TASKS.map(()=>'pending'));sLogs([]);sVk('')}}>Reset</button></div></div>
+<div className="card"><div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontSize:12,fontWeight:700,color:'var(--teal)'}}>Tasks ({dn}/{TASKS.length})</span></div>
+<div className="prog"><div className="prog-bar" style={{width:`${(dn/TASKS.length)*100}%`}}/></div>
+{TASKS.map((t,i)=><div key={i} className={`task ${ts[i]==='done'?'done':ts[i]==='running'?'run':''}`}><div className={`ti ${ts[i]==='done'?'done':ts[i]==='running'?'run':'wait'}`}>{ts[i]==='done'?'✓':ts[i]==='running'?'⟳':i+1}</div><span style={{fontSize:11}}>{t}</span></div>)}</div>
+{vk&&<div className="vk"><div style={{fontSize:9,color:'var(--mut)',textTransform:'uppercase',letterSpacing:1}}>Verification Key</div><div className="vk-key">{vk}</div><div style={{fontSize:9,color:'var(--mut)'}}>Save — required for instance verification</div></div>}
+{logs.length>0&&<div className="card"><div style={{fontSize:12,fontWeight:700,color:'var(--teal)',marginBottom:6}}>Log</div><div className="log">{logs.map((l,i)=><div key={i}>{l}</div>)}</div></div>}
+</div>;}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script></body></html>

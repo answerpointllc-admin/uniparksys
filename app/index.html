@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><path d='M18 2L32 9V23L18 34L4 23V9Z' fill='%231B2A4A'/><text x='18' y='20' text-anchor='middle' font-family='sans-serif' font-weight='800' font-size='12' fill='white'>P</text><circle cx='18' cy='29.5' r='2.5' fill='%23E8883E'/></svg>">
+<title>UniPark — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#1B2A4A;--navy-d:#0F1A2E;--navy-l:#243B5E;--teal:#3BA0B5;--teal-d:#2D8295;--org:#E8883E;--gold:#D4A843;--slate:#2B4C6F;--red:#DC2626;--green:#22C55E;--blue:#3B82F6;--amber:#F59E0B;--purple:#8B5CF6;--bg:#F4F6F8;--card:#FFF;--text:#1B2A4A;--muted:#64748B;--border:#E2E8F0;--radius:12px;--shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);--shadow-lg:0 4px 12px rgba(0,0,0,.1),0 16px 40px rgba(0,0,0,.08)}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+h1,h2,h3,h4{font-family:'Montserrat',sans-serif}
+/* TOP NAV */
+.topnav{background:var(--navy);color:#fff;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+.topnav-brand{display:flex;align-items:center;gap:10px}
+.topnav-brand svg{width:28px;height:28px}
+.topnav-brand span{font-family:'Montserrat';font-weight:800;font-size:17px}
+.topnav-brand .u{color:#fff}.topnav-brand .p{color:var(--teal)}
+.topnav-badge{font-size:8px;font-weight:700;background:var(--teal);color:#fff;padding:2px 8px;border-radius:3px;letter-spacing:.8px;margin-left:8px}
+.topnav-links{display:flex;align-items:center;gap:4px}
+.topnav-link{font-size:12px;font-weight:500;color:rgba(255,255,255,.6);padding:8px 14px;border-radius:6px;text-decoration:none;transition:.15s}
+.topnav-link:hover{color:#fff;background:rgba(255,255,255,.08)}
+.topnav-link.active{color:#fff;background:rgba(59,160,181,.2)}
+.topnav-right{display:flex;align-items:center;gap:14px}
+.topnav-user{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.7)}
+.topnav-avatar{width:30px;height:30px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;color:#fff}
+.topnav-logout{font-size:11px;color:rgba(255,255,255,.5);text-decoration:none;padding:6px 12px;border:1px solid rgba(255,255,255,.15);border-radius:6px;transition:.15s}
+.topnav-logout:hover{color:#fff;border-color:rgba(255,255,255,.3)}
+.container{max-width:1100px;margin:0 auto;padding:24px}
+/* WELCOME */
+.welcome{margin-bottom:28px}
+.welcome h1{font-size:28px;font-weight:800;margin-bottom:4px}
+.welcome p{font-size:14px;color:var(--muted)}
+/* MODULE CARDS */
+.modules-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:28px}
+.mod-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:.3s;cursor:pointer;text-decoration:none;color:inherit;display:block}
+.mod-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:transparent}
+.mod-header{padding:20px 24px;color:#fff;display:flex;align-items:center;gap:14px}
+.mod-icon{width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.mod-info h3{font-size:16px;font-weight:700}
+.mod-info p{font-size:11px;opacity:.7;margin-top:2px}
+.mod-badge{margin-left:auto;font-size:9px;font-weight:700;background:rgba(255,255,255,.2);padding:3px 8px;border-radius:4px;letter-spacing:.5px;flex-shrink:0}
+.mod-body{padding:16px 24px}
+.mod-stats{display:flex;gap:20px}
+.mod-stat{text-align:center}
+.mod-stat-val{font-family:'Montserrat';font-size:18px;font-weight:800}
+.mod-stat-label{font-size:10px;color:var(--muted);margin-top:1px}
+.mod-body .launch{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--teal);margin-top:12px}
+.mc-ga .mod-header{background:linear-gradient(135deg,#B91C1C,var(--red))}
+.mc-la .mod-header{background:linear-gradient(135deg,var(--org-d,#C46E2A),var(--org))}
+.mc-co .mod-header{background:linear-gradient(135deg,var(--teal-d),var(--teal))}
+.mc-cl .mod-header{background:linear-gradient(135deg,var(--slate),#3B6A9A)}
+/* BOTTOM GRID */
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.card h3{font-family:'Montserrat';font-size:14px;font-weight:700;margin-bottom:12px}
+.status-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.status-row:last-child{border:none}
+.pill{font-size:10px;font-weight:600;padding:3px 10px;border-radius:100px;display:inline-block}
+.pill-green{background:#DCFCE7;color:#16A34A}.pill-amber{background:#FEF3C7;color:#D97706}.pill-red{background:#FEE2E2;color:var(--red)}
+.quick-links{display:flex;flex-direction:column;gap:6px}
+.ql{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;text-decoration:none;color:var(--text);font-size:13px;font-weight:500;transition:.15s}
+.ql:hover{border-color:var(--teal);background:rgba(59,160,181,.03)}
+.ql-icon{font-size:16px;width:24px;text-align:center}
+@media(max-width:768px){.modules-grid,.bottom-grid{grid-template-columns:1fr}.topnav-links{display:none}}
+</style>
+<script src="/app/js/apms-error-handler.js"></script>
+<script>APMSErrorHandler.init({product:'unipark',module:'index'});</script>
+</head>
+<body>
+
+<nav class="topnav">
+<div style="display:flex;align-items:center">
+<a href="/app/" class="topnav-brand" style="text-decoration:none;color:#fff">
+<svg viewBox="0 0 36 36" fill="none"><path d="M18 2L32 9V23L18 34L4 23V9L18 2Z" fill="#1B2A4A" stroke="#3BA0B5" stroke-width="1.2"/><text x="18" y="20" text-anchor="middle" font-family="Montserrat" font-weight="800" font-size="12" fill="#FFF">P</text><circle cx="18" cy="29.5" r="2.5" fill="#E8883E" stroke="#1B2A4A" stroke-width="1"/></svg>
+<span><span class="u">Uni</span><span class="p">Park</span></span>
+</a>
+<span class="topnav-badge">DASHBOARD</span>
+</div>
+<div class="topnav-links">
+<a href="/app/" class="topnav-link active">Dashboard</a>
+<a href="/admin/global/" class="topnav-link">Global Admin</a>
+<a href="/admin/local/" class="topnav-link">Local Admin</a>
+<a href="/portal/consumer/" class="topnav-link">Consumer</a>
+<a href="/portal/client/" class="topnav-link">Client</a>
+</div>
+<div class="topnav-right">
+<div class="topnav-user"><div class="topnav-avatar">GM</div><span>Glenn McGregor</span></div>
+<a href="/login/" class="topnav-logout">Sign Out</a>
+</div>
+</nav>
+
+<div class="container">
+<div class="welcome">
+<h1>Welcome back, Glenn 👋</h1>
+<p>UniPark Platform Dashboard · All modules operational · Last login: Feb 24, 2026 at 10:42 AM EST</p>
+</div>
+
+<div class="modules-grid">
+<a href="/admin/global/" class="mod-card mc-ga">
+<div class="mod-header">
+<div class="mod-icon">🛡️</div>
+<div class="mod-info"><h3>Global Admin</h3><p>Full platform operations & management</p></div>
+<div class="mod-badge">INTERNAL</div>
+</div>
+<div class="mod-body">
+<div class="mod-stats">
+<div class="mod-stat"><div class="mod-stat-val">847</div><div class="mod-stat-label">Clients</div></div>
+<div class="mod-stat"><div class="mod-stat-val">42,380</div><div class="mod-stat-label">Spots</div></div>
+<div class="mod-stat"><div class="mod-stat-val">$2.4M</div><div class="mod-stat-label">MRR</div></div>
+<div class="mod-stat"><div class="mod-stat-val">99.9%</div><div class="mod-stat-label">Uptime</div></div>
+</div>
+<div class="launch">Launch Global Admin →</div>
+</div>
+</a>
+<a href="/admin/local/" class="mod-card mc-la">
+<div class="mod-header">
+<div class="mod-icon">📊</div>
+<div class="mod-info"><h3>Local Admin</h3><p>Facility operations & monitoring</p></div>
+<div class="mod-badge">OPERATORS</div>
+</div>
+<div class="mod-body">
+<div class="mod-stats">
+<div class="mod-stat"><div class="mod-stat-val">1,200</div><div class="mod-stat-label">Spots</div></div>
+<div class="mod-stat"><div class="mod-stat-val">92%</div><div class="mod-stat-label">Occupancy</div></div>
+<div class="mod-stat"><div class="mod-stat-val">5</div><div class="mod-stat-label">Overstays</div></div>
+<div class="mod-stat"><div class="mod-stat-val">$8.4K</div><div class="mod-stat-label">Today</div></div>
+</div>
+<div class="launch">Launch Local Admin →</div>
+</div>
+</a>
+<a href="/portal/consumer/" class="mod-card mc-co">
+<div class="mod-header">
+<div class="mod-icon">🚗</div>
+<div class="mod-info"><h3>Consumer Portal</h3><p>Find, book & pay for parking</p></div>
+<div class="mod-badge">DRIVERS</div>
+</div>
+<div class="mod-body">
+<div class="mod-stats">
+<div class="mod-stat"><div class="mod-stat-val">26,604</div><div class="mod-stat-label">Users</div></div>
+<div class="mod-stat"><div class="mod-stat-val">156K</div><div class="mod-stat-label">Bookings/mo</div></div>
+<div class="mod-stat"><div class="mod-stat-val">$18.40</div><div class="mod-stat-label">Avg. TXN</div></div>
+<div class="mod-stat"><div class="mod-stat-val">4.7★</div><div class="mod-stat-label">Rating</div></div>
+</div>
+<div class="launch">Launch Consumer Portal →</div>
+</div>
+</a>
+<a href="/portal/client/" class="mod-card mc-cl">
+<div class="mod-header">
+<div class="mod-icon">🏗️</div>
+<div class="mod-info"><h3>Client Portal</h3><p>Facility owner business intelligence</p></div>
+<div class="mod-badge">OWNERS</div>
+</div>
+<div class="mod-body">
+<div class="mod-stats">
+<div class="mod-stat"><div class="mod-stat-val">847</div><div class="mod-stat-label">Clients</div></div>
+<div class="mod-stat"><div class="mod-stat-val">72%</div><div class="mod-stat-label">Avg. Occ.</div></div>
+<div class="mod-stat"><div class="mod-stat-val">$84.2K</div><div class="mod-stat-label">Avg. Rev/mo</div></div>
+<div class="mod-stat"><div class="mod-stat-val">$27.14</div><div class="mod-stat-label">Avg. TXN</div></div>
+</div>
+<div class="launch">Launch Client Portal →</div>
+</div>
+</a>
+</div>
+
+<div class="bottom-grid">
+<div class="card">
+<h3>System Status</h3>
+<div class="status-row"><span>API Gateway</span><span class="pill pill-green">Operational</span></div>
+<div class="status-row"><span>Reservation Engine</span><span class="pill pill-green">Operational</span></div>
+<div class="status-row"><span>Payment Processor</span><span class="pill pill-green">Operational</span></div>
+<div class="status-row"><span>IoT Sensor Hub</span><span class="pill pill-amber">Degraded</span></div>
+<div class="status-row"><span>Analytics Pipeline</span><span class="pill pill-green">Operational</span></div>
+<div class="status-row"><span>Email Service</span><span class="pill pill-green">Operational</span></div>
+</div>
+<div class="card">
+<h3>Quick Links</h3>
+<div class="quick-links">
+<a href="/trial/" class="ql"><span class="ql-icon">🎫</span> Trial Signup Page</a>
+<a href="/" class="ql"><span class="ql-icon">🌐</span> Marketing Website</a>
+<a href="/login/" class="ql"><span class="ql-icon">🔑</span> Login Page</a>
+<a href="mailto:glenn.mcgregor@answerpoint.com" class="ql"><span class="ql-icon">📧</span> Contact Support</a>
+<a href="tel:+12163409181" class="ql"><span class="ql-icon">📞</span> Call (216) 340-9181</a>
+</div>
+</div>
+</div>
+</div>
+
+</body>
+</html>

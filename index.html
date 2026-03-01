@@ -1,0 +1,264 @@
+<!-- 
+  UNIPARK MOBILE NAV PATCH
+  Inject this <style> block and <script> block into UniPark_Website.html
+  Replace the existing .nav CSS and nav HTML structure.
+  
+  Changes:
+  1. Adds hamburger icon (☰ / ✕ toggle) visible at ≤768px
+  2. Nav links become a full-height slide-in overlay on mobile
+  3. CTA buttons stack vertically in mobile menu
+  4. Smooth open/close transitions
+  5. Backdrop click closes menu
+  6. Body scroll lock when menu is open
+-->
+
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UniPark — Intelligent Parking Technology</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#2D3748;--dk:#1B2A4A;--teal:#2BA4B5;--org:#E8952E;--grn:#48BB78;--lt:#2D3748;--mut:#718096;--bg:#FFF;--bdr:#E2E8F0}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:#FFF;color:var(--lt)}
+h1,h2,h3{font-family:'Montserrat',sans-serif}
+/* === NAV === */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:12px 40px;border-bottom:1px solid var(--bdr);position:sticky;top:0;background:#FFF;z-index:200}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-brand span{font-family:'Montserrat',sans-serif;font-weight:800;font-size:20px;color:var(--dk)}
+.nav-brand .tl{color:var(--teal)}
+.nav-links{display:flex;gap:24px;align-items:center}
+.nav-links a{text-decoration:none;color:var(--lt);font-size:13px;font-weight:600;transition:color .2s}
+.nav-links a:hover{color:var(--teal)}
+.nav-cta{display:flex;gap:8px;align-items:center}
+.btn{display:inline-block;padding:8px 18px;border-radius:6px;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer;transition:all .2s;border:2px solid transparent}
+.btn-pri{background:var(--teal);color:#FFF;border-color:var(--teal)}.btn-pri:hover{background:#228B9D}
+.btn-org{background:var(--org);color:#FFF;border-color:var(--org)}.btn-org:hover{background:#D07D1E}
+.btn-out{background:transparent;color:var(--lt);border-color:var(--bdr)}.btn-out:hover{border-color:var(--teal);color:var(--teal)}
+/* Hamburger */
+.hamburger{display:none;background:none;border:none;font-size:26px;cursor:pointer;color:var(--dk);padding:4px 8px;z-index:301;line-height:1}
+/* Mobile overlay */
+.mob-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:250;opacity:0;transition:opacity .3s}
+.mob-overlay.open{opacity:1}
+.mob-menu{position:fixed;top:0;right:-280px;width:280px;height:100%;background:#FFF;z-index:300;transition:right .3s ease;padding:70px 24px 24px;display:flex;flex-direction:column;gap:0;box-shadow:-4px 0 20px rgba(0,0,0,.15)}
+.mob-menu.open{right:0}
+.mob-menu a{display:block;padding:14px 0;font-size:15px;font-weight:600;color:var(--lt);text-decoration:none;border-bottom:1px solid var(--bdr);transition:color .2s}
+.mob-menu a:hover{color:var(--teal)}
+.mob-menu .mob-cta{margin-top:20px;display:flex;flex-direction:column;gap:10px}
+.mob-menu .mob-cta .btn{text-align:center;padding:12px;font-size:14px}
+.mob-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:28px;cursor:pointer;color:var(--mut);line-height:1}
+
+@media(max-width:768px){
+  .nav{padding:12px 16px}
+  .nav-links,.nav-cta{display:none}
+  .hamburger{display:block}
+  .mob-overlay{display:block;pointer-events:none}
+  .mob-overlay.open{pointer-events:auto}
+}
+
+/* === HERO === */
+.hero{background:linear-gradient(135deg,#1B2A4A 0%,#2D3748 100%);color:#FFF;padding:60px 40px;text-align:center}
+.hero h1{font-size:clamp(28px,5vw,42px);margin-bottom:12px;line-height:1.15}
+.hero h1 span{color:var(--teal)}
+.hero p{max-width:600px;margin:0 auto 24px;color:#CBD5E0;font-size:15px;line-height:1.6}
+.hero-stats{display:flex;justify-content:center;gap:40px;margin-top:28px;flex-wrap:wrap}
+.hero-stat .v{font-family:'Montserrat',sans-serif;font-weight:800;font-size:28px}
+.hero-stat .l{font-size:11px;color:#A0AEC0;margin-top:2px}
+.tag{font-size:12px;color:var(--teal);letter-spacing:3px;font-weight:700;margin-bottom:8px}
+
+/* === SECTIONS === */
+section{padding:50px 40px}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:28px}
+.feat{background:#F7FAFC;border-radius:10px;padding:24px;border:1px solid var(--bdr);transition:transform .2s,box-shadow .2s}
+.feat:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.feat .icon{font-size:28px;margin-bottom:10px}
+.feat h3{font-size:15px;margin-bottom:6px}
+.feat p{font-size:12px;color:var(--mut);line-height:1.5}
+
+/* How It Works */
+.steps{display:flex;gap:20px;margin-top:28px;flex-wrap:wrap;justify-content:center}
+.step{flex:1;min-width:200px;max-width:260px;text-align:center;padding:20px}
+.step .num{width:36px;height:36px;border-radius:50%;background:var(--teal);color:#FFF;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;margin-bottom:10px}
+.step h3{font-size:14px;margin-bottom:6px}
+.step p{font-size:12px;color:var(--mut);line-height:1.5}
+
+/* Pricing */
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:28px}
+.plan{border:2px solid var(--bdr);border-radius:12px;padding:28px;text-align:center;transition:transform .2s,box-shadow .2s;position:relative}
+.plan:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.plan.pop{border-color:var(--teal)}
+.plan.pop::before{content:'MOST POPULAR';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--teal);color:#FFF;font-size:10px;font-weight:700;padding:3px 12px;border-radius:10px;letter-spacing:1px}
+.plan h3{font-size:16px;margin-bottom:4px}
+.plan .price{font-family:'Montserrat',sans-serif;font-size:32px;font-weight:800;color:var(--dk);margin:10px 0}
+.plan .price span{font-size:14px;color:var(--mut);font-weight:400}
+.plan ul{list-style:none;text-align:left;margin:16px 0;font-size:12px;line-height:2}
+.plan ul li::before{content:'✓ ';color:var(--teal);font-weight:700}
+
+/* Testimonials */
+.testimonials{background:#F7FAFC;border-radius:12px;padding:40px;margin-top:20px}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:20px}
+.tcard{background:#FFF;border-radius:10px;padding:20px;border:1px solid var(--bdr)}
+.tcard q{font-size:13px;line-height:1.6;font-style:italic;color:#4A5568}
+.tcard .tauth{margin-top:12px;font-size:12px;font-weight:700;color:var(--dk)}
+.tcard .trole{font-size:11px;color:var(--mut)}
+
+/* Contact */
+.contact-form{max-width:480px;margin:20px auto 0}
+.contact-form input,.contact-form textarea,.contact-form select{width:100%;padding:10px 12px;border:1px solid var(--bdr);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;margin-bottom:10px}
+.contact-form textarea{height:80px;resize:vertical}
+
+/* Footer */
+footer{background:var(--dk);color:#CBD5E0;padding:30px 40px;font-size:11px;text-align:center}
+footer a{color:var(--teal);text-decoration:none}
+
+/* Statements rotation */
+.stmt-bar{background:var(--teal);color:#FFF;text-align:center;padding:8px;font-size:12px;font-weight:600;overflow:hidden;height:32px}
+.stmt-bar span{display:block;animation:stmtRotate 12s infinite}
+@keyframes stmtRotate{0%,25%{transform:translateY(0)}33%,58%{transform:translateY(-32px)}66%,91%{transform:translateY(-64px)}100%{transform:translateY(0)}}
+
+@media(max-width:768px){
+  section,.hero{padding:40px 16px}
+  .hero-stats{gap:20px}
+  footer{padding:20px 16px}
+}
+</style></head><body>
+
+<!-- Statement rotation bar -->
+<div class="stmt-bar"><span>🚀 15-day free trial — no credit card required<br>📊 32% average revenue uplift for parking operators<br>🔒 SOC 2 Type II certified — enterprise-grade security</span></div>
+
+<!-- NAV with hamburger -->
+<nav class="nav">
+  <a class="nav-brand" href="#">
+    <svg viewBox="0 0 200 210" width="32" height="34"><defs><linearGradient id="na" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1B2A4A"/><stop offset="100%" stop-color="#2B4C6F"/></linearGradient><linearGradient id="nb" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#E8952E"/><stop offset="100%" stop-color="#F5A623"/></linearGradient></defs><path d="M100,10 L180,40 L180,130 Q100,185 20,130 L20,40 Z" fill="url(#na)"/><path d="M100,26 L166,50 L166,124 Q100,170 34,124 L34,50 Z" fill="none" stroke="#2BA4B5" stroke-width="2.5"/><text x="100" y="112" text-anchor="middle" fill="url(#nb)" font-family="Georgia,serif" font-size="66" font-weight="bold">P</text><circle cx="100" cy="192" r="6" fill="#E8952E"/></svg>
+    <span>Uni<span class="tl">Park</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="#features">Features</a><a href="#how">How It Works</a><a href="#pricing">Pricing</a><a href="#contact">Contact</a>
+  </div>
+  <div class="nav-cta">
+    <a class="btn btn-out" href="#demo">Login</a>
+    <a class="btn btn-pri" href="#demo">Request Demo</a>
+  </div>
+  <button class="hamburger" onclick="toggleMob()" aria-label="Menu">☰</button>
+</nav>
+
+<!-- Mobile overlay + slide-in menu -->
+<div class="mob-overlay" id="mobOverlay" onclick="closeMob()"></div>
+<div class="mob-menu" id="mobMenu">
+  <button class="mob-close" onclick="closeMob()" aria-label="Close">✕</button>
+  <a href="#features" onclick="closeMob()">Features</a>
+  <a href="#how" onclick="closeMob()">How It Works</a>
+  <a href="#pricing" onclick="closeMob()">Pricing</a>
+  <a href="#contact" onclick="closeMob()">Contact</a>
+  <div class="mob-cta">
+    <a class="btn btn-out" href="#demo" onclick="closeMob()">Login</a>
+    <a class="btn btn-pri" href="#demo" onclick="closeMob()">Request Demo</a>
+  </div>
+</div>
+
+<script>
+function toggleMob(){var o=document.getElementById('mobOverlay'),m=document.getElementById('mobMenu');var isOpen=m.classList.contains('open');if(isOpen){closeMob()}else{o.classList.add('open');m.classList.add('open');document.body.style.overflow='hidden'}}
+function closeMob(){document.getElementById('mobOverlay').classList.remove('open');document.getElementById('mobMenu').classList.remove('open');document.body.style.overflow=''}
+</script>
+
+<!-- HERO -->
+<div class="hero">
+  <svg viewBox="0 0 200 210" width="64" height="68" style="margin-bottom:16px"><defs><linearGradient id="ha" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1B2A4A"/><stop offset="100%" stop-color="#2B4C6F"/></linearGradient><linearGradient id="hb" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#E8952E"/><stop offset="100%" stop-color="#F5A623"/></linearGradient></defs><path d="M100,10 L180,40 L180,130 Q100,185 20,130 L20,40 Z" fill="url(#ha)"/><path d="M100,26 L166,50 L166,124 Q100,170 34,124 L34,50 Z" fill="none" stroke="#2BA4B5" stroke-width="2.5"/><text x="100" y="112" text-anchor="middle" fill="url(#hb)" font-family="Georgia,serif" font-size="66" font-weight="bold">P</text><circle cx="100" cy="192" r="6" fill="#E8952E"/></svg>
+  <div class="tag">INTELLIGENT PARKING TECHNOLOGY</div>
+  <h1>Transform Your Parking <span>Revenue</span></h1>
+  <p>UniPark is the complete SaaS platform for parking operators — real-time booking, dynamic pricing, IoT occupancy monitoring, and automated payment processing.</p>
+  <div><a class="btn btn-org" href="#demo" style="font-size:15px;padding:12px 28px">Start Free Trial</a> <a class="btn btn-out" href="#features" style="font-size:15px;padding:12px 28px;border-color:#FFF;color:#FFF">Learn More</a></div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="v" style="color:#2BA4B5">32%</div><div class="l">Average Revenue Uplift</div></div>
+    <div class="hero-stat"><div class="v" style="color:#E8952E">60s</div><div class="l">Average Booking Time</div></div>
+    <div class="hero-stat"><div class="v" style="color:#48BB78">99.9%</div><div class="l">Platform Uptime</div></div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <h2 style="text-align:center;font-size:26px;margin-bottom:4px">Everything You Need to <span style="color:#2BA4B5">Modernize Parking</span></h2>
+  <p style="text-align:center;color:#718096;font-size:13px;margin-bottom:0">One platform. Every capability. Zero complexity.</p>
+  <div class="feat-grid">
+    <div class="feat"><div class="icon">📱</div><h3>Online Booking</h3><p>Customers search, select, and pay for parking in under 60 seconds. Mobile-optimized for walk-up and pre-book.</p></div>
+    <div class="feat"><div class="icon">💰</div><h3>Dynamic Pricing</h3><p>AI-driven rate optimization based on demand, events, time-of-day, and competitor pricing.</p></div>
+    <div class="feat"><div class="icon">📡</div><h3>IoT Occupancy</h3><p>Real-time sensor data showing space availability across every lot, level, and zone.</p></div>
+    <div class="feat"><div class="icon">💳</div><h3>Payment Processing</h3><p>Stripe-powered payments with support for cards, mobile wallets, and monthly invoicing.</p></div>
+    <div class="feat"><div class="icon">📊</div><h3>Revenue Analytics</h3><p>Dashboards with MTD/YTD revenue, occupancy trends, booking patterns, and overstay reports.</p></div>
+    <div class="feat"><div class="icon">🔧</div><h3>Facility Management</h3><p>Descriptor files, rate tables, capacity configs, and operating hours — all from one admin panel.</p></div>
+    <div class="feat"><div class="icon">🏢</div><h3>Multi-Tenant</h3><p>Global Admin provisions operators, each with their own Local Admin, facilities, rates, and branding.</p></div>
+    <div class="feat"><div class="icon">🔐</div><h3>Enterprise Security</h3><p>SOC 2 Type II, AES-256 encryption, role-based access, and complete audit trail.</p></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" style="background:#F7FAFC">
+  <h2 style="text-align:center;font-size:26px;margin-bottom:4px">How It <span style="color:var(--teal)">Works</span></h2>
+  <p style="text-align:center;color:#718096;font-size:13px">From sign-up to revenue in four steps</p>
+  <div class="steps">
+    <div class="step"><div class="num">1</div><h3>Sign Up</h3><p>Create your account and start your 15-day free trial. No credit card required.</p></div>
+    <div class="step"><div class="num">2</div><h3>Configure</h3><p>Add your facilities, set rates, upload capacity data, and configure payment processing.</p></div>
+    <div class="step"><div class="num">3</div><h3>Go Live</h3><p>Customers find your lots, book spaces, and pay — all through the UniPark platform.</p></div>
+    <div class="step"><div class="num">4</div><h3>Grow</h3><p>Monitor analytics, optimize pricing, and scale to new locations as revenue grows.</p></div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <h2 style="text-align:center;font-size:26px;margin-bottom:4px"><span style="color:var(--teal)">Simple</span> Pricing</h2>
+  <p style="text-align:center;color:#718096;font-size:13px">15-day free trial on all plans. No credit card required.</p>
+  <div class="pricing-grid">
+    <div class="plan">
+      <h3>Starter</h3>
+      <div class="price">$199<span>/mo</span></div>
+      <ul><li>Up to 3 facilities</li><li>Online booking</li><li>Basic analytics</li><li>Email support</li><li>Stripe payments</li></ul>
+      <a class="btn btn-out" href="#demo" style="width:100%;text-align:center">Start Free Trial</a>
+    </div>
+    <div class="plan pop">
+      <h3>Professional</h3>
+      <div class="price">$499<span>/mo</span></div>
+      <ul><li>Up to 15 facilities</li><li>Dynamic pricing AI</li><li>IoT sensor integration</li><li>Priority support</li><li>Custom branding</li></ul>
+      <a class="btn btn-pri" href="#demo" style="width:100%;text-align:center">Start Free Trial</a>
+    </div>
+    <div class="plan">
+      <h3>Enterprise</h3>
+      <div class="price">Custom</div>
+      <ul><li>Unlimited facilities</li><li>Dedicated account manager</li><li>API access</li><li>SLA guarantee</li><li>White-label option</li></ul>
+      <a class="btn btn-out" href="#contact" style="width:100%;text-align:center">Contact Sales</a>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section>
+  <div class="testimonials">
+    <h2 style="text-align:center;font-size:22px">What Operators Are <span style="color:var(--teal)">Saying</span></h2>
+    <div class="tgrid">
+      <div class="tcard"><q>UniPark increased our downtown lot revenue by 38% in the first quarter. The dynamic pricing alone paid for the platform.</q><div class="tauth">Marcus Reynolds</div><div class="trole">VP Operations, Metro Parking Group</div></div>
+      <div class="tcard"><q>We went from spreadsheets to real-time dashboards overnight. The onboarding was painless and the support team is incredibly responsive.</q><div class="tauth">Sarah Chen</div><div class="trole">Director, Lakeside Parking Authority</div></div>
+      <div class="tcard"><q>The IoT integration gives us visibility we never had. We can see occupancy across 12 lots in real time from one screen.</q><div class="tauth">David Thompson</div><div class="trole">CTO, ParkWise Solutions</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <h2 style="text-align:center;font-size:22px;margin-bottom:4px">Get <span style="color:var(--teal)">Started</span></h2>
+  <p style="text-align:center;color:#718096;font-size:13px">Request a demo or start your free trial today</p>
+  <div class="contact-form">
+    <input type="text" placeholder="Full Name">
+    <input type="email" placeholder="Work Email">
+    <input type="text" placeholder="Company">
+    <select><option>1-5 facilities</option><option>6-15 facilities</option><option>16-50 facilities</option><option>50+ facilities</option></select>
+    <textarea placeholder="Tell us about your parking operations..."></textarea>
+    <button class="btn btn-pri" style="width:100%;padding:12px;font-size:14px;border:none;cursor:pointer">Request Demo</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div style="margin-bottom:8px">
+    <svg viewBox="0 0 200 210" width="20" height="22" style="vertical-align:middle;margin-right:6px"><defs><linearGradient id="fa" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1B2A4A"/><stop offset="100%" stop-color="#2B4C6F"/></linearGradient><linearGradient id="fb" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#E8952E"/><stop offset="100%" stop-color="#F5A623"/></linearGradient></defs><path d="M100,10 L180,40 L180,130 Q100,185 20,130 L20,40 Z" fill="url(#fa)"/><text x="100" y="112" text-anchor="middle" fill="url(#fb)" font-family="Georgia,serif" font-size="66" font-weight="bold">P</text><circle cx="100" cy="192" r="6" fill="#E8952E"/></svg>
+    <span style="font-family:Montserrat;font-weight:800;color:#FFF">Uni<span style="color:#2BA4B5">Park</span></span>
+  </div>
+  <div style="margin-bottom:6px">A product of <a href="https://www.answerpoint.com">The AnswerPoint LLC</a> · Cleveland, Ohio</div>
+  <div>© 2026 Universal Parking Systems. All rights reserved. · <a href="#">Privacy</a> · <a href="#">Terms</a></div>
+</footer>
+</body></html>

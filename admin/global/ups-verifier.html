@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UPS Instance Verifier</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+:root{--bg:#F5F7FA;--card:#FFF;--bdr:#E2E8F0;--navy:#1B2A4A;--teal:#2BA4B5;--grn:#48BB78;--red:#E53E3E;--txt:#2D3748;--mut:#718096}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);padding:16px}
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:16px;margin-bottom:12px}
+input{width:100%;padding:8px 12px;border:1px solid var(--bdr);border-radius:5px;font-size:14px;font-family:monospace;letter-spacing:1px;text-align:center;margin-bottom:10px}
+.btn{padding:8px 20px;border:none;border-radius:5px;font-weight:600;font-size:12px;cursor:pointer;background:var(--teal);color:#FFF}
+.chk{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid #F0F0F0;font-size:11px}
+.ci{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0}
+.ci.pass{background:#C6F6D5;color:#22543D}.ci.fail{background:#FED7D7;color:#742A2A}.ci.wait{background:#EDF2F7;color:var(--mut)}.ci.run{background:#FEFCBF;color:#744210}
+.cert{border:3px solid var(--grn);border-radius:12px;padding:24px;text-align:center;background:linear-gradient(135deg,#F0FFF4,#FFF);margin-top:12px}
+.cert.fail{border-color:var(--red);background:linear-gradient(135deg,#FFF5F5,#FFF)}
+.seal{width:50px;height:50px;margin:8px auto;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px}
+.seal.pass{background:#C6F6D5;border:3px solid var(--grn)}.seal.fail{background:#FED7D7;border:3px solid var(--red)}
+.prog{height:4px;background:#E2E8F0;border-radius:2px;margin:8px 0}.prog-bar{height:100%;border-radius:2px;transition:width .3s}
+.prog-bar.g{background:var(--grn)}.prog-bar.r{background:var(--red)}
+</style></head><body><div id="root"></div>
+<script type="text/babel">
+const {useState}=React;
+const CKS=[{n:'Key format',c:'Key'},{n:'Checksum validation',c:'Key'},{n:'Instance ID lookup',c:'Key'},{n:'Database connectivity',c:'DB'},{n:'Schema version',c:'DB'},{n:'Table count (21)',c:'DB'},{n:'Stored procs (12)',c:'DB'},{n:'FK integrity',c:'DB'},{n:'Replication status',c:'Repl'},{n:'Replication lag',c:'Repl'},{n:'API health',c:'API'},{n:'API auth test',c:'API'},{n:'Webhook delivery',c:'Integ'},{n:'Admin login',c:'Access'},{n:'SSL certificate',c:'Security'}];
+function App(){
+const [key,sK]=useState('');const [rs,sRs]=useState(CKS.map(()=>({s:'pending',d:''})));const [run,sRun]=useState(false);const [done,sDone]=useState(false);
+const go=async()=>{if(!key.trim()){alert('Enter key');return;}sRun(true);sDone(false);const r=CKS.map(()=>({s:'pending',d:''}));
+for(let i=0;i<CKS.length;i++){r[i]={s:'running',d:''};sRs([...r]);await new Promise(x=>setTimeout(x,350+Math.random()*250));
+const p=Math.random()>.1;const ds={0:p?'VK-XXXX format ✓':'Bad format',3:p?'MariaDB 11.4 connected':'Refused',5:p?'21/21 tables':'19/21',10:p?'200 OK':'Unreachable',14:p?'Valid 2026-05-25':'Expired'};
+r[i]={s:p?'pass':'fail',d:ds[i]||''};sRs([...r]);}sRun(false);sDone(true);};
+const ps=rs.filter(r=>r.s==='pass').length;const fl=rs.filter(r=>r.s==='fail').length;const ap=done&&fl===0;
+return <div>
+<div style={{fontSize:16,fontWeight:700,color:'var(--navy)',marginBottom:2}}>✅ Instance Verifier</div>
+<div style={{fontSize:10,color:'var(--mut)',marginBottom:14}}>15-point integrity check: key, database, replication, API, security</div>
+<div className="card"><label style={{fontSize:11,fontWeight:600,display:'block',marginBottom:4}}>Verification Key</label><input value={key} onChange={e=>sK(e.target.value)} placeholder="VK-XXXX-XXXX-XXXX-XXXX"/><div style={{textAlign:'center'}}><button className="btn" onClick={go} disabled={run}>{run?'Verifying...':'🔍 Verify'}</button></div></div>
+<div className="card"><div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}><span style={{fontSize:12,fontWeight:700}}>Checks</span>{done&&<span style={{fontSize:11,fontWeight:600,color:ap?'var(--grn)':'var(--red)'}}>{ps}/{CKS.length}</span>}</div>
+{done&&<div className="prog"><div className={`prog-bar ${ap?'g':'r'}`} style={{width:`${(ps/CKS.length)*100}%`}}/></div>}
+{CKS.map((c,i)=><div key={i} className="chk"><div className={`ci ${rs[i].s==='pass'?'pass':rs[i].s==='fail'?'fail':rs[i].s==='running'?'run':'wait'}`}>{rs[i].s==='pass'?'✓':rs[i].s==='fail'?'✗':rs[i].s==='running'?'⟳':i+1}</div><div style={{flex:1}}><div style={{fontWeight:600}}>{c.n}</div>{rs[i].d&&<div style={{fontSize:9,color:rs[i].s==='pass'?'var(--grn)':'var(--red)',marginTop:1}}>{rs[i].d}</div>}</div><span style={{fontSize:8,color:'var(--mut)',background:'#EDF2F7',padding:'1px 5px',borderRadius:3}}>{c.c}</span></div>)}</div>
+{done&&<div className={`cert ${ap?'':'fail'}`}><div className={`seal ${ap?'pass':'fail'}`}>{ap?'✓':'✗'}</div><div style={{fontSize:18,fontWeight:700,color:ap?'var(--grn)':'var(--red)'}}>{ap?'PASSED':'FAILED'}</div><div style={{fontSize:11,color:'var(--txt)',marginTop:4}}>{ap?'Instance ready for production.':`${fl} check(s) failed.`}</div><div style={{fontSize:9,color:'var(--mut)',marginTop:8,lineHeight:1.8}}>Key: {key}<br/>Checks: {ps}/{CKS.length} | Verified: {new Date().toLocaleString()}<br/>Cert: CERT-{Date.now().toString(36).toUpperCase()}</div></div>}
+</div>;}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script></body></html>

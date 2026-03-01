@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><path d='M18 2L32 9V23L18 34L4 23V9Z' fill='%231B2A4A'/><text x='18' y='20' text-anchor='middle' font-family='sans-serif' font-weight='800' font-size='12' fill='white'>P</text><circle cx='18' cy='29.5' r='2.5' fill='%23E8883E'/></svg>">
+<title>UniPark — Client Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#F4F6F8;--sidebar:#1B2A4A;--card:#FFF;
+--navy:#1B2A4A;--teal:#3BA0B5;--org:#E8883E;--gold:#D4A843;
+--slate:#2B4C6F;--slate-l:#3B6A9A;--slate-d:#1E3A56;
+--red:#DC2626;--green:#22C55E;--blue:#3B82F6;--purple:#8B5CF6;--amber:#F59E0B;
+--text:#1B2A4A;--muted:#64748B;--light:#94A3B8;--border:#E2E8F0;
+--radius:10px;--shadow:0 1px 3px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.04);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+h1,h2,h3,h4,h5{font-family:'Montserrat',sans-serif}
+.sb{width:240px;margin-top:36px;background:var(--sidebar);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50}
+.sb-brand{padding:18px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-brand svg{width:32px;height:32px;flex-shrink:0}
+.sb-brand-text{display:flex;flex-direction:column}
+.sb-brand-name{font-family:'Montserrat';font-weight:800;font-size:16px}
+.sb-brand-badge{font-size:8px;font-weight:700;background:var(--slate);color:#fff;padding:2px 6px;border-radius:3px;letter-spacing:.8px;width:fit-content;margin-top:2px}
+.sb-nav{flex:1;padding:12px 8px;overflow-y:auto}
+.sb-section{font-size:9px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:1px;text-transform:uppercase;padding:12px 12px 6px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:500;color:rgba(255,255,255,.6);cursor:pointer;transition:.15s;margin-bottom:1px}
+.sb-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.9)}
+.sb-item.active{background:rgba(43,76,111,.3);color:var(--slate-l)}
+.sb-item .icon{width:18px;text-align:center;font-size:14px;flex-shrink:0}
+.sb-item .badge{margin-left:auto;font-size:10px;font-weight:700;background:var(--slate);color:#fff;padding:1px 6px;border-radius:10px}
+.sb-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.sb-avatar{width:32px;height:32px;border-radius:50%;background:var(--slate);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0}
+.sb-user{font-size:12px;font-weight:600;color:rgba(255,255,255,.8)}.sb-role{font-size:10px;color:rgba(255,255,255,.4)}
+.sb-company{font-size:9px;color:var(--slate-l);font-weight:600;margin-top:1px}
+.main{margin-left:240px;margin-top:36px;flex:1;min-height:100vh}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
+.topbar h1{font-size:18px;font-weight:700}
+.topbar-actions{display:flex;align-items:center;gap:12px}
+.content{padding:20px 24px}
+.grid{display:grid;gap:16px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}.g4{grid-template-columns:1fr 1fr 1fr 1fr}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-header h3{font-size:14px;font-weight:700}
+.card-header .link{font-size:12px;color:var(--slate-l);font-weight:600;cursor:pointer}
+.stat{text-align:center;padding:20px 16px}
+.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:18px}
+.si-teal{background:rgba(59,160,181,.1);color:var(--teal)}.si-org{background:rgba(232,136,62,.1);color:var(--org)}.si-green{background:rgba(34,197,94,.1);color:var(--green)}.si-red{background:rgba(220,38,38,.1);color:var(--red)}.si-blue{background:rgba(59,130,246,.1);color:var(--blue)}.si-slate{background:rgba(43,76,111,.1);color:var(--slate)}.si-gold{background:rgba(212,168,67,.1);color:var(--gold)}.si-amber{background:rgba(245,158,11,.1);color:var(--amber)}
+.stat-val{font-family:'Montserrat';font-size:24px;font-weight:800}
+.stat-label{font-size:11px;color:var(--muted);margin-top:2px}
+.stat-delta{font-size:10px;font-weight:600;margin-top:4px}.delta-up{color:var(--green)}.delta-down{color:var(--red)}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:8px 10px;border-bottom:2px solid var(--border)}
+.tbl td{padding:10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tr:hover{background:rgba(43,76,111,.02)}
+.pill{font-size:10px;font-weight:600;padding:3px 10px;border-radius:100px;display:inline-block}
+.pill-green{background:#DCFCE7;color:#16A34A}.pill-red{background:#FEE2E2;color:var(--red)}.pill-amber{background:#FEF3C7;color:#D97706}.pill-blue{background:#DBEAFE;color:#2563EB}.pill-gray{background:#F1F5F9;color:var(--muted)}.pill-slate{background:rgba(43,76,111,.1);color:var(--slate)}
+.inner-tabs{display:flex;gap:2px;background:var(--bg);border-radius:8px;padding:3px;margin-bottom:16px;border:1px solid var(--border)}
+.inner-tab{padding:7px 14px;font-size:12px;font-weight:600;border-radius:6px;cursor:pointer;color:var(--muted);transition:.15s}
+.inner-tab:hover{color:var(--text)}.inner-tab.active{background:var(--card);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.bar-label{font-size:11px;width:100px;text-align:right;color:var(--muted);font-weight:500}
+.bar-track{flex:1;height:20px;background:var(--bg);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:.6s}
+.bar-val{font-size:11px;font-weight:700;width:60px}
+.panel{display:none}.panel.active{display:block}
+.mono{font-family:'JetBrains Mono',monospace;font-size:11px}
+.flex{display:flex;align-items:center;gap:8px}
+.sep{height:1px;background:var(--border);margin:16px 0}
+.btn-sm{padding:5px 12px;font-size:11px;font-weight:600;border-radius:6px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-family:'DM Sans';transition:.15s}
+.btn-sm:hover{border-color:var(--slate);color:var(--slate)}
+.btn-primary{background:var(--slate);color:#fff;border:none;padding:8px 16px;border-radius:8px;font-family:'Montserrat';font-weight:700;font-size:12px;cursor:pointer;transition:.2s}
+.btn-primary:hover{background:var(--slate-d)}
+.input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans';outline:none}
+.input:focus{border-color:var(--slate)}
+.label{font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px}
+/* FACILITY CARDS */
+.fac-card{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--card);transition:.2s}
+.fac-card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+.fac-header{padding:16px;background:linear-gradient(135deg,var(--navy),var(--slate));color:#fff;position:relative}
+.fac-header h4{font-size:15px;font-weight:700}
+.fac-header .fac-type{font-size:10px;font-weight:600;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:4px;position:absolute;top:12px;right:12px}
+.fac-body{padding:16px}
+.fac-stat-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0}
+.fac-stat-row span:last-child{font-weight:700}
+@media(max-width:900px){.sb{display:none}.main{margin-left:0}}
+</style>
+<script src="/app/js/apms-error-handler.js"></script>
+<script>APMSErrorHandler.init({product:'unipark',module:'client'});</script>
+</head>
+<body>
+<!-- CROSS NAV -->
+<nav id="xnav" style="background:#0F1A2E;padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:36px;position:fixed;top:0;left:0;right:0;z-index:9999;font-family:'DM Sans',sans-serif">
+<div style="display:flex;align-items:center;gap:10px">
+<a href="/app/" style="color:rgba(255,255,255,.6);font-size:11px;text-decoration:none;font-weight:600">← Dashboard</a>
+<span style="color:rgba(255,255,255,.1)">|</span>
+<a href="/admin/global/" class="xn" style="color:rgba(255,255,255,.45);font-size:11px;text-decoration:none;padding:3px 8px;border-radius:4px;transition:.15s">Global Admin</a>
+<a href="/admin/local/" class="xn" style="color:rgba(255,255,255,.45);font-size:11px;text-decoration:none;padding:3px 8px;border-radius:4px;transition:.15s">Local Admin</a>
+<a href="/portal/consumer/" class="xn" style="color:rgba(255,255,255,.45);font-size:11px;text-decoration:none;padding:3px 8px;border-radius:4px;transition:.15s">Consumer</a>
+<a href="/portal/client/" class="xn" style="color:rgba(255,255,255,.45);font-size:11px;text-decoration:none;padding:3px 8px;border-radius:4px;transition:.15s" style="color:#fff!important;background:rgba(59,160,181,.2);font-size:11px;text-decoration:none;padding:3px 8px;border-radius:4px">Client</a>
+</div>
+<a href="/login/" style="color:rgba(255,255,255,.35);font-size:10px;text-decoration:none;font-weight:500">Sign Out</a>
+</nav>
+<style>#xnav .xn:hover{color:#fff!important;background:rgba(255,255,255,.08)}</style>
+
+
+<aside class="sb">
+<div class="sb-brand">
+<svg viewBox="0 0 36 36" fill="none"><path d="M18 2L32 9V23L18 34L4 23V9L18 2Z" fill="#1B2A4A" stroke="#3BA0B5" stroke-width="1.2"/><text x="18" y="20" text-anchor="middle" font-family="Montserrat" font-weight="800" font-size="12" fill="#FFF">P</text><circle cx="18" cy="29.5" r="2.5" fill="#E8883E" stroke="#1B2A4A" stroke-width="1"/></svg>
+<div class="sb-brand-text"><span class="sb-brand-name">UniPark</span><span class="sb-brand-badge">CLIENT</span></div>
+</div>
+<nav class="sb-nav">
+<div class="sb-section">Overview</div>
+<div class="sb-item active" onclick="showPanel('dashboard')"><span class="icon">📊</span> Dashboard</div>
+<div class="sb-section">Portfolio</div>
+<div class="sb-item" onclick="showPanel('facilities')"><span class="icon">🏢</span> My Facilities <span class="badge">8</span></div>
+<div class="sb-item" onclick="showPanel('bookings')"><span class="icon">📋</span> Bookings</div>
+<div class="sb-item" onclick="showPanel('occupancy')"><span class="icon">🅿️</span> Occupancy</div>
+<div class="sb-section">Financial</div>
+<div class="sb-item" onclick="showPanel('revenue')"><span class="icon">💰</span> Revenue</div>
+<div class="sb-item" onclick="showPanel('payouts')"><span class="icon">🏦</span> Payouts</div>
+<div class="sb-item" onclick="showPanel('invoices')"><span class="icon">📄</span> Invoices</div>
+<div class="sb-section">Settings</div>
+<div class="sb-item" onclick="showPanel('descriptors')"><span class="icon">📝</span> Descriptors</div>
+<div class="sb-item" onclick="showPanel('reports')"><span class="icon">📈</span> Reports</div>
+<div class="sb-item" onclick="showPanel('account')"><span class="icon">⚙️</span> Account</div>
+<div class="sb-item" onclick="showPanel('support')"><span class="icon">❓</span> Support</div>
+</nav>
+<div class="sb-footer">
+<div class="sb-avatar">JT</div>
+<div><div class="sb-user">James Torres</div><div class="sb-role">Facility Owner</div><div class="sb-company">ParkRight Solutions</div></div>
+</div>
+</aside>
+
+<div class="main">
+<div class="topbar">
+<div><h1 id="pageTitle">Dashboard</h1><div style="font-size:11px;color:var(--muted);margin-top:2px">ParkRight Solutions · Professional Plan · 12 facilities · 3,100 spots</div></div>
+<div class="topbar-actions"><span class="pill pill-green" style="font-size:11px">Plan: Professional</span><button class="btn-primary">Upgrade Plan</button></div>
+</div>
+<div class="content">
+
+<!-- DASHBOARD -->
+<div class="panel active" id="p-dashboard">
+<div class="grid g4" style="margin-bottom:16px">
+<div class="card stat"><div class="stat-icon si-slate">🏢</div><div class="stat-val">12</div><div class="stat-label">Active Facilities</div></div>
+<div class="card stat"><div class="stat-icon si-teal">🅿️</div><div class="stat-val">3,100</div><div class="stat-label">Total Spots</div><div class="stat-delta delta-up">↑ 200 added</div></div>
+<div class="card stat"><div class="stat-icon si-green">💰</div><div class="stat-val">$84,200</div><div class="stat-label">Revenue (This Month)</div><div class="stat-delta delta-up">↑ 11.2% MoM</div></div>
+<div class="card stat"><div class="stat-icon si-blue">📊</div><div class="stat-val">72%</div><div class="stat-label">Avg. Occupancy</div><div class="stat-delta delta-up">↑ 4.1%</div></div>
+</div>
+<div class="grid g2" style="margin-bottom:16px">
+<div class="card">
+<div class="card-header"><h3>Revenue by Facility (Top 5)</h3><span class="link">View All</span></div>
+<div class="bar-row"><span class="bar-label">Main St Garage</span><div class="bar-track"><div class="bar-fill" style="width:88%;background:var(--slate)"></div></div><span class="bar-val">$22,400</span></div>
+<div class="bar-row"><span class="bar-label">Oak Ave Deck</span><div class="bar-track"><div class="bar-fill" style="width:72%;background:var(--slate)"></div></div><span class="bar-val">$18,200</span></div>
+<div class="bar-row"><span class="bar-label">Central Lot A</span><div class="bar-track"><div class="bar-fill" style="width:58%;background:var(--teal)"></div></div><span class="bar-val">$14,800</span></div>
+<div class="bar-row"><span class="bar-label">Elm St Surface</span><div class="bar-track"><div class="bar-fill" style="width:42%;background:var(--teal)"></div></div><span class="bar-val">$10,600</span></div>
+<div class="bar-row"><span class="bar-label">Harbor Lot</span><div class="bar-track"><div class="bar-fill" style="width:34%;background:var(--org)"></div></div><span class="bar-val">$8,700</span></div>
+</div>
+<div class="card">
+<div class="card-header"><h3>Occupancy Trends (7 Days)</h3></div>
+<div class="bar-row"><span class="bar-label">Monday</span><div class="bar-track"><div class="bar-fill" style="width:74%;background:var(--slate)"></div></div><span class="bar-val">74%</span></div>
+<div class="bar-row"><span class="bar-label">Tuesday</span><div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--slate)"></div></div><span class="bar-val">78%</span></div>
+<div class="bar-row"><span class="bar-label">Wednesday</span><div class="bar-track"><div class="bar-fill" style="width:76%;background:var(--slate)"></div></div><span class="bar-val">76%</span></div>
+<div class="bar-row"><span class="bar-label">Thursday</span><div class="bar-track"><div class="bar-fill" style="width:72%;background:var(--teal)"></div></div><span class="bar-val">72%</span></div>
+<div class="bar-row"><span class="bar-label">Friday</span><div class="bar-track"><div class="bar-fill" style="width:82%;background:var(--org)"></div></div><span class="bar-val">82%</span></div>
+<div class="bar-row"><span class="bar-label">Saturday</span><div class="bar-track"><div class="bar-fill" style="width:65%;background:var(--teal)"></div></div><span class="bar-val">65%</span></div>
+<div class="bar-row"><span class="bar-label">Sunday</span><div class="bar-track"><div class="bar-fill" style="width:48%;background:var(--amber)"></div></div><span class="bar-val">48%</span></div>
+</div>
+</div>
+<div class="card">
+<div class="card-header"><h3>Recent Bookings</h3><span class="link">View All</span></div>
+<table class="tbl"><thead><tr><th>Time</th><th>Facility</th><th>Spot</th><th>Consumer</th><th>Duration</th><th>Amount</th><th>Status</th></tr></thead><tbody>
+<tr><td class="mono">10:42 AM</td><td>Main St Garage</td><td>M2-118</td><td>Anna Lee</td><td>4h</td><td>$28.00</td><td><span class="pill pill-green">Active</span></td></tr>
+<tr><td class="mono">10:38 AM</td><td>Oak Ave Deck</td><td>O3-44</td><td>Rob Martinez</td><td>2h</td><td>$14.00</td><td><span class="pill pill-green">Active</span></td></tr>
+<tr><td class="mono">10:31 AM</td><td>Central Lot A</td><td>S-22</td><td>Walk-in</td><td>—</td><td>$5/hr</td><td><span class="pill pill-blue">In Progress</span></td></tr>
+<tr><td class="mono">10:22 AM</td><td>Elm St Surface</td><td>S-08</td><td>Diane Park</td><td>8h</td><td>$32.00</td><td><span class="pill pill-blue">Upcoming</span></td></tr>
+<tr><td class="mono">10:15 AM</td><td>Main St Garage</td><td>M1-042</td><td>Chris Wang</td><td>3h</td><td>$21.00</td><td><span class="pill pill-amber">Overstay</span></td></tr>
+</tbody></table>
+</div>
+</div>
+
+<!-- FACILITIES -->
+<div class="panel" id="p-facilities">
+<div class="inner-tabs"><div class="inner-tab active" onclick="switchInner(this)">All</div><div class="inner-tab" onclick="switchInner(this)">Garages</div><div class="inner-tab" onclick="switchInner(this)">Surface Lots</div><div class="inner-tab" onclick="switchInner(this)">Valet</div></div>
+<div class="grid g3">
+<div class="fac-card"><div class="fac-header"><h4>Main Street Garage</h4><span class="fac-type">Garage</span></div><div class="fac-body"><div class="fac-stat-row"><span>Total Spots</span><span>600</span></div><div class="fac-stat-row"><span>Occupancy</span><span style="color:var(--green)">84%</span></div><div class="fac-stat-row"><span>Revenue (MTD)</span><span>$22,400</span></div><div class="fac-stat-row"><span>EV Spots</span><span>12</span></div><div class="fac-stat-row"><span>Sensors</span><span style="color:var(--green)">All Online</span></div><div style="margin-top:10px"><button class="btn-primary" style="width:100%">Manage</button></div></div></div>
+<div class="fac-card"><div class="fac-header" style="background:linear-gradient(135deg,var(--slate),var(--teal))"><h4>Oak Avenue Deck</h4><span class="fac-type">Garage</span></div><div class="fac-body"><div class="fac-stat-row"><span>Total Spots</span><span>450</span></div><div class="fac-stat-row"><span>Occupancy</span><span style="color:var(--green)">79%</span></div><div class="fac-stat-row"><span>Revenue (MTD)</span><span>$18,200</span></div><div class="fac-stat-row"><span>EV Spots</span><span>8</span></div><div class="fac-stat-row"><span>Sensors</span><span style="color:var(--green)">All Online</span></div><div style="margin-top:10px"><button class="btn-primary" style="width:100%">Manage</button></div></div></div>
+<div class="fac-card"><div class="fac-header" style="background:linear-gradient(135deg,var(--org),var(--gold))"><h4>Central Lot A</h4><span class="fac-type">Surface</span></div><div class="fac-body"><div class="fac-stat-row"><span>Total Spots</span><span>180</span></div><div class="fac-stat-row"><span>Occupancy</span><span style="color:var(--teal)">68%</span></div><div class="fac-stat-row"><span>Revenue (MTD)</span><span>$14,800</span></div><div class="fac-stat-row"><span>EV Spots</span><span>4</span></div><div class="fac-stat-row"><span>Sensors</span><span style="color:var(--amber)">2 Offline</span></div><div style="margin-top:10px"><button class="btn-primary" style="width:100%">Manage</button></div></div></div>
+<div class="fac-card"><div class="fac-header" style="background:linear-gradient(135deg,#2D3748,#4A5568)"><h4>Elm Street Surface</h4><span class="fac-type">Surface</span></div><div class="fac-body"><div class="fac-stat-row"><span>Total Spots</span><span>120</span></div><div class="fac-stat-row"><span>Occupancy</span><span style="color:var(--teal)">71%</span></div><div class="fac-stat-row"><span>Revenue (MTD)</span><span>$10,600</span></div><div class="fac-stat-row"><span>EV Spots</span><span>0</span></div><div class="fac-stat-row"><span>Sensors</span><span style="color:var(--green)">All Online</span></div><div style="margin-top:10px"><button class="btn-primary" style="width:100%">Manage</button></div></div></div>
+<div class="fac-card"><div class="fac-header" style="background:linear-gradient(135deg,var(--teal),#2D8295)"><h4>Harbor Parking Lot</h4><span class="fac-type">Surface</span></div><div class="fac-body"><div class="fac-stat-row"><span>Total Spots</span><span>200</span></div><div class="fac-stat-row"><span>Occupancy</span><span style="color:var(--amber)">58%</span></div><div class="fac-stat-row"><span>Revenue (MTD)</span><span>$8,700</span></div><div class="fac-stat-row"><span>EV Spots</span><span>6</span></div><div class="fac-stat-row"><span>Sensors</span><span style="color:var(--green)">All Online</span></div><div style="margin-top:10px"><button class="btn-primary" style="width:100%">Manage</button></div></div></div>
+<div class="fac-card"><div class="fac-header" style="background:linear-gradient(135deg,var(--purple),#6D28D9)"><h4>Convention Center Valet</h4><span class="fac-type">Valet</span></div><div class="fac-body"><div class="fac-stat-row"><span>Total Spots</span><span>80</span></div><div class="fac-stat-row"><span>Occupancy</span><span style="color:var(--green)">92%</span></div><div class="fac-stat-row"><span>Revenue (MTD)</span><span>$9,500</span></div><div class="fac-stat-row"><span>EV Spots</span><span>N/A</span></div><div class="fac-stat-row"><span>Sensors</span><span style="color:var(--muted)">N/A</span></div><div style="margin-top:10px"><button class="btn-primary" style="width:100%">Manage</button></div></div></div>
+</div>
+</div>
+
+<!-- BOOKINGS -->
+<div class="panel" id="p-bookings">
+<div class="inner-tabs"><div class="inner-tab active" onclick="switchInner(this)">Active</div><div class="inner-tab" onclick="switchInner(this)">Upcoming</div><div class="inner-tab" onclick="switchInner(this)">Completed</div><div class="inner-tab" onclick="switchInner(this)">Cancelled</div></div>
+<div class="grid g3" style="margin-bottom:16px">
+<div class="card stat"><div class="stat-icon si-green">✅</div><div class="stat-val">186</div><div class="stat-label">Active Now</div></div>
+<div class="card stat"><div class="stat-icon si-blue">📅</div><div class="stat-val">412</div><div class="stat-label">Upcoming (7d)</div></div>
+<div class="card stat"><div class="stat-icon si-amber">⚠️</div><div class="stat-val">8</div><div class="stat-label">Overstays</div></div>
+</div>
+<div class="card">
+<table class="tbl"><thead><tr><th>ID</th><th>Facility</th><th>Spot</th><th>Consumer</th><th>Window</th><th>Amount</th><th>Status</th></tr></thead><tbody>
+<tr><td class="mono">R-4821</td><td>Main St Garage</td><td>M2-118</td><td>Anna Lee</td><td>10:00 AM – 2:00 PM</td><td>$28.00</td><td><span class="pill pill-green">Active</span></td></tr>
+<tr><td class="mono">R-4820</td><td>Oak Ave Deck</td><td>O3-44</td><td>Rob Martinez</td><td>10:00 AM – 12:00 PM</td><td>$14.00</td><td><span class="pill pill-green">Active</span></td></tr>
+<tr><td class="mono">R-4818</td><td>Main St Garage</td><td>M1-042</td><td>Chris Wang</td><td>7:00 AM – 10:00 AM</td><td>$21.00</td><td><span class="pill pill-amber">Overstay (+42m)</span></td></tr>
+<tr><td class="mono">R-4815</td><td>Harbor Lot</td><td>S-44</td><td>Emily Zhang</td><td>11:00 AM – 3:00 PM</td><td>$20.00</td><td><span class="pill pill-blue">Upcoming</span></td></tr>
+<tr><td class="mono">R-4812</td><td>Elm St Surface</td><td>S-08</td><td>Diane Park</td><td>12:00 PM – 8:00 PM</td><td>$32.00</td><td><span class="pill pill-blue">Upcoming</span></td></tr>
+</tbody></table>
+</div>
+</div>
+
+<!-- OCCUPANCY -->
+<div class="panel" id="p-occupancy">
+<div class="card">
+<div class="card-header"><h3>Real-Time Occupancy</h3><span class="link">Refresh</span></div>
+<table class="tbl"><thead><tr><th>Facility</th><th>Type</th><th>Total</th><th>Occupied</th><th>Available</th><th style="width:200px">Occupancy</th><th>Trend</th></tr></thead><tbody>
+<tr><td><strong>Main St Garage</strong></td><td>Garage</td><td>600</td><td>504</td><td>96</td><td><div class="bar-track" style="height:12px"><div class="bar-fill" style="width:84%;background:var(--green);height:100%"></div></div></td><td style="color:var(--green);font-weight:700">84% ↑</td></tr>
+<tr><td><strong>Oak Ave Deck</strong></td><td>Garage</td><td>450</td><td>356</td><td>94</td><td><div class="bar-track" style="height:12px"><div class="bar-fill" style="width:79%;background:var(--teal);height:100%"></div></div></td><td style="color:var(--teal);font-weight:700">79% →</td></tr>
+<tr><td><strong>Central Lot A</strong></td><td>Surface</td><td>180</td><td>122</td><td>58</td><td><div class="bar-track" style="height:12px"><div class="bar-fill" style="width:68%;background:var(--org);height:100%"></div></div></td><td style="color:var(--org);font-weight:700">68% ↓</td></tr>
+<tr><td><strong>Elm St Surface</strong></td><td>Surface</td><td>120</td><td>85</td><td>35</td><td><div class="bar-track" style="height:12px"><div class="bar-fill" style="width:71%;background:var(--teal);height:100%"></div></div></td><td style="color:var(--teal);font-weight:700">71% ↑</td></tr>
+<tr><td><strong>Harbor Lot</strong></td><td>Surface</td><td>200</td><td>116</td><td>84</td><td><div class="bar-track" style="height:12px"><div class="bar-fill" style="width:58%;background:var(--amber);height:100%"></div></div></td><td style="color:var(--amber);font-weight:700">58% →</td></tr>
+<tr><td><strong>Convention Valet</strong></td><td>Valet</td><td>80</td><td>74</td><td>6</td><td><div class="bar-track" style="height:12px"><div class="bar-fill" style="width:92%;background:var(--green);height:100%"></div></div></td><td style="color:var(--green);font-weight:700">92% ↑</td></tr>
+</tbody></table>
+</div>
+</div>
+
+<!-- REVENUE -->
+<div class="panel" id="p-revenue">
+<div class="inner-tabs"><div class="inner-tab active" onclick="switchInner(this)">Overview</div><div class="inner-tab" onclick="switchInner(this)">By Facility</div><div class="inner-tab" onclick="switchInner(this)">By Source</div></div>
+<div class="grid g4" style="margin-bottom:16px">
+<div class="card stat"><div class="stat-icon si-green">💰</div><div class="stat-val">$84,200</div><div class="stat-label">This Month</div><div class="stat-delta delta-up">↑ 11.2%</div></div>
+<div class="card stat"><div class="stat-icon si-slate">📅</div><div class="stat-val">$72,800</div><div class="stat-label">Last Month</div></div>
+<div class="card stat"><div class="stat-icon si-gold">📊</div><div class="stat-val">$27.14</div><div class="stat-label">Avg. Transaction</div></div>
+<div class="card stat"><div class="stat-icon si-teal">🔄</div><div class="stat-val">3,102</div><div class="stat-label">Transactions (MTD)</div></div>
+</div>
+<div class="grid g2">
+<div class="card">
+<div class="card-header"><h3>Revenue by Source</h3></div>
+<div class="bar-row"><span class="bar-label">Reservations</span><div class="bar-track"><div class="bar-fill" style="width:58%;background:var(--slate)"></div></div><span class="bar-val">$48,800</span></div>
+<div class="bar-row"><span class="bar-label">Walk-ins</span><div class="bar-track"><div class="bar-fill" style="width:26%;background:var(--teal)"></div></div><span class="bar-val">$21,900</span></div>
+<div class="bar-row"><span class="bar-label">Monthly Pass</span><div class="bar-track"><div class="bar-fill" style="width:10%;background:var(--org)"></div></div><span class="bar-val">$8,400</span></div>
+<div class="bar-row"><span class="bar-label">Overstay Fees</span><div class="bar-track"><div class="bar-fill" style="width:4%;background:var(--amber)"></div></div><span class="bar-val">$3,200</span></div>
+<div class="bar-row"><span class="bar-label">EV Charging</span><div class="bar-track"><div class="bar-fill" style="width:2%;background:var(--green)"></div></div><span class="bar-val">$1,900</span></div>
+</div>
+<div class="card">
+<div class="card-header"><h3>Monthly Revenue (6 Months)</h3></div>
+<div class="bar-row"><span class="bar-label">Sep 2025</span><div class="bar-track"><div class="bar-fill" style="width:62%;background:var(--slate)"></div></div><span class="bar-val">$58,400</span></div>
+<div class="bar-row"><span class="bar-label">Oct 2025</span><div class="bar-track"><div class="bar-fill" style="width:68%;background:var(--slate)"></div></div><span class="bar-val">$64,100</span></div>
+<div class="bar-row"><span class="bar-label">Nov 2025</span><div class="bar-track"><div class="bar-fill" style="width:65%;background:var(--slate)"></div></div><span class="bar-val">$61,200</span></div>
+<div class="bar-row"><span class="bar-label">Dec 2025</span><div class="bar-track"><div class="bar-fill" style="width:72%;background:var(--teal)"></div></div><span class="bar-val">$67,800</span></div>
+<div class="bar-row"><span class="bar-label">Jan 2026</span><div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--teal)"></div></div><span class="bar-val">$72,800</span></div>
+<div class="bar-row"><span class="bar-label">Feb 2026</span><div class="bar-track"><div class="bar-fill" style="width:89%;background:var(--green)"></div></div><span class="bar-val">$84,200</span></div>
+</div>
+</div>
+</div>
+
+<!-- PAYOUTS -->
+<div class="panel" id="p-payouts">
+<div class="grid g3" style="margin-bottom:16px">
+<div class="card stat"><div class="stat-icon si-green">🏦</div><div class="stat-val">$68,400</div><div class="stat-label">Paid Out (MTD)</div></div>
+<div class="card stat"><div class="stat-icon si-amber">⏳</div><div class="stat-val">$12,800</div><div class="stat-label">Pending</div></div>
+<div class="card stat"><div class="stat-icon si-slate">📅</div><div class="stat-val">Feb 28</div><div class="stat-label">Next Payout Date</div></div>
+</div>
+<div class="card">
+<div class="card-header"><h3>Payout History</h3></div>
+<table class="tbl"><thead><tr><th>Date</th><th>Payout ID</th><th>Period</th><th>Gross</th><th>Fees (2.5%)</th><th>Net</th><th>Account</th><th>Status</th></tr></thead><tbody>
+<tr><td>Feb 15</td><td class="mono">PO-2026-0215</td><td>Feb 1–14</td><td>$38,200</td><td>-$955</td><td>$37,245</td><td>Chase ••4488</td><td><span class="pill pill-green">Deposited</span></td></tr>
+<tr><td>Feb 1</td><td class="mono">PO-2026-0201</td><td>Jan 16–31</td><td>$34,800</td><td>-$870</td><td>$33,930</td><td>Chase ••4488</td><td><span class="pill pill-green">Deposited</span></td></tr>
+<tr><td>Jan 15</td><td class="mono">PO-2026-0115</td><td>Jan 1–14</td><td>$36,100</td><td>-$903</td><td>$35,198</td><td>Chase ••4488</td><td><span class="pill pill-green">Deposited</span></td></tr>
+</tbody></table>
+</div>
+</div>
+
+<!-- INVOICES -->
+<div class="panel" id="p-invoices">
+<div class="card">
+<div class="card-header"><h3>Subscription Invoices</h3></div>
+<table class="tbl"><thead><tr><th>Invoice #</th><th>Period</th><th>Plan</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+<tr><td class="mono">INV-UP-0224</td><td>Feb 2026</td><td><span class="pill pill-green">Professional</span></td><td>$799.00</td><td><span class="pill pill-green">Paid</span></td><td><button class="btn-sm">Download</button></td></tr>
+<tr><td class="mono">INV-UP-0124</td><td>Jan 2026</td><td><span class="pill pill-green">Professional</span></td><td>$799.00</td><td><span class="pill pill-green">Paid</span></td><td><button class="btn-sm">Download</button></td></tr>
+<tr><td class="mono">INV-UP-1224</td><td>Dec 2025</td><td><span class="pill pill-green">Professional</span></td><td>$799.00</td><td><span class="pill pill-green">Paid</span></td><td><button class="btn-sm">Download</button></td></tr>
+<tr><td class="mono">INV-UP-1124</td><td>Nov 2025</td><td><span class="pill pill-green">Professional</span></td><td>$799.00</td><td><span class="pill pill-green">Paid</span></td><td><button class="btn-sm">Download</button></td></tr>
+</tbody></table>
+</div>
+</div>
+
+<!-- DESCRIPTORS -->
+<div class="panel" id="p-descriptors">
+<div class="card">
+<div class="card-header"><h3>Facility Descriptors</h3><button class="btn-primary">+ Add Descriptor</button></div>
+<p style="font-size:12px;color:var(--muted);margin-bottom:14px">Descriptors define the attributes, amenities, and rules for each facility. These are displayed to consumers during booking.</p>
+<table class="tbl"><thead><tr><th>Facility</th><th>Amenities</th><th>Rules</th><th>Hours</th><th>Last Updated</th><th>Actions</th></tr></thead><tbody>
+<tr><td><strong>Main St Garage</strong></td><td>EV, ♿, Covered, Security, Elevator</td><td>No oversized vehicles · 7ft clearance</td><td>24/7</td><td class="mono">Feb 20</td><td><button class="btn-sm">Edit</button></td></tr>
+<tr><td><strong>Oak Ave Deck</strong></td><td>EV, ♿, Covered, Security</td><td>No commercial vehicles</td><td>6 AM – 12 AM</td><td class="mono">Feb 18</td><td><button class="btn-sm">Edit</button></td></tr>
+<tr><td><strong>Central Lot A</strong></td><td>EV, ♿, Open Air</td><td>At own risk</td><td>24/7</td><td class="mono">Feb 15</td><td><button class="btn-sm">Edit</button></td></tr>
+<tr><td><strong>Elm St Surface</strong></td><td>♿, Open Air, Lighting</td><td>2hr max stay (weekdays)</td><td>6 AM – 10 PM</td><td class="mono">Feb 10</td><td><button class="btn-sm">Edit</button></td></tr>
+<tr><td><strong>Harbor Lot</strong></td><td>EV, ♿, Open Air, Harbor View</td><td>Seasonal rates apply</td><td>24/7</td><td class="mono">Feb 8</td><td><button class="btn-sm">Edit</button></td></tr>
+</tbody></table>
+</div>
+</div>
+
+<!-- REPORTS -->
+<div class="panel" id="p-reports">
+<div class="grid g3" style="margin-bottom:16px">
+<div class="card" style="cursor:pointer;transition:.2s" onmouseover="this.style.borderColor='var(--slate)'" onmouseout="this.style.borderColor='var(--border)'">
+<div style="font-size:24px;margin-bottom:8px">📊</div>
+<h4 style="font-size:14px;margin-bottom:4px">Portfolio Summary</h4>
+<p style="font-size:12px;color:var(--muted)">All facilities — occupancy, revenue, bookings, overstays</p>
+<div style="margin-top:10px"><button class="btn-primary">Generate</button></div>
+</div>
+<div class="card" style="cursor:pointer;transition:.2s" onmouseover="this.style.borderColor='var(--slate)'" onmouseout="this.style.borderColor='var(--border)'">
+<div style="font-size:24px;margin-bottom:8px">💰</div>
+<h4 style="font-size:14px;margin-bottom:4px">Revenue Report</h4>
+<p style="font-size:12px;color:var(--muted)">Breakdown by facility, source, and time period</p>
+<div style="margin-top:10px"><button class="btn-primary">Generate</button></div>
+</div>
+<div class="card" style="cursor:pointer;transition:.2s" onmouseover="this.style.borderColor='var(--slate)'" onmouseout="this.style.borderColor='var(--border)'">
+<div style="font-size:24px;margin-bottom:8px">📈</div>
+<h4 style="font-size:14px;margin-bottom:4px">Occupancy Analysis</h4>
+<p style="font-size:12px;color:var(--muted)">Peak hours, trends, and utilization rates</p>
+<div style="margin-top:10px"><button class="btn-primary">Generate</button></div>
+</div>
+</div>
+<div class="card">
+<div class="card-header"><h3>Saved Reports</h3></div>
+<table class="tbl"><thead><tr><th>Report</th><th>Period</th><th>Generated</th><th>Format</th><th>Actions</th></tr></thead><tbody>
+<tr><td>Portfolio Summary</td><td>January 2026</td><td class="mono">Feb 1</td><td><span class="pill pill-blue">PDF</span></td><td><button class="btn-sm">Download</button></td></tr>
+<tr><td>Revenue Report</td><td>Q4 2025</td><td class="mono">Jan 5</td><td><span class="pill pill-green">Excel</span></td><td><button class="btn-sm">Download</button></td></tr>
+</tbody></table>
+</div>
+</div>
+
+<!-- ACCOUNT -->
+<div class="panel" id="p-account">
+<div class="grid g2">
+<div class="card">
+<div class="card-header"><h3>Company Profile</h3></div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div><label class="label">Company Name</label><input class="input" value="ParkRight Solutions"></div>
+<div><label class="label">Contact Name</label><input class="input" value="James Torres"></div>
+<div><label class="label">Email</label><input class="input" value="james@parkright.com"></div>
+<div><label class="label">Phone</label><input class="input" value="(216) 555-0888"></div>
+<div><label class="label">Address</label><input class="input" value="4200 Carnegie Ave, Cleveland, OH 44103"></div>
+<button class="btn-primary" style="width:fit-content;margin-top:4px">Save Changes</button>
+</div>
+</div>
+<div class="card">
+<div class="card-header"><h3>Subscription</h3></div>
+<div style="padding:16px;background:rgba(43,76,111,.04);border:1px solid rgba(43,76,111,.15);border-radius:10px;margin-bottom:14px">
+<div style="font-family:'Montserrat';font-weight:800;font-size:20px;margin-bottom:4px">Professional Plan</div>
+<div style="font-family:'Montserrat';font-weight:800;font-size:28px;color:var(--slate)">$799<span style="font-size:14px;font-weight:500;color:var(--muted)">/month</span></div>
+<div style="font-size:12px;color:var(--muted);margin-top:6px">Up to 15 facilities · 5,000 spots · Priority support</div>
+</div>
+<div style="font-size:12px;display:flex;flex-direction:column;gap:6px">
+<div class="flex"><span style="color:var(--green)">✓</span> Dynamic pricing engine</div>
+<div class="flex"><span style="color:var(--green)">✓</span> IoT sensor integration</div>
+<div class="flex"><span style="color:var(--green)">✓</span> Local Admin portal access</div>
+<div class="flex"><span style="color:var(--green)">✓</span> All reports + CSV/PDF export</div>
+<div class="flex"><span style="color:var(--green)">✓</span> Read-only API access</div>
+<div class="flex"><span style="color:var(--green)">✓</span> 4-hour SLA support</div>
+</div>
+<div class="sep"></div>
+<div class="flex" style="gap:10px"><button class="btn-primary">Upgrade to Enterprise</button><button class="btn-sm" style="color:var(--red)">Cancel Plan</button></div>
+</div>
+</div>
+</div>
+
+<!-- SUPPORT -->
+<div class="panel" id="p-support">
+<div class="grid g2">
+<div class="card">
+<div class="card-header"><h3>Contact Support</h3></div>
+<div style="display:flex;flex-direction:column;gap:12px;font-size:13px">
+<div style="padding:12px;background:var(--bg);border-radius:8px" class="flex"><span style="font-size:18px">📞</span><div><strong>Phone</strong><div style="color:var(--muted)">1-800-UNI-PARK · Priority line (4hr SLA)</div></div></div>
+<div style="padding:12px;background:var(--bg);border-radius:8px" class="flex"><span style="font-size:18px">📧</span><div><strong>Email</strong><div style="color:var(--muted)">clients@uniparksystems.com</div></div></div>
+<div style="padding:12px;background:var(--bg);border-radius:8px" class="flex"><span style="font-size:18px">💬</span><div><strong>Live Chat</strong><div style="color:var(--green)">Available now — priority queue</div></div></div>
+<div style="padding:12px;background:var(--bg);border-radius:8px" class="flex"><span style="font-size:18px">👤</span><div><strong>Account Manager</strong><div style="color:var(--muted)">Available on Enterprise plan</div></div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-header"><h3>Recent Tickets</h3></div>
+<table class="tbl"><thead><tr><th>Ticket</th><th>Subject</th><th>Status</th><th>Updated</th></tr></thead><tbody>
+<tr><td class="mono">TK-4421</td><td>Central Lot A — 2 sensors offline</td><td><span class="pill pill-amber">In Progress</span></td><td>2h ago</td></tr>
+<tr><td class="mono">TK-4418</td><td>Payout delay for Jan 16–31 period</td><td><span class="pill pill-green">Resolved</span></td><td>Feb 3</td></tr>
+<tr><td class="mono">TK-4402</td><td>Add Harbor Lot EV charger data</td><td><span class="pill pill-green">Resolved</span></td><td>Jan 28</td></tr>
+</tbody></table>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<script>
+function showPanel(id){
+document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+document.getElementById('p-'+id).classList.add('active');
+document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+if(event&&event.currentTarget)event.currentTarget.classList.add('active');
+const titles={dashboard:'Dashboard',facilities:'My Facilities',bookings:'Bookings',occupancy:'Real-Time Occupancy',revenue:'Revenue',payouts:'Payouts',invoices:'Invoices',descriptors:'Facility Descriptors',reports:'Reports',account:'Account Settings',support:'Support'};
+document.getElementById('pageTitle').textContent=titles[id]||id;
+}
+function switchInner(el){el.parentElement.querySelectorAll('.inner-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active')}
+</script>
+</body>
+</html>

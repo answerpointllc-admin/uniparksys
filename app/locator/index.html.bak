@@ -1,0 +1,267 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>UniPark Locator</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0B0F14;--card:#131A24;--card2:#1A2332;--bdr:#1E2D3D;--navy:#1A2332;--navy2:#253A5E;--navy3:#0F1D35;--teal:#3BA0B5;--teal2:#4FC3D9;--gold:#D4A843;--org:#E8883E;--org2:#F5A623;--grn:#48BB78;--red:#F56565;--txt:#F7FAFC;--txt2:#E2E8F0;--txt3:#94A3B8;--mut:#4A5568;--r:12px;--rl:16px;--mono:'JetBrains Mono',monospace;--tr:all .2s ease}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden}
+h1,h2,h3{font-family:'Montserrat',sans-serif}
+/* Mobile shell */
+.app{max-width:430px;margin:0 auto;min-height:100vh;position:relative;overflow:hidden}
+/* Top bar */
+.top{padding:12px 20px;display:flex;align-items:center;justify-content:space-between;background:var(--card);border-bottom:1px solid var(--bdr)}
+.top-logo{display:flex;align-items:center;gap:8px}
+.top-logo svg{width:28px;height:28px}
+.top-logo span{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:800;color:var(--txt)}.top-logo span em{font-style:normal;color:var(--org)}
+.top-right{display:flex;align-items:center;gap:10px}
+.top-btn{background:none;border:1px solid var(--bdr);border-radius:8px;color:var(--txt3);padding:6px 8px;font-size:14px;cursor:pointer;transition:var(--tr)}.top-btn:hover{border-color:var(--teal);color:var(--teal)}
+/* Screens */
+.screen{display:none;padding:20px;animation:fadeIn .3s ease}.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+/* Screen: Entry */
+.entry-hero{text-align:center;padding:40px 0 30px}
+.entry-hero .icon{font-size:64px;margin-bottom:16px}
+.entry-hero h1{font-size:26px;font-weight:900;margin-bottom:6px;letter-spacing:-.5px}
+.entry-hero h1 span{color:var(--org)}
+.entry-hero p{font-size:14px;color:var(--txt3);max-width:300px;margin:0 auto;line-height:1.5}
+.key-input-wrap{margin:24px 0;position:relative}
+.key-input{width:100%;padding:16px 20px;padding-right:52px;background:var(--card);border:2px solid var(--bdr);border-radius:var(--rl);font-family:var(--mono);font-size:20px;font-weight:700;letter-spacing:3px;color:var(--txt);text-align:center;text-transform:uppercase;transition:var(--tr)}
+.key-input::placeholder{color:var(--mut);letter-spacing:2px;font-size:16px;font-weight:400}
+.key-input:focus{outline:none;border-color:var(--org);box-shadow:0 0 0 4px rgba(232,136,62,.15)}
+.key-scan{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:var(--org);border:none;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:var(--tr)}.key-scan:hover{background:var(--org2)}
+.btn-locate{width:100%;padding:16px;border:none;border-radius:var(--rl);font-family:'Montserrat',sans-serif;font-size:16px;font-weight:800;cursor:pointer;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-locate.primary{background:linear-gradient(135deg,var(--org),var(--org2));color:#fff;box-shadow:0 4px 16px rgba(232,136,62,.3)}
+.btn-locate.primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(232,136,62,.4)}
+.btn-locate:active{transform:translateY(0)}
+.recent-list{margin-top:28px}
+.recent-list h3{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--txt3);margin-bottom:10px;font-weight:700}
+.recent-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:8px;cursor:pointer;transition:var(--tr)}
+.recent-item:hover{border-color:var(--org);background:var(--card2)}
+.recent-ico{width:40px;height:40px;border-radius:10px;background:rgba(232,136,62,.1);display:flex;align-items:center;justify-content:center;font-size:20px}
+.recent-info{flex:1}.recent-info .name{font-size:14px;font-weight:600}.recent-info .meta{font-size:11px;color:var(--txt3)}
+.recent-arrow{color:var(--mut);font-size:16px}
+/* Screen: Locating (loading) */
+.locating{text-align:center;padding:60px 20px}
+.pulse-ring{width:120px;height:120px;border-radius:50%;border:3px solid var(--org);margin:0 auto 24px;display:flex;align-items:center;justify-content:center;position:relative;animation:pulseRing 2s ease infinite}
+.pulse-ring::before{content:'';position:absolute;inset:-12px;border-radius:50%;border:2px solid rgba(232,136,62,.2);animation:pulseRing 2s ease infinite .5s}
+.pulse-ring::after{content:'';position:absolute;inset:-24px;border-radius:50%;border:1px solid rgba(232,136,62,.1);animation:pulseRing 2s ease infinite 1s}
+@keyframes pulseRing{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.05);opacity:.7}}
+.pulse-ring .car{font-size:48px}
+/* Screen: Navigate */
+.nav-header{text-align:center;padding:10px 0 16px}
+.nav-header .label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--txt3);font-weight:700}
+.nav-header .dist{font-size:48px;font-weight:900;font-family:'Montserrat',sans-serif;color:var(--org);line-height:1}
+.nav-header .unit{font-size:16px;color:var(--txt3);font-weight:600;margin-left:2px}
+.nav-header .eta{font-size:13px;color:var(--txt3);margin-top:4px}
+/* Compass */
+.compass-wrap{width:260px;height:260px;margin:20px auto;position:relative}
+.compass-ring{width:100%;height:100%;border-radius:50%;border:3px solid var(--bdr);position:relative;transition:transform .3s ease}
+.compass-ring::before{content:'';position:absolute;inset:8px;border-radius:50%;border:1px solid rgba(30,45,61,.5)}
+.compass-dirs{position:absolute;inset:0;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;color:var(--txt3)}
+.compass-dirs span{position:absolute;transform:translate(-50%,-50%)}
+.compass-dirs .n{top:8%;left:50%;color:var(--red)}.compass-dirs .s{top:92%;left:50%}.compass-dirs .e{top:50%;left:92%}.compass-dirs .w{top:50%;left:8%}
+.compass-needle{position:absolute;top:0;left:0;width:100%;height:100%;transition:transform .5s cubic-bezier(.4,0,.2,1)}
+.compass-needle svg{width:100%;height:100%}
+/*removed*/
+.compass-center{position:absolute;top:50%;left:50%;width:22px;height:22px;margin:-11px 0 0 -11px;background:radial-gradient(circle,#c8ccd0 0%,#8a9199 60%,#5a6370 100%);border:2px solid #4a5568;border-radius:50%;z-index:4;box-shadow:0 1px 4px rgba(0,0,0,.4),inset 0 1px 2px rgba(255,255,255,.3)}
+.compass-you{position:absolute;top:50%;left:50%;width:8px;height:8px;margin:-4px 0 0 -4px;background:var(--teal);border-radius:50%;box-shadow:0 0 6px rgba(59,160,181,.5);z-index:5}
+@keyframes youPulse{0%,100%{box-shadow:0 0 8px rgba(59,160,181,.5)}50%{box-shadow:0 0 16px rgba(59,160,181,.8)}}
+/* Vehicle info card */
+.vehicle-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rl);padding:16px;margin-top:20px}
+.vc-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.vc-label{font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.vc-value{font-size:13px;font-weight:600;color:var(--txt)}
+.vc-value.mono{font-family:var(--mono);letter-spacing:1px;color:var(--org)}
+/* Voice toggle */
+.voice-bar{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);margin-top:12px}
+.voice-ico{font-size:20px}.voice-info{flex:1}.voice-info .vl{font-size:13px;font-weight:600}.voice-info .vs{font-size:11px;color:var(--txt3)}
+.voice-tg{position:relative;width:48px;height:26px;cursor:pointer}
+.voice-tg input{opacity:0;width:0;height:0}
+.voice-tg .slider{position:absolute;inset:0;background:var(--bdr);border-radius:26px;transition:var(--tr)}
+.voice-tg .slider::before{content:'';position:absolute;height:20px;width:20px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:var(--tr);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.voice-tg input:checked+.slider{background:var(--org)}
+.voice-tg input:checked+.slider::before{transform:translateX(22px)}
+/* Bottom nav */
+.nav-actions{display:flex;gap:8px;margin-top:16px}
+.nav-actions .btn-nav{flex:1;padding:14px;border:none;border-radius:var(--r);font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-voice{background:rgba(59,160,181,.15);color:var(--teal);border:1px solid rgba(59,160,181,.3)}
+.btn-voice:hover{background:rgba(59,160,181,.25)}
+.btn-voice.speaking{animation:speakPulse 1s ease infinite}
+@keyframes speakPulse{0%,100%{box-shadow:0 0 0 0 rgba(59,160,181,.3)}50%{box-shadow:0 0 0 8px rgba(59,160,181,0)}}
+.btn-stop{background:rgba(245,101,101,.15);color:var(--red);border:1px solid rgba(245,101,101,.3)}
+/* Arrived screen */
+.arrived{text-align:center;padding:60px 20px}
+.arrived .check{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,var(--grn),#38A169);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:48px;box-shadow:0 8px 32px rgba(72,187,120,.3)}
+.arrived h1{font-size:28px;font-weight:900;margin-bottom:6px}
+.arrived p{font-size:14px;color:var(--txt3);margin-bottom:24px}
+/* Settings screen */
+.settings-item{display:flex;align-items:center;gap:14px;padding:16px;background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:8px;transition:var(--tr)}
+.settings-item:hover{border-color:var(--org)}
+.settings-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.settings-info{flex:1}.settings-info .sl{font-size:14px;font-weight:600}.settings-info .sd{font-size:11px;color:var(--txt3)}
+/* Bottom tab bar */
+.tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--card);border-top:1px solid var(--bdr);display:flex;padding:8px 0 12px;z-index:50}
+.tab-bar .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;cursor:pointer;transition:var(--tr);background:none;border:none;color:var(--mut);font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600}
+.tab-bar .tab.act{color:var(--org)}
+.tab-bar .tab .t-ico{font-size:20px}
+/* Safe area */
+.safe-bottom{height:70px}
+/* Utility */
+.tc{text-align:center}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="top-logo">
+      <svg viewBox="0 0 28 28" fill="none"><path d="M14 1L25 7.5V20.5L14 27L3 20.5V7.5L14 1Z" fill="#1A2332" stroke="#3BA0B5" stroke-width="1.2"/><circle cx="14" cy="11" r="4" fill="none" stroke="#E8883E" stroke-width="1.5"/><path d="M14 15C14 15 19 11.5 19 8.5" stroke="#E8883E" stroke-width="1" opacity=".4"/><circle cx="14" cy="11" r="1.5" fill="#E8883E"/></svg>
+      <span>Uni<em>Park</em> Locator</span>
+    </div>
+    <div class="top-right">
+      <button class="top-btn" onclick="showScreen('settings')">⚙️</button>
+    </div>
+  </div>
+
+  <!-- ENTRY SCREEN -->
+  <div id="scr-entry" class="screen active">
+    <div class="entry-hero">
+      <div class="icon">🚗</div>
+      <h1>Find Your <span>Vehicle</span></h1>
+      <p>Enter your reservation key and we'll guide you right to your car with compass, distance, and optional voice directions.</p>
+    </div>
+    <div class="key-input-wrap">
+      <input type="text" class="key-input" id="res-key" placeholder="UP-XXXX-XXXX" maxlength="14" oninput="fmtKey(this)" value="UP-7K3M-9X2P">
+      <button class="key-scan" title="Scan QR code">📷</button>
+    </div>
+    <button class="btn-locate primary" onclick="startLocate()">🧭 Locate My Vehicle</button>
+    <div class="recent-list">
+      <h3>Recent Reservations</h3>
+      <div class="recent-item" onclick="quickLocate('UP-7K3M-9X2P')">
+        <div class="recent-ico">🅿️</div>
+        <div class="recent-info"><div class="name">CLE Airport Garage B</div><div class="meta">UP-7K3M-9X2P · Level 3, Spot B-47 · 2h ago</div></div>
+        <span class="recent-arrow">›</span>
+      </div>
+      <div class="recent-item" onclick="quickLocate('UP-4R8N-1W5T')">
+        <div class="recent-ico">🏬</div>
+        <div class="recent-info"><div class="name">Beachwood Place Mall</div><div class="meta">UP-4R8N-1W5T · Level P2, Spot 214 · Yesterday</div></div>
+        <span class="recent-arrow">›</span>
+      </div>
+      <div class="recent-item" onclick="quickLocate('UP-2L6J-8D4F')">
+        <div class="recent-ico">🏟️</div>
+        <div class="recent-info"><div class="name">Progressive Field Lot C</div><div class="meta">UP-2L6J-8D4F · Row F, Spot 18 · Feb 20</div></div>
+        <span class="recent-arrow">›</span>
+      </div>
+    </div>
+    <div class="safe-bottom"></div>
+  </div>
+
+  <!-- LOCATING SCREEN -->
+  <div id="scr-locating" class="screen">
+    <div class="locating">
+      <div class="pulse-ring"><span class="car">🚗</span></div>
+      <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">Locating Your Vehicle...</h2>
+      <p style="font-size:13px;color:var(--txt3);margin-bottom:24px">Connecting to GPS & facility beacons</p>
+      <div style="display:flex;flex-direction:column;gap:8px;max-width:260px;margin:0 auto;text-align:left" id="locate-steps">
+        <div class="loc-step" style="display:flex;align-items:center;gap:10px;font-size:13px"><span style="color:var(--grn)">✓</span> Reservation verified</div>
+        <div class="loc-step" style="display:flex;align-items:center;gap:10px;font-size:13px"><span style="color:var(--grn)">✓</span> Vehicle position found</div>
+        <div class="loc-step" style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--txt3)"><span>⏳</span> Calibrating compass...</div>
+        <div class="loc-step" style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--txt3)"><span>○</span> Ready to navigate</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVIGATE SCREEN -->
+  <div id="scr-navigate" class="screen">
+    <div class="nav-header">
+      <div class="label">Distance to Vehicle</div>
+      <div class="dist" id="nav-dist">247</div><span class="unit">ft</span>
+      <div class="eta">~2 min walk · Level 3, Spot B-47</div>
+    </div>
+    <div class="compass-wrap">
+      <div class="compass-ring" id="compass">
+        <div class="compass-dirs"><span class="n">N</span><span class="s">S</span><span class="e">E</span><span class="w">W</span></div>
+        <div class="compass-needle" id="needle"><svg viewBox="0 0 260 260"><defs><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#E8883E"/><stop offset="100%" stop-color="#B86A2E"/></linearGradient><filter id="hs"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="rgba(0,0,0,.35)"/></filter></defs><polygon points="130,28 124,126 130,130 136,126" fill="url(#hg)" filter="url(#hs)"/></svg></div>
+        <div class="compass-center"></div>
+        <div class="compass-you"></div>
+      </div>
+    </div>
+    <div id="nav-instruction" style="text-align:center;font-size:15px;font-weight:600;color:var(--org);margin:8px 0">↗ Walk northeast toward Elevator B</div>
+    <div class="vehicle-card">
+      <div class="vc-row"><span class="vc-label">Reservation</span><span class="vc-value mono">UP-7K3M-9X2P</span></div>
+      <div class="vc-row"><span class="vc-label">Facility</span><span class="vc-value">CLE Airport Garage B</span></div>
+      <div class="vc-row"><span class="vc-label">Location</span><span class="vc-value">Level 3 · Spot B-47</span></div>
+      <div class="vc-row" style="margin:0"><span class="vc-label">Vehicle</span><span class="vc-value">Black Tesla Model 3</span></div>
+    </div>
+    <div class="voice-bar">
+      <span class="voice-ico">🔊</span>
+      <div class="voice-info"><div class="vl">Voice Navigation</div><div class="vs">Speaks directions as you walk</div></div>
+      <label class="voice-tg"><input type="checkbox" id="voice-on" checked onchange="toggleVoice()"><span class="slider"></span></label>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-nav btn-voice" id="btn-speak" onclick="speakNow()">🔊 Speak Direction</button>
+      <button class="btn-nav btn-stop" onclick="showScreen('entry')">✕ Cancel</button>
+    </div>
+    <div class="safe-bottom"></div>
+  </div>
+
+  <!-- ARRIVED SCREEN -->
+  <div id="scr-arrived" class="screen">
+    <div class="arrived">
+      <div class="check">✓</div>
+      <h1>You've <span style="color:var(--grn)">Arrived!</span></h1>
+      <p>Your vehicle is right here — Level 3, Spot B-47.<br>Black Tesla Model 3</p>
+      <button class="btn-locate primary" onclick="showScreen('entry')" style="max-width:300px;margin:0 auto">🏠 Back to Home</button>
+    </div>
+    <div class="safe-bottom"></div>
+  </div>
+
+  <!-- SETTINGS SCREEN -->
+  <div id="scr-settings" class="screen">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <button style="background:none;border:none;color:var(--txt);font-size:20px;cursor:pointer" onclick="showScreen('entry')">←</button>
+      <h2 style="font-size:20px;font-weight:800">Settings</h2>
+    </div>
+    <div class="settings-item"><div class="settings-ico" style="background:rgba(232,136,62,.1)">🔊</div><div class="settings-info"><div class="sl">Voice Guidance</div><div class="sd">Speak directions as you walk</div></div><label class="voice-tg"><input type="checkbox" checked><span class="slider"></span></label></div>
+    <div class="settings-item"><div class="settings-ico" style="background:rgba(59,160,181,.1)">📏</div><div class="settings-info"><div class="sl">Distance Units</div><div class="sd">Feet / Meters</div></div><span style="font-size:13px;font-weight:600;color:var(--org)">Feet</span></div>
+    <div class="settings-item"><div class="settings-ico" style="background:rgba(72,187,120,.1)">📳</div><div class="settings-info"><div class="sl">Haptic Feedback</div><div class="sd">Vibrate when approaching vehicle</div></div><label class="voice-tg"><input type="checkbox" checked><span class="slider"></span></label></div>
+    <div class="settings-item"><div class="settings-ico" style="background:rgba(212,168,67,.1)">🔔</div><div class="settings-info"><div class="sl">Arrival Alert</div><div class="sd">Notify within 20ft of vehicle</div></div><label class="voice-tg"><input type="checkbox" checked><span class="slider"></span></label></div>
+    <div class="settings-item"><div class="settings-ico" style="background:rgba(159,122,234,.1)">🌙</div><div class="settings-info"><div class="sl">Theme</div><div class="sd">Dark mode (default)</div></div><span style="font-size:13px;font-weight:600;color:var(--org)">Dark</span></div>
+    <div class="settings-item"><div class="settings-ico" style="background:rgba(59,160,181,.1)">📡</div><div class="settings-info"><div class="sl">Beacon Mode</div><div class="sd">Use BLE beacons for indoor navigation</div></div><label class="voice-tg"><input type="checkbox" checked><span class="slider"></span></label></div>
+    <div style="text-align:center;margin-top:24px;font-size:11px;color:var(--mut)">UniPark Locator v1.0 · © 2026 Universal Parking Systems<br>Powered by The AnswerPoint LLC</div>
+    <div class="safe-bottom"></div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab act" onclick="showScreen('entry')"><span class="t-ico">🧭</span>Locate</button>
+    <button class="tab" onclick="showScreen('navigate')"><span class="t-ico">📍</span>Navigate</button>
+    <button class="tab"><span class="t-ico">🕐</span>History</button>
+    <button class="tab" onclick="showScreen('settings')"><span class="t-ico">⚙️</span>Settings</button>
+  </div>
+</div>
+
+<script>
+let compassAngle=42,dist=247,voiceEnabled=true,navInterval;
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('scr-'+id).classList.add('active');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));const tabs={'entry':0,'navigate':1,'settings':3};if(tabs[id]!==undefined)document.querySelectorAll('.tab')[tabs[id]].classList.add('act');}
+function fmtKey(el){let v=el.value.replace(/[^A-Z0-9]/gi,'').toUpperCase();if(v.length>2)v='UP-'+v.slice(2);if(v.length>7)v=v.slice(0,7)+'-'+v.slice(7);el.value=v.slice(0,14);}
+function quickLocate(key){document.getElementById('res-key').value=key;startLocate();}
+function startLocate(){const key=document.getElementById('res-key').value;if(key.length<12){document.getElementById('res-key').style.borderColor='var(--red)';setTimeout(()=>document.getElementById('res-key').style.borderColor='',1500);return;}
+showScreen('locating');
+const steps=document.querySelectorAll('.loc-step');let step=2;
+const iv=setInterval(()=>{if(step<steps.length){steps[step].querySelector('span').textContent='✓';steps[step].querySelector('span').style.color='var(--grn)';steps[step].style.color='var(--txt)';step++;}
+if(step>=steps.length){clearInterval(iv);setTimeout(()=>{showScreen('navigate');startNav();},600);}},800);}
+function startNav(){dist=247;compassAngle=42;updateNav();navInterval=setInterval(()=>{dist=Math.max(0,dist-Math.floor(Math.random()*8+3));compassAngle+=Math.random()*6-3;updateNav();if(dist<=0){clearInterval(navInterval);showScreen('arrived');if(voiceEnabled)speak('You have arrived at your vehicle.');}},1500);}
+function updateNav(){document.getElementById('nav-dist').textContent=dist;document.getElementById('needle').style.transform='rotate('+compassAngle+'deg)';
+const dirs=[{a:0,d:'north',i:'↑'},{a:45,d:'northeast',i:'↗'},{a:90,d:'east',i:'→'},{a:135,d:'southeast',i:'↘'},{a:180,d:'south',i:'↓'},{a:225,d:'southwest',i:'↙'},{a:270,d:'west',i:'←'},{a:315,d:'northwest',i:'↖'}];
+let closest=dirs[0];dirs.forEach(d=>{if(Math.abs(d.a-((compassAngle%360+360)%360))<Math.abs(closest.a-((compassAngle%360+360)%360)))closest=d;});
+const landmarks=['Elevator B','Stairwell C','Exit Ramp','Level 3 Entry','Walkway'];const lm=landmarks[Math.floor(dist/50)%landmarks.length];
+document.getElementById('nav-instruction').textContent=closest.i+' Walk '+closest.d+' toward '+lm;
+if(voiceEnabled&&dist%50<8&&dist>0)speak(dist+' feet. Continue '+closest.d+' toward '+lm+'.');}
+let isSpeaking=false;
+async function speak(text){if(!voiceEnabled||isSpeaking)return;isSpeaking=true;try{const r=await fetch('/api/v1/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text})});if(r.ok){const blob=await r.blob();const url=URL.createObjectURL(blob);const a=new Audio(url);a.play();a.onended=()=>{URL.revokeObjectURL(url);isSpeaking=false;};}else{isSpeaking=false;fallbackSpeak(text);}}catch(e){isSpeaking=false;fallbackSpeak(text);}}
+function fallbackSpeak(text){if('speechSynthesis' in window){const u=new SpeechSynthesisUtterance(text);u.rate=.9;u.pitch=1;speechSynthesis.speak(u);}}
+function speakNow(){const txt=document.getElementById('nav-instruction').textContent;speak(dist+' feet away. '+txt.slice(2));const b=document.getElementById('btn-speak');b.classList.add('speaking');setTimeout(()=>b.classList.remove('speaking'),2000);}
+function toggleVoice(){voiceEnabled=document.getElementById('voice-on').checked;}
+</script>
+</body>
+</html>

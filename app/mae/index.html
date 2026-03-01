@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UniPark — Map Acquisition Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1A2332;--navy2:#0F1D35;--navy3:#253A5E;--teal:#3BA0B5;--org:#E8883E;--org2:#D4752E;--gold:#D4A843;--grn:#48BB78;--red:#E53E3E;--txt:#E8ECF1;--txt2:#A0AEC0;--txt3:#718096;--bdr:#2D3748;--card:#1E2D3D;--card2:#243447;--rl:12px;--r:8px;--tr:all .2s ease}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--txt);min-height:100vh}
+.hdr{background:linear-gradient(135deg,var(--navy2),var(--navy),var(--navy3));padding:14px 24px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:100}
+.hdr svg{width:34px;height:34px;flex-shrink:0}
+.hdr-t{font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;color:var(--teal);display:flex;align-items:center;gap:8px}
+.hdr-t span{color:var(--gold);font-size:18px}
+.hdr-sub{font-size:11px;color:var(--txt3);font-weight:500;letter-spacing:.5px;text-transform:uppercase}
+.hdr-r{margin-left:auto;display:flex;align-items:center;gap:12px}
+.badge{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700;letter-spacing:.5px}
+.b-live{background:rgba(72,187,120,.15);color:var(--grn);border:1px solid rgba(72,187,120,.3)}
+.b-uaf{background:rgba(59,160,181,.1);color:var(--teal);border:1px solid rgba(59,160,181,.3)}
+.wrap{display:flex;height:calc(100vh - 62px)}
+.nav{width:220px;background:var(--card);border-right:1px solid var(--bdr);padding:16px 0;flex-shrink:0;overflow-y:auto}
+.nav-g{padding:0 12px;margin-bottom:16px}
+.nav-gl{font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;padding:0 8px 8px;border-bottom:1px solid var(--bdr);margin-bottom:8px}
+.nav-i{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r);cursor:pointer;transition:var(--tr);font-size:13px;font-weight:500;color:var(--txt2)}
+.nav-i:hover{background:rgba(59,160,181,.08);color:var(--txt)}
+.nav-i.act{background:rgba(59,160,181,.15);color:var(--teal);font-weight:600}
+.nav-i .ni{font-size:16px;width:22px;text-align:center}
+.main{flex:1;overflow-y:auto;padding:24px}
+.pg{display:none}.pg.act{display:block}
+.ph{margin-bottom:24px}
+.ph h1{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:800;color:var(--txt);margin-bottom:4px}
+.ph p{color:var(--txt3);font-size:13px}
+.cd{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rl);padding:20px;margin-bottom:16px}
+.ct{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;color:var(--txt);margin-bottom:12px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.fl{font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:block}
+.fi{width:100%;padding:10px 12px;background:var(--navy);border:1px solid var(--bdr);border-radius:var(--r);color:var(--txt);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:var(--tr)}
+.fi:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(59,160,181,.15)}
+select.fi{cursor:pointer}
+.btn{padding:10px 20px;border:none;border-radius:var(--r);font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:var(--tr);display:inline-flex;align-items:center;gap:6px}
+.btn-p{background:linear-gradient(135deg,var(--teal),#2D8A9E);color:#fff}.btn-p:hover{filter:brightness(1.1)}
+.btn-s{background:var(--card2);color:var(--txt2);border:1px solid var(--bdr)}.btn-s:hover{border-color:var(--teal);color:var(--teal)}
+.btn-o{background:linear-gradient(135deg,var(--org),var(--org2));color:#fff}.btn-o:hover{filter:brightness(1.1)}
+.btn-g{background:rgba(72,187,120,.15);color:var(--grn);border:1px solid rgba(72,187,120,.3)}.btn-g:hover{background:rgba(72,187,120,.25)}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;padding:10px 12px;text-align:left;border-bottom:1px solid var(--bdr)}
+.tbl td{padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(45,55,72,.5)}
+.tbl tr:hover td{background:rgba(59,160,181,.03)}
+.pill{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600}
+.p-act{background:rgba(72,187,120,.15);color:var(--grn)}.p-pen{background:rgba(212,168,67,.15);color:var(--gold)}.p-err{background:rgba(229,62,62,.15);color:var(--red)}.p-dft{background:rgba(160,174,192,.15);color:var(--txt2)}
+.stat-row{display:flex;gap:12px;margin-bottom:16px}
+.stat{flex:1;background:var(--card);border:1px solid var(--bdr);border-radius:var(--rl);padding:16px;text-align:center}
+.stat-v{font-family:'Montserrat',sans-serif;font-size:28px;font-weight:800}
+.stat-l{font-size:11px;color:var(--txt3);margin-top:4px;font-weight:500}
+.map-canvas{width:100%;height:420px;background:var(--navy);border:2px solid var(--bdr);border-radius:var(--rl);position:relative;overflow:hidden}
+.map-grid{position:absolute;inset:0;opacity:.15}
+.map-floor{position:absolute;inset:20px}
+.spot{position:absolute;width:32px;height:56px;border-radius:4px;border:2px solid rgba(255,255,255,.2);cursor:pointer;transition:var(--tr);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:rgba(255,255,255,.7)}
+.spot:hover{transform:scale(1.1);z-index:5;box-shadow:0 0 12px rgba(59,160,181,.4)}
+.spot.avail{background:rgba(72,187,120,.3);border-color:rgba(72,187,120,.5)}
+.spot.occ{background:rgba(229,62,62,.3);border-color:rgba(229,62,62,.5)}
+.spot.rsv{background:rgba(212,168,67,.3);border-color:rgba(212,168,67,.5)}
+.spot.dis{background:rgba(160,174,192,.15);border-color:rgba(160,174,192,.2);opacity:.5}
+.spot.hc{background:rgba(59,160,181,.3);border-color:rgba(59,160,181,.5)}
+.map-legend{position:absolute;bottom:12px;left:12px;display:flex;gap:10px;background:rgba(15,29,53,.9);padding:8px 14px;border-radius:var(--r);backdrop-filter:blur(8px)}
+.leg-i{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:var(--txt2)}
+.leg-dot{width:10px;height:10px;border-radius:3px}
+.map-toolbar{position:absolute;top:12px;right:12px;display:flex;gap:6px}
+.map-btn{width:32px;height:32px;border-radius:var(--r);background:rgba(15,29,53,.85);border:1px solid var(--bdr);color:var(--txt2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:var(--tr);backdrop-filter:blur(8px)}
+.map-btn:hover{border-color:var(--teal);color:var(--teal)}
+.map-btn.act{background:rgba(59,160,181,.2);border-color:var(--teal);color:var(--teal)}
+.map-label{position:absolute;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:var(--txt3);letter-spacing:1px;text-transform:uppercase}
+.config-panel{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rl);padding:16px}
+.cfg-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(45,55,72,.4)}
+.cfg-row:last-child{border:none}
+.cfg-l{font-size:13px;font-weight:500}.cfg-d{font-size:11px;color:var(--txt3)}
+.tg{position:relative;width:40px;height:22px;cursor:pointer;display:inline-block}
+.tg input{display:none}
+.tg-s{position:absolute;inset:0;background:var(--bdr);border-radius:11px;transition:var(--tr)}
+.tg-s::before{content:'';position:absolute;left:2px;bottom:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:var(--tr)}
+.tg input:checked+.tg-s{background:var(--teal)}
+.tg input:checked+.tg-s::before{transform:translateX(18px)}
+.step-bar{display:flex;gap:4px;margin-bottom:24px}
+.step{flex:1;height:4px;border-radius:2px;background:var(--bdr);transition:var(--tr)}
+.step.done{background:var(--teal)}
+.step.cur{background:var(--org)}
+.wiz-nav{display:flex;justify-content:space-between;margin-top:20px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.pulse{animation:pulse 2s ease infinite}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <svg viewBox="0 0 34 34" fill="none"><path d="M17 1L31 8.5V25.5L17 33L3 25.5V8.5L17 1Z" fill="#1A2332" stroke="#3BA0B5" stroke-width="1.5"/><circle cx="17" cy="13" r="5" fill="none" stroke="#E8883E" stroke-width="1.8"/><path d="M17 18C17 18 23 14 23 10" stroke="#E8883E" stroke-width="1" opacity=".4"/><circle cx="17" cy="13" r="2" fill="#E8883E"/></svg>
+  <div><div class="hdr-t">UniPark <span>|</span> Map Acquisition Engine</div><div class="hdr-sub">Global Admin — Facility Mapping & Configuration</div></div>
+  <div class="hdr-r"><span class="badge b-live">● LIVE</span><span class="badge b-uaf">UAF LOGGED</span></div>
+</div>
+<div class="wrap">
+  <div class="nav">
+    <div class="nav-g">
+      <div class="nav-gl">Acquisition</div>
+      <div class="nav-i act" onclick="go('dash')"><span class="ni">📊</span> Dashboard</div>
+      <div class="nav-i" onclick="go('acquire')"><span class="ni">🗺️</span> Acquire Map</div>
+      <div class="nav-i" onclick="go('wizard')"><span class="ni">🧙</span> Setup Wizard</div>
+    </div>
+    <div class="nav-g">
+      <div class="nav-gl">Management</div>
+      <div class="nav-i" onclick="go('maps')"><span class="ni">📁</span> Map Library</div>
+      <div class="nav-i" onclick="go('editor')"><span class="ni">✏️</span> Spot Editor</div>
+      <div class="nav-i" onclick="go('layers')"><span class="ni">🔲</span> Layers & Zones</div>
+    </div>
+    <div class="nav-g">
+      <div class="nav-gl">Configuration</div>
+      <div class="nav-i" onclick="go('sensors')"><span class="ni">📡</span> Sensor Mapping</div>
+      <div class="nav-i" onclick="go('config')"><span class="ni">⚙️</span> MAE Settings</div>
+    </div>
+  </div>
+  <div class="main">
+    <!-- PAGE: Dashboard -->
+    <div id="pg-dash" class="pg act">
+      <div class="ph"><h1>Map Acquisition Dashboard</h1><p>Real-time overview of all facility maps, acquisition status, and sensor coverage</p></div>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-v" style="color:var(--teal)">14</div><div class="stat-l">Total Maps</div></div>
+        <div class="stat"><div class="stat-v" style="color:var(--grn)">11</div><div class="stat-l">Active</div></div>
+        <div class="stat"><div class="stat-v" style="color:var(--gold)">2</div><div class="stat-l">Pending Setup</div></div>
+        <div class="stat"><div class="stat-v" style="color:var(--org)">1,847</div><div class="stat-l">Total Spots Mapped</div></div>
+        <div class="stat"><div class="stat-v" style="color:var(--grn)">94.2%</div><div class="stat-l">Sensor Coverage</div></div>
+        <div class="stat"><div class="stat-v" style="color:var(--teal)">3</div><div class="stat-l">Facilities</div></div>
+      </div>
+      <div class="cd">
+        <div class="ct">Recent Acquisitions</div>
+        <table class="tbl"><thead><tr><th>Map ID</th><th>Facility</th><th>Level</th><th>Spots</th><th>Sensors</th><th>Status</th><th>Acquired</th></tr></thead><tbody>
+          <tr><td style="font-family:'JetBrains Mono';font-size:12px;color:var(--teal)">MAP-0014</td><td>CLE Airport — Terminal C</td><td>Level 3</td><td>186</td><td>186/186</td><td><span class="pill p-act">Active</span></td><td>Feb 24, 2026</td></tr>
+          <tr><td style="font-family:'JetBrains Mono';font-size:12px;color:var(--teal)">MAP-0013</td><td>CLE Airport — Terminal C</td><td>Level 2</td><td>192</td><td>192/192</td><td><span class="pill p-act">Active</span></td><td>Feb 23, 2026</td></tr>
+          <tr><td style="font-family:'JetBrains Mono';font-size:12px;color:var(--teal)">MAP-0012</td><td>Beachwood Mall</td><td>Deck B</td><td>340</td><td>328/340</td><td><span class="pill p-pen">Calibrating</span></td><td>Feb 22, 2026</td></tr>
+          <tr><td style="font-family:'JetBrains Mono';font-size:12px;color:var(--teal)">MAP-0011</td><td>Progressive Field</td><td>Garage A L1</td><td>210</td><td>210/210</td><td><span class="pill p-act">Active</span></td><td>Feb 20, 2026</td></tr>
+          <tr><td style="font-family:'JetBrains Mono';font-size:12px;color:var(--teal)">MAP-0010</td><td>Progressive Field</td><td>Garage A L2</td><td>198</td><td>0/198</td><td><span class="pill p-pen">Pending Sensors</span></td><td>Feb 19, 2026</td></tr>
+        </tbody></table>
+      </div>
+      <div class="g2">
+        <div class="cd">
+          <div class="ct">Acquisition Pipeline</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px">Upload & Validate</span><span style="font-family:'JetBrains Mono';font-size:12px;color:var(--grn)">Avg 2.4min</span></div>
+            <div style="height:6px;background:var(--bdr);border-radius:3px"><div style="height:100%;width:95%;background:var(--grn);border-radius:3px"></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px">Spot Detection (AI)</span><span style="font-family:'JetBrains Mono';font-size:12px;color:var(--teal)">Avg 4.1min</span></div>
+            <div style="height:6px;background:var(--bdr);border-radius:3px"><div style="height:100%;width:88%;background:var(--teal);border-radius:3px"></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px">Sensor Assignment</span><span style="font-family:'JetBrains Mono';font-size:12px;color:var(--org)">Avg 8.7min</span></div>
+            <div style="height:6px;background:var(--bdr);border-radius:3px"><div style="height:100%;width:72%;background:var(--org);border-radius:3px"></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px">Calibration & Go-Live</span><span style="font-family:'JetBrains Mono';font-size:12px;color:var(--gold)">Avg 12.3min</span></div>
+            <div style="height:6px;background:var(--bdr);border-radius:3px"><div style="height:100%;width:60%;background:var(--gold);border-radius:3px"></div></div>
+          </div>
+        </div>
+        <div class="cd">
+          <div class="ct">Facility Coverage</div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px">CLE Airport</span><span style="font-size:12px;color:var(--grn);font-weight:600">8 maps — 97%</span></div><div style="height:8px;background:var(--bdr);border-radius:4px"><div style="height:100%;width:97%;background:linear-gradient(90deg,var(--teal),var(--grn));border-radius:4px"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px">Beachwood Mall</span><span style="font-size:12px;color:var(--gold);font-weight:600">3 maps — 82%</span></div><div style="height:8px;background:var(--bdr);border-radius:4px"><div style="height:100%;width:82%;background:linear-gradient(90deg,var(--teal),var(--gold));border-radius:4px"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px">Progressive Field</span><span style="font-size:12px;color:var(--org);font-weight:600">3 maps — 68%</span></div><div style="height:8px;background:var(--bdr);border-radius:4px"><div style="height:100%;width:68%;background:linear-gradient(90deg,var(--teal),var(--org));border-radius:4px"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- PAGE: Acquire Map -->
+    <div id="pg-acquire" class="pg">
+      <div class="ph"><h1>Acquire Map</h1><p>Upload a facility floor plan — MAE auto-detects spots, lanes, and zones using computer vision</p></div>
+      <div class="cd">
+        <div class="ct">1. Upload Source</div>
+        <div class="g3">
+          <div onclick="selSrc(this,'file')" class="src-opt act" style="padding:20px;border:2px solid var(--teal);border-radius:var(--rl);cursor:pointer;text-align:center;transition:var(--tr);background:rgba(59,160,181,.05)">
+            <div style="font-size:32px;margin-bottom:8px">📄</div><div style="font-size:14px;font-weight:700;color:var(--txt)">Upload File</div><div style="font-size:11px;color:var(--txt3);margin-top:4px">PDF, DWG, SVG, PNG, JPG</div>
+          </div>
+          <div onclick="selSrc(this,'cad')" class="src-opt" style="padding:20px;border:2px solid var(--bdr);border-radius:var(--rl);cursor:pointer;text-align:center;transition:var(--tr)">
+            <div style="font-size:32px;margin-bottom:8px">📐</div><div style="font-size:14px;font-weight:700;color:var(--txt)">CAD Import</div><div style="font-size:11px;color:var(--txt3);margin-top:4px">AutoCAD DXF/DWG direct</div>
+          </div>
+          <div onclick="selSrc(this,'scan')" class="src-opt" style="padding:20px;border:2px solid var(--bdr);border-radius:var(--rl);cursor:pointer;text-align:center;transition:var(--tr)">
+            <div style="font-size:32px;margin-bottom:8px">📸</div><div style="font-size:14px;font-weight:700;color:var(--txt)">LiDAR / 3D Scan</div><div style="font-size:11px;color:var(--txt3);margin-top:4px">Point cloud import (.las/.laz)</div>
+          </div>
+        </div>
+      </div>
+      <div class="cd">
+        <div class="ct">2. Upload & Metadata</div>
+        <div style="border:2px dashed var(--bdr);border-radius:var(--rl);padding:40px;text-align:center;cursor:pointer;transition:var(--tr)" onmouseover="this.style.borderColor='var(--teal)'" onmouseout="this.style.borderColor='var(--bdr)'" onclick="simulateUpload()">
+          <div id="upload-zone"><div style="font-size:40px;margin-bottom:8px">⬆️</div><div style="font-size:14px;font-weight:600;color:var(--txt)">Drop file here or click to browse</div><div style="font-size:12px;color:var(--txt3);margin-top:4px">Max 50MB — PDF, DWG, SVG, PNG, JPG, LAS</div></div>
+          <div id="upload-prog" style="display:none"><div style="font-size:14px;font-weight:600;color:var(--teal);margin-bottom:8px">Uploading...</div><div style="height:6px;background:var(--bdr);border-radius:3px;overflow:hidden"><div id="prog-bar" style="height:100%;width:0%;background:var(--teal);border-radius:3px;transition:width .3s"></div></div><div id="prog-pct" style="font-size:12px;color:var(--txt3);margin-top:6px">0%</div></div>
+          <div id="upload-done" style="display:none"><div style="font-size:40px;margin-bottom:8px">✅</div><div style="font-size:14px;font-weight:600;color:var(--grn)">CLE_Terminal_C_Level3.pdf uploaded</div><div style="font-size:12px;color:var(--txt3)">2.4 MB — 3840 × 2160 px</div></div>
+        </div>
+        <div class="g3" style="margin-top:16px">
+          <div><label class="fl">Facility</label><select class="fi"><option>CLE Airport</option><option>Beachwood Mall</option><option>Progressive Field</option></select></div>
+          <div><label class="fl">Level / Floor</label><input type="text" class="fi" value="Level 3" placeholder="e.g., Level 3, Deck B"></div>
+          <div><label class="fl">Map Label</label><input type="text" class="fi" value="Terminal C — L3" placeholder="Display name"></div>
+        </div>
+      </div>
+      <div class="cd" id="ai-detect" style="display:none">
+        <div class="ct">3. AI Spot Detection</div>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+          <div class="pulse" style="width:12px;height:12px;background:var(--org);border-radius:50%"></div>
+          <span style="font-size:13px;color:var(--org);font-weight:600" id="ai-status">Running computer vision analysis...</span>
+        </div>
+        <div class="g4" id="ai-results" style="display:none">
+          <div style="padding:14px;background:var(--navy);border-radius:var(--r);text-align:center"><div style="font-size:24px;font-weight:800;color:var(--grn)">186</div><div style="font-size:11px;color:var(--txt3)">Spots Detected</div></div>
+          <div style="padding:14px;background:var(--navy);border-radius:var(--r);text-align:center"><div style="font-size:24px;font-weight:800;color:var(--teal)">4</div><div style="font-size:11px;color:var(--txt3)">Lanes Detected</div></div>
+          <div style="padding:14px;background:var(--navy);border-radius:var(--r);text-align:center"><div style="font-size:24px;font-weight:800;color:var(--org)">12</div><div style="font-size:11px;color:var(--txt3)">Handicap Spots</div></div>
+          <div style="padding:14px;background:var(--navy);border-radius:var(--r);text-align:center"><div style="font-size:24px;font-weight:800;color:var(--gold)">98.4%</div><div style="font-size:11px;color:var(--txt3)">Confidence</div></div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:16px">
+          <button class="btn btn-p" onclick="go('editor')">✏️ Review & Edit Spots</button>
+          <button class="btn btn-g" onclick="go('sensors')">📡 Assign Sensors</button>
+          <button class="btn btn-s">📥 Export Detection Data</button>
+        </div>
+      </div>
+    </div>
+    <!-- PAGE: Setup Wizard -->
+    <div id="pg-wizard" class="pg">
+      <div class="ph"><h1>Setup Wizard</h1><p>Step-by-step guided facility map onboarding — from upload to go-live</p></div>
+      <div class="step-bar"><div class="step done"></div><div class="step done"></div><div class="step cur"></div><div class="step"></div><div class="step"></div><div class="step"></div></div>
+      <div class="cd">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><div style="width:36px;height:36px;background:var(--org);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;font-family:'Montserrat'">3</div><div><div class="ct" style="margin:0">Define Zones & Boundaries</div><div style="font-size:12px;color:var(--txt3)">Step 3 of 6 — Draw zone boundaries on your map</div></div></div>
+        <div class="g2">
+          <div><label class="fl">Zone Name</label><input type="text" class="fi" value="VIP Section A" placeholder="Zone name"></div>
+          <div><label class="fl">Zone Type</label><select class="fi"><option>VIP / Premium</option><option>General</option><option>Employee</option><option>Handicap</option><option>EV Charging</option><option>Motorcycle</option><option>Oversized Vehicle</option><option>Reserved</option></select></div>
+          <div><label class="fl">Rate Override</label><input type="text" class="fi" value="$8.00/hr" placeholder="Optional rate"></div>
+          <div><label class="fl">Max Capacity</label><input type="number" class="fi" value="24" placeholder="Spots in zone"></div>
+        </div>
+        <div style="margin-top:16px;padding:16px;background:var(--navy);border-radius:var(--r);font-size:12px;color:var(--txt3)">💡 Tip: Zones enable per-area pricing, access control, and occupancy thresholds. You can overlay multiple zones on the same map area.</div>
+        <div class="wiz-nav"><button class="btn btn-s">← Back</button><div style="display:flex;gap:8px"><button class="btn btn-s">Skip</button><button class="btn btn-p">Next: Assign Sensors →</button></div></div>
+      </div>
+    </div>
+    <!-- PAGE: Map Library -->
+    <div id="pg-maps" class="pg">
+      <div class="ph"><h1>Map Library</h1><p>All acquired facility maps — filter, preview, and manage</p></div>
+      <div style="display:flex;gap:12px;margin-bottom:16px">
+        <input type="text" class="fi" style="flex:1" placeholder="🔍 Search maps by facility, level, or ID...">
+        <select class="fi" style="width:180px"><option>All Facilities</option><option>CLE Airport</option><option>Beachwood Mall</option><option>Progressive Field</option></select>
+        <select class="fi" style="width:140px"><option>All Status</option><option>Active</option><option>Calibrating</option><option>Pending</option><option>Archived</option></select>
+      </div>
+      <div class="g3" id="map-cards">
+        <div class="cd" style="cursor:pointer" onclick="go('editor')"><div style="height:120px;background:linear-gradient(135deg,rgba(59,160,181,.1),rgba(232,136,62,.05));border-radius:var(--r);margin-bottom:12px;display:flex;align-items:center;justify-content:center;font-size:40px">🅿️</div><div style="font-size:14px;font-weight:700;margin-bottom:4px">Terminal C — L3</div><div style="font-size:11px;color:var(--txt3)">CLE Airport • 186 spots • <span style="color:var(--grn)">Active</span></div></div>
+        <div class="cd" style="cursor:pointer"><div style="height:120px;background:linear-gradient(135deg,rgba(59,160,181,.1),rgba(72,187,120,.05));border-radius:var(--r);margin-bottom:12px;display:flex;align-items:center;justify-content:center;font-size:40px">🅿️</div><div style="font-size:14px;font-weight:700;margin-bottom:4px">Terminal C — L2</div><div style="font-size:11px;color:var(--txt3)">CLE Airport • 192 spots • <span style="color:var(--grn)">Active</span></div></div>
+        <div class="cd" style="cursor:pointer"><div style="height:120px;background:linear-gradient(135deg,rgba(212,168,67,.1),rgba(232,136,62,.05));border-radius:var(--r);margin-bottom:12px;display:flex;align-items:center;justify-content:center;font-size:40px">🅿️</div><div style="font-size:14px;font-weight:700;margin-bottom:4px">Deck B</div><div style="font-size:11px;color:var(--txt3)">Beachwood Mall • 340 spots • <span style="color:var(--gold)">Calibrating</span></div></div>
+        <div class="cd" style="cursor:pointer"><div style="height:120px;background:linear-gradient(135deg,rgba(72,187,120,.1),rgba(59,160,181,.05));border-radius:var(--r);margin-bottom:12px;display:flex;align-items:center;justify-content:center;font-size:40px">🅿️</div><div style="font-size:14px;font-weight:700;margin-bottom:4px">Garage A — L1</div><div style="font-size:11px;color:var(--txt3)">Progressive Field • 210 spots • <span style="color:var(--grn)">Active</span></div></div>
+        <div class="cd" style="cursor:pointer"><div style="height:120px;background:linear-gradient(135deg,rgba(229,62,62,.05),rgba(212,168,67,.05));border-radius:var(--r);margin-bottom:12px;display:flex;align-items:center;justify-content:center;font-size:40px">🅿️</div><div style="font-size:14px;font-weight:700;margin-bottom:4px">Garage A — L2</div><div style="font-size:11px;color:var(--txt3)">Progressive Field • 198 spots • <span style="color:var(--gold)">Pending</span></div></div>
+        <div class="cd" style="cursor:pointer;border-style:dashed" onclick="go('acquire')"><div style="height:120px;border-radius:var(--r);margin-bottom:12px;display:flex;align-items:center;justify-content:center;font-size:40px">➕</div><div style="font-size:14px;font-weight:700;margin-bottom:4px;text-align:center;color:var(--teal)">Acquire New Map</div></div>
+      </div>
+    </div>
+    <!-- PAGE: Spot Editor -->
+    <div id="pg-editor" class="pg">
+      <div class="ph"><h1>Spot Editor</h1><p>Interactive map — click spots to edit, drag to reposition, right-click for context menu</p></div>
+      <div style="display:flex;gap:16px">
+        <div style="flex:1">
+          <div class="map-canvas" id="map-cv">
+            <svg class="map-grid" width="100%" height="100%"><defs><pattern id="grd" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(59,160,181,.15)" stroke-width=".5"/></pattern></defs><rect width="100%" height="100%" fill="url(#grd)"/></svg>
+            <div class="map-label" style="top:12px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--teal)">CLE Airport — Terminal C — Level 3</div>
+            <div class="map-label" style="top:50%;left:14px;transform:rotate(-90deg) translateX(-50%);transform-origin:left center">ROW A</div>
+            <div class="map-label" style="top:50%;right:-6px;transform:rotate(90deg) translateX(50%);transform-origin:right center">ROW B</div>
+            <div id="spots-container"></div>
+            <div style="position:absolute;top:48%;left:50%;transform:translate(-50%,-50%);width:80%;height:28px;background:rgba(45,55,72,.4);border:1px dashed var(--txt3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:1px">— DRIVING LANE —</div>
+            <div class="map-legend">
+              <div class="leg-i"><div class="leg-dot" style="background:var(--grn)"></div> Available</div>
+              <div class="leg-i"><div class="leg-dot" style="background:var(--red)"></div> Occupied</div>
+              <div class="leg-i"><div class="leg-dot" style="background:var(--gold)"></div> Reserved</div>
+              <div class="leg-i"><div class="leg-dot" style="background:var(--teal)"></div> Handicap</div>
+              <div class="leg-i"><div class="leg-dot" style="background:var(--txt3)"></div> Disabled</div>
+            </div>
+            <div class="map-toolbar">
+              <div class="map-btn act" title="Select" onclick="setTool('select',this)">🖱️</div>
+              <div class="map-btn" title="Add Spot" onclick="setTool('add',this)">➕</div>
+              <div class="map-btn" title="Delete" onclick="setTool('del',this)">🗑️</div>
+              <div class="map-btn" title="Measure" onclick="setTool('measure',this)">📏</div>
+              <div class="map-btn" title="Zoom In">🔍</div>
+            </div>
+          </div>
+        </div>
+        <div style="width:260px;flex-shrink:0">
+          <div class="config-panel" id="spot-detail">
+            <div class="ct" style="margin-bottom:12px">Spot Inspector</div>
+            <div style="text-align:center;padding:20px;color:var(--txt3);font-size:12px" id="no-spot">Click a spot on the map to inspect</div>
+            <div id="spot-info" style="display:none">
+              <div style="margin-bottom:12px"><label class="fl">Spot ID</label><div style="font-family:'JetBrains Mono';font-size:14px;color:var(--teal)" id="si-id">A-001</div></div>
+              <div style="margin-bottom:12px"><label class="fl">Status</label><select class="fi" id="si-status" onchange="updateSpotStatus()"><option value="avail">Available</option><option value="occ">Occupied</option><option value="rsv">Reserved</option><option value="hc">Handicap</option><option value="dis">Disabled</option></select></div>
+              <div style="margin-bottom:12px"><label class="fl">Type</label><select class="fi"><option>Standard</option><option>Compact</option><option>Oversized</option><option>EV Charging</option><option>Motorcycle</option></select></div>
+              <div style="margin-bottom:12px"><label class="fl">Sensor ID</label><input type="text" class="fi" value="SNS-A001" style="font-family:'JetBrains Mono';font-size:12px"></div>
+              <div style="margin-bottom:12px"><label class="fl">Coordinates</label><div style="font-family:'JetBrains Mono';font-size:11px;color:var(--txt3)" id="si-coords">X: 142, Y: 68</div></div>
+              <div style="display:flex;gap:8px"><button class="btn btn-p btn-sm" style="flex:1;font-size:11px;padding:8px">💾 Save</button><button class="btn btn-s btn-sm" style="flex:1;font-size:11px;padding:8px">↩️ Reset</button></div>
+            </div>
+          </div>
+          <div class="config-panel" style="margin-top:12px">
+            <div class="ct" style="margin-bottom:8px">Map Stats</div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12px"><span style="color:var(--txt3)">Total Spots</span><span style="font-weight:600">186</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12px"><span style="color:var(--txt3)">Available</span><span style="font-weight:600;color:var(--grn)">124</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12px"><span style="color:var(--txt3)">Occupied</span><span style="font-weight:600;color:var(--red)">38</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12px"><span style="color:var(--txt3)">Reserved</span><span style="font-weight:600;color:var(--gold)">12</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12px"><span style="color:var(--txt3)">Handicap</span><span style="font-weight:600;color:var(--teal)">12</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- PAGE: Layers & Zones -->
+    <div id="pg-layers" class="pg">
+      <div class="ph"><h1>Layers & Zones</h1><p>Configure map overlay layers, zone boundaries, and heatmap visualizations</p></div>
+      <div class="g2">
+        <div class="cd">
+          <div class="ct">Active Layers</div>
+          <div class="cfg-row"><div><div class="cfg-l">Spot Status (Real-time)</div><div class="cfg-d">Color-coded occupancy</div></div><label class="tg"><input type="checkbox" checked><span class="tg-s"></span></label></div>
+          <div class="cfg-row"><div><div class="cfg-l">Heatmap Overlay</div><div class="cfg-d">Occupancy frequency visualization</div></div><label class="tg"><input type="checkbox" checked><span class="tg-s"></span></label></div>
+          <div class="cfg-row"><div><div class="cfg-l">Sensor Network</div><div class="cfg-d">Sensor positions & signal strength</div></div><label class="tg"><input type="checkbox"><span class="tg-s"></span></label></div>
+          <div class="cfg-row"><div><div class="cfg-l">Driving Lanes</div><div class="cfg-d">Traffic flow directional arrows</div></div><label class="tg"><input type="checkbox" checked><span class="tg-s"></span></label></div>
+          <div class="cfg-row"><div><div class="cfg-l">Zone Boundaries</div><div class="cfg-d">VIP, handicap, EV zone outlines</div></div><label class="tg"><input type="checkbox" checked><span class="tg-s"></span></label></div>
+          <div class="cfg-row"><div><div class="cfg-l">Pedestrian Paths</div><div class="cfg-d">Walking routes to elevators/exits</div></div><label class="tg"><input type="checkbox"><span class="tg-s"></span></label></div>
+          <div class="cfg-row"><div><div class="cfg-l">EV Charger Status</div><div class="cfg-d">Charging station availability</div></div><label class="tg"><input type="checkbox"><span class="tg-s"></span></label></div>
+        </div>
+        <div class="cd">
+          <div class="ct">Defined Zones</div>
+          <table class="tbl"><thead><tr><th>Zone</th><th>Type</th><th>Spots</th><th>Rate</th></tr></thead><tbody>
+            <tr><td>VIP Section A</td><td><span class="pill" style="background:rgba(212,168,67,.15);color:var(--gold)">Premium</span></td><td>24</td><td>$8.00/hr</td></tr>
+            <tr><td>Handicap Row</td><td><span class="pill" style="background:rgba(59,160,181,.15);color:var(--teal)">ADA</span></td><td>12</td><td>$3.00/hr</td></tr>
+            <tr><td>EV Charging</td><td><span class="pill" style="background:rgba(72,187,120,.15);color:var(--grn)">EV</span></td><td>8</td><td>$5.00/hr + kWh</td></tr>
+            <tr><td>Employee</td><td><span class="pill" style="background:rgba(160,174,192,.15);color:var(--txt2)">Staff</span></td><td>20</td><td>Free</td></tr>
+            <tr><td>General</td><td><span class="pill p-act">Standard</span></td><td>122</td><td>$4.00/hr</td></tr>
+          </tbody></table>
+          <button class="btn btn-s" style="margin-top:12px;width:100%">➕ Add Zone</button>
+        </div>
+      </div>
+    </div>
+    <!-- PAGE: Sensor Mapping -->
+    <div id="pg-sensors" class="pg">
+      <div class="ph"><h1>Sensor Mapping</h1><p>Assign IoT sensors to spots — auto-pair or manual mapping</p></div>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-v" style="color:var(--grn)">174</div><div class="stat-l">Paired</div></div>
+        <div class="stat"><div class="stat-v" style="color:var(--gold)">8</div><div class="stat-l">Unpaired</div></div>
+        <div class="stat"><div class="stat-v" style="color:var(--red)">4</div><div class="stat-l">Offline</div></div>
+        <div class="stat"><div class="stat-v" style="color:var(--teal)">-71 dBm</div><div class="stat-l">Avg Signal</div></div>
+      </div>
+      <div class="cd">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div class="ct" style="margin:0">Sensor Registry</div>
+          <div style="display:flex;gap:8px"><button class="btn btn-p">🔄 Auto-Pair All</button><button class="btn btn-s">📥 Import CSV</button></div>
+        </div>
+        <table class="tbl"><thead><tr><th>Sensor ID</th><th>Spot</th><th>Type</th><th>Signal</th><th>Battery</th><th>Status</th><th>Last Ping</th></tr></thead><tbody>
+          <tr><td style="font-family:'JetBrains Mono';font-size:11px">SNS-A001</td><td>A-001</td><td>Ultrasonic</td><td>-68 dBm</td><td>94%</td><td><span class="pill p-act">Online</span></td><td>2s ago</td></tr>
+          <tr><td style="font-family:'JetBrains Mono';font-size:11px">SNS-A002</td><td>A-002</td><td>Ultrasonic</td><td>-72 dBm</td><td>87%</td><td><span class="pill p-act">Online</span></td><td>1s ago</td></tr>
+          <tr><td style="font-family:'JetBrains Mono';font-size:11px">SNS-A003</td><td>A-003</td><td>Magnetic</td><td>-65 dBm</td><td>91%</td><td><span class="pill p-act">Online</span></td><td>4s ago</td></tr>
+          <tr><td style="font-family:'JetBrains Mono';font-size:11px">SNS-B012</td><td>B-012</td><td>Camera (CV)</td><td>-58 dBm</td><td>AC</td><td><span class="pill p-act">Online</span></td><td>1s ago</td></tr>
+          <tr><td style="font-family:'JetBrains Mono';font-size:11px">SNS-B045</td><td>—</td><td>Ultrasonic</td><td>—</td><td>78%</td><td><span class="pill p-pen">Unpaired</span></td><td>—</td></tr>
+          <tr><td style="font-family:'JetBrains Mono';font-size:11px">SNS-C008</td><td>C-008</td><td>Magnetic</td><td>-89 dBm</td><td>12%</td><td><span class="pill p-err">Low Battery</span></td><td>45s ago</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <!-- PAGE: MAE Settings -->
+    <div id="pg-config" class="pg">
+      <div class="ph"><h1>MAE Settings</h1><p>Configure Map Acquisition Engine behavior, AI detection, and integration options</p></div>
+      <div class="g2">
+        <div class="cd">
+          <div class="ct">AI Detection Settings</div>
+          <div class="cfg-row"><div><div class="cfg-l">Auto-Detect Spots on Upload</div><div class="cfg-d">Run CV analysis immediately after map upload</div></div><label class="tg"><input type="checkbox" checked><span class="tg-s"></span></label></div>
+          <div class="cfg-row"><div><div class="cfg-l">Detect Handicap Markings</div><div class="cfg-d">Identify ADA-compliant spots by symbol</div></div><label class="tg"><input type="checkbox" checked><span class="tg-s"></span></label></div>
+          <div class="cfg-row"><div><div class="cfg-l">Detect EV Charger Icons</div><div class="cfg-d">Find charging stations on floor plans</div></div><label class="tg"><input type="checkbox" checked><span class="tg-s"></span></label></div>
+          <div class="cfg-row"><div><div class="cfg-l">Detect Driving Lanes</div><div class="cfg-d">Auto-trace lane boundaries and directions</div></div><label class="tg"><input type="checkbox"><span class="tg-s"></span></label></div>
+          <div style="margin-top:12px"><label class="fl">Confidence Threshold</label><select class="fi"><option>95% (Strict)</option><option selected>90% (Balanced)</option><option>80% (Permissive)</option><option>70% (Aggressive)</option></select></div>
+          <div style="margin-top:12px"><label class="fl">Detection Model</label><select class="fi"><option selected>UniPark CV v3.2 (Latest)</option><option>UniPark CV v3.1</option><option>UniPark CV v2.8 (Stable)</option></select></div>
+        </div>
+        <div class="cd">
+          <div class="ct">Sensor Integration</div>
+          <div class="cfg-row"><div><div class="cfg-l">Auto-Pair by Proximity</div><div class="cfg-d">Match sensors to nearest spot automatically</div></div><label class="tg"><input type="checkbox" checked><span class="tg-s"></span></label></div>
+          <div class="cfg-row"><div><div class="cfg-l">BLE Beacon Support</div><div class="cfg-d">Enable Bluetooth Low Energy beacons for locator</div></div><label class="tg"><input type="checkbox" checked><span class="tg-s"></span></label></div>
+          <div class="cfg-row"><div><div class="cfg-l">Real-Time MQTT Feed</div><div class="cfg-d">Live sensor events via MQTT broker</div></div><label class="tg"><input type="checkbox" checked><span class="tg-s"></span></label></div>
+          <div class="cfg-row"><div><div class="cfg-l">Offline Sensor Alerts</div><div class="cfg-d">Notify when sensor goes offline > 5min</div></div><label class="tg"><input type="checkbox" checked><span class="tg-s"></span></label></div>
+          <div style="margin-top:12px"><label class="fl">Sensor Poll Interval</label><select class="fi"><option>500ms (Real-time)</option><option selected>2 seconds</option><option>5 seconds</option><option>10 seconds</option><option>30 seconds</option></select></div>
+          <div style="margin-top:12px"><label class="fl">MQTT Broker URL</label><input type="text" class="fi" value="mqtt://sensors.universalparkingsystems.com:1883" style="font-family:'JetBrains Mono';font-size:11px"></div>
+        </div>
+      </div>
+      <div class="cd">
+        <div class="ct">Map Rendering & Display</div>
+        <div class="g3">
+          <div><label class="fl">Default Zoom Level</label><select class="fi"><option>Fit to Window</option><option selected>100%</option><option>75%</option><option>50%</option></select></div>
+          <div><label class="fl">Spot Label Display</label><select class="fi"><option selected>Spot ID</option><option>Sensor ID</option><option>Zone Name</option><option>None</option></select></div>
+          <div><label class="fl">Color Scheme</label><select class="fi"><option selected>Standard (Green/Red/Gold)</option><option>Colorblind Safe</option><option>High Contrast</option><option>Monochrome</option></select></div>
+          <div><label class="fl">Animation Speed</label><select class="fi"><option>Instant</option><option selected>Fast (200ms)</option><option>Normal (400ms)</option><option>Smooth (600ms)</option></select></div>
+          <div><label class="fl">Grid Overlay</label><select class="fi"><option selected>On</option><option>Off</option></select></div>
+          <div><label class="fl">Heatmap Resolution</label><select class="fi"><option>Low (fast)</option><option selected>Medium</option><option>High (detailed)</option></select></div>
+        </div>
+      </div>
+      <div class="cd">
+        <div class="ct">Data & Export</div>
+        <div class="g2">
+          <div><label class="fl">Auto-Backup Maps</label><select class="fi"><option>Every Hour</option><option selected>Every 6 Hours</option><option>Daily</option><option>Weekly</option></select></div>
+          <div><label class="fl">Export Format</label><select class="fi"><option selected>GeoJSON</option><option>SVG + Metadata</option><option>CSV Coordinates</option><option>AutoCAD DXF</option></select></div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:16px">
+          <button class="btn btn-p">💾 Save Configuration</button>
+          <button class="btn btn-s">↩️ Reset to Defaults</button>
+          <button class="btn btn-s">📥 Export All Maps</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function go(id){document.querySelectorAll('.pg').forEach(p=>p.classList.remove('act'));document.getElementById('pg-'+id).classList.add('act');document.querySelectorAll('.nav-i').forEach(n=>n.classList.remove('act'));const navs=document.querySelectorAll('.nav-i');const map={dash:0,acquire:1,wizard:2,maps:3,editor:4,layers:5,sensors:6,config:7};if(map[id]!==undefined)navs[map[id]].classList.add('act');if(id==='editor')renderSpots();}
+let curTool='select',selSpot=null;
+function setTool(t,el){curTool=t;document.querySelectorAll('.map-btn').forEach(b=>b.classList.remove('act'));if(el)el.classList.add('act');}
+const spotData=[];
+(function initSpots(){const types=['avail','avail','avail','avail','avail','avail','occ','occ','rsv','hc'];for(let r=0;r<2;r++){for(let c=0;c<16;c++){const idx=r*16+c;const type=c<1?'hc':types[Math.floor(Math.random()*10)];spotData.push({id:(r===0?'A':'B')+'-'+String(c+1).padStart(3,'0'),row:r,col:c,type:type,x:8+c*5.6,y:r===0?8:62});}}})();
+function renderSpots(){const ct=document.getElementById('spots-container');if(!ct)return;ct.innerHTML='';spotData.forEach((s,i)=>{const d=document.createElement('div');d.className='spot '+s.type;d.style.left=s.x+'%';d.style.top=s.y+'%';d.style.width='4.2%';d.style.height='26%';d.textContent=s.id.split('-')[1];d.onclick=()=>inspectSpot(i);ct.appendChild(d);});}
+function inspectSpot(i){selSpot=i;const s=spotData[i];document.getElementById('no-spot').style.display='none';document.getElementById('spot-info').style.display='block';document.getElementById('si-id').textContent=s.id;document.getElementById('si-status').value=s.type;document.getElementById('si-coords').textContent='X: '+Math.round(s.x*10)+', Y: '+Math.round(s.y*10);}
+function updateSpotStatus(){if(selSpot===null)return;spotData[selSpot].type=document.getElementById('si-status').value;renderSpots();}
+function selSrc(el,type){document.querySelectorAll('.src-opt').forEach(o=>{o.style.borderColor='var(--bdr)';o.style.background='none';o.classList.remove('act');});el.style.borderColor='var(--teal)';el.style.background='rgba(59,160,181,.05)';el.classList.add('act');}
+let uploading=false;
+function simulateUpload(){if(uploading)return;uploading=true;document.getElementById('upload-zone').style.display='none';document.getElementById('upload-prog').style.display='block';let pct=0;const iv=setInterval(()=>{pct+=Math.random()*15+5;if(pct>=100){pct=100;clearInterval(iv);document.getElementById('upload-prog').style.display='none';document.getElementById('upload-done').style.display='block';setTimeout(()=>{document.getElementById('ai-detect').style.display='block';runAI();},500);}document.getElementById('prog-bar').style.width=pct+'%';document.getElementById('prog-pct').textContent=Math.round(pct)+'%';},200);}
+function runAI(){let dots=0;const st=document.getElementById('ai-status');const msgs=['Analyzing floor plan dimensions...','Detecting parking spot boundaries...','Classifying spot types (standard, HC, EV)...','Identifying driving lanes...','Computing confidence scores...','Detection complete!'];let step=0;const iv=setInterval(()=>{if(step<msgs.length){st.textContent=msgs[step];step++;}else{clearInterval(iv);st.textContent='✅ Detection complete — 186 spots found at 98.4% confidence';st.style.color='var(--grn)';document.getElementById('ai-results').style.display='grid';document.querySelector('#ai-detect .pulse').style.animation='none';document.querySelector('#ai-detect .pulse').style.background='var(--grn)';}},800);}
+renderSpots();
+</script>
+</body>
+</html>

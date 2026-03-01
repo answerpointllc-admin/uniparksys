@@ -1,0 +1,53 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UPS Instance Setup</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+:root{--bg:#F5F7FA;--card:#FFF;--bdr:#E2E8F0;--navy:#1B2A4A;--teal:#2BA4B5;--grn:#48BB78;--red:#C8102E;--txt:#2D3748;--mut:#718096}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);padding:16px}
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:16px;margin-bottom:12px}
+.tabs{display:flex;gap:2px;margin-bottom:16px;background:#E2E8F0;border-radius:6px;padding:3px}
+.tab{padding:6px 14px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;color:var(--mut)}.tab.active{background:#FFF;color:var(--navy);box-shadow:0 1px 2px rgba(0,0,0,.1)}
+label{display:block;font-size:11px;font-weight:600;color:var(--navy);margin-bottom:3px}
+input,select{width:100%;padding:7px 10px;border:1px solid var(--bdr);border-radius:5px;font-size:12px;margin-bottom:10px}
+.btn{padding:7px 16px;border:none;border-radius:5px;font-weight:600;font-size:11px;cursor:pointer}
+.btn-pri{background:var(--teal);color:#FFF}.btn-sec{background:#EDF2F7;color:var(--navy)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.step{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--bdr);border-radius:6px;margin-bottom:4px;font-size:11px}
+.step-n{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+.step-n.done{background:var(--grn);color:#FFF}.step-n.run{background:#ECC94B;color:#744210}.step-n.wait{background:#EDF2F7;color:var(--mut)}
+.prog{height:4px;background:#E2E8F0;border-radius:2px;margin:8px 0}.prog-bar{height:100%;background:linear-gradient(90deg,var(--teal),var(--grn));border-radius:2px;transition:width .4s}
+.log{background:#1A202C;border-radius:6px;padding:8px;font-family:monospace;font-size:10px;color:#68D391;max-height:200px;overflow-y:auto;line-height:1.7}
+.badge{display:inline-block;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:600}
+.badge.g{background:#C6F6D5;color:#22543D}.badge.o{background:#FEFCBF;color:#744210}.badge.b{background:#BEE3F8;color:#2A4365}
+</style></head><body><div id="root"></div>
+<script type="text/babel">
+const {useState}=React;
+const ARCHS=[{id:'single',nm:'Single Server',ic:'🖥️'},{id:'split',nm:'Split (App+DB)',ic:'🔀'},{id:'cluster',nm:'Clustered',ic:'🌐'}];
+const STEPS=['Validate Config','Create Database','Schema Migration','Seed Reference Data','Create Admin User','Configure API Keys','Setup Webhooks','Generate Verification Key','Run Health Check','Finalize'];
+function App(){
+const [tab,setTab]=useState('provision');
+const [f,sF]=useState({cn:'',ce:'',arch:'single',reg:'us-east',dh:'localhost',dp:'3306',dn:'',au:'',ae:'',ap:'',plan:'professional'});
+const [step,setSt]=useState(0);const [run,setRun]=useState(false);const [logs,setLogs]=useState([]);
+const [insts]=useState([{id:'UPS-2024-001',cl:'Metro Parking Co',st:'Active',dt:'2025-11-15',pl:'Enterprise',ar:'cluster'},{id:'UPS-2024-002',cl:'CityPark Solutions',st:'Active',dt:'2025-12-01',pl:'Professional',ar:'split'},{id:'UPS-2024-003',cl:'Harbor Lots Inc',st:'Provisioning',dt:'2026-02-20',pl:'Starter',ar:'single'}]);
+const add=(m)=>setLogs(p=>[...p,`[${new Date().toLocaleTimeString()}] ${m}`]);
+const go=async()=>{if(!f.cn||!f.ae){alert('Client name and admin email required');return;}setRun(true);setSt(0);setLogs([]);for(let i=0;i<STEPS.length;i++){setSt(i);add(`[${i+1}/${STEPS.length}] ${STEPS[i]}...`);await new Promise(r=>setTimeout(r,700+Math.random()*500));if(i===1)add(`Database created on ${f.dh}`);if(i===4)add(`Admin '${f.ae}' created`);if(i===7)add('Key: VK-'+Math.random().toString(36).slice(2,10).toUpperCase());if(i===9)add('✓ Instance provisioned: UPS-'+Date.now().toString(36).toUpperCase());}setSt(STEPS.length);setRun(false);};
+const s=(k,v)=>sF({...f,[k]:v});
+return <div>
+<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}><div><div style={{fontSize:16,fontWeight:700,color:'var(--navy)'}}>🔧 Instance Setup</div><div style={{fontSize:10,color:'var(--mut)'}}>Provision new UniPark customer instances</div></div></div>
+<div className="tabs">{['provision','dashboard','passwords','log'].map(t=><div key={t} className={`tab ${tab===t?'active':''}`} onClick={()=>setTab(t)}>{t==='provision'?'New Instance':t==='dashboard'?'Instances':t==='passwords'?'Passwords':'Log'}</div>)}</div>
+{tab==='provision'&&<div>
+<div className="card"><div style={{fontSize:12,fontWeight:700,marginBottom:8}}>Client Info</div><div className="grid2"><div><label>Client Name *</label><input value={f.cn} onChange={e=>s('cn',e.target.value)} placeholder="Metro Parking Co"/></div><div><label>Contact Email *</label><input value={f.ce} onChange={e=>s('ce',e.target.value)} placeholder="admin@client.com"/></div><div><label>Plan</label><select value={f.plan} onChange={e=>s('plan',e.target.value)}><option value="starter">Starter</option><option value="professional">Professional</option><option value="enterprise">Enterprise</option></select></div><div><label>Region</label><select value={f.reg} onChange={e=>s('reg',e.target.value)}><option value="us-east">US East</option><option value="us-west">US West</option></select></div></div></div>
+<div className="card"><div style={{fontSize:12,fontWeight:700,marginBottom:8}}>Architecture</div><div style={{display:'flex',gap:8}}>{ARCHS.map(a=><div key={a.id} onClick={()=>s('arch',a.id)} style={{flex:1,padding:8,border:`2px solid ${f.arch===a.id?'var(--teal)':'var(--bdr)'}`,borderRadius:6,cursor:'pointer',textAlign:'center',background:f.arch===a.id?'#E6FFFA':'transparent'}}><div style={{fontSize:18}}>{a.ic}</div><div style={{fontSize:10,fontWeight:700}}>{a.nm}</div></div>)}</div></div>
+<div className="card"><div style={{fontSize:12,fontWeight:700,marginBottom:8}}>Database</div><div className="grid2"><div><label>Host</label><input value={f.dh} onChange={e=>s('dh',e.target.value)}/></div><div><label>Port</label><input value={f.dp} onChange={e=>s('dp',e.target.value)}/></div></div></div>
+<div className="card"><div style={{fontSize:12,fontWeight:700,marginBottom:8}}>Admin Account</div><div className="grid2"><div><label>Name</label><input value={f.au} onChange={e=>s('au',e.target.value)}/></div><div><label>Email *</label><input value={f.ae} onChange={e=>s('ae',e.target.value)}/></div></div></div>
+{run&&<div className="card"><div style={{fontSize:12,fontWeight:700,marginBottom:4}}>Progress</div><div className="prog"><div className="prog-bar" style={{width:`${(step/STEPS.length)*100}%`}}/></div>{STEPS.map((s,i)=><div key={i} className="step"><div className={`step-n ${i<step?'done':i===step&&run?'run':'wait'}`}>{i<step?'✓':i+1}</div>{s}</div>)}</div>}
+<div style={{display:'flex',gap:6,marginTop:8}}><button className="btn btn-pri" onClick={go} disabled={run}>{run?'Provisioning...':'🚀 Start'}</button><button className="btn btn-sec" onClick={()=>{sF({cn:'',ce:'',arch:'single',reg:'us-east',dh:'localhost',dp:'3306',dn:'',au:'',ae:'',ap:'',plan:'professional'});setLogs([]);setSt(0)}}>Reset</button></div>
+</div>}
+{tab==='dashboard'&&<div className="card"><div style={{fontSize:12,fontWeight:700,marginBottom:8}}>Active Instances ({insts.length})</div><table style={{width:'100%',borderCollapse:'collapse',fontSize:11}}><thead><tr>{['ID','Client','Plan','Arch','Status','Created'].map(h=><th key={h} style={{textAlign:'left',padding:'6px',color:'var(--mut)',borderBottom:'2px solid var(--bdr)'}}>{h}</th>)}</tr></thead><tbody>{insts.map(i=><tr key={i.id} style={{borderBottom:'1px solid #F0F0F0'}}><td style={{padding:'6px',fontFamily:'monospace',fontWeight:600}}>{i.id}</td><td style={{padding:'6px'}}>{i.cl}</td><td style={{padding:'6px'}}><span className={`badge ${i.pl==='Enterprise'?'b':i.pl==='Professional'?'g':'o'}`}>{i.pl}</span></td><td style={{padding:'6px'}}>{i.ar}</td><td style={{padding:'6px'}}><span className={`badge ${i.st==='Active'?'g':'o'}`}>{i.st}</span></td><td style={{padding:'6px',color:'var(--mut)'}}>{i.dt}</td></tr>)}</tbody></table></div>}
+{tab==='passwords'&&<div className="card"><div style={{fontSize:12,fontWeight:700,marginBottom:8}}>Password Management</div><div className="grid2"><div><label>Instance</label><select>{insts.map(i=><option key={i.id}>{i.id} ({i.cl})</option>)}</select></div><div><label>Action</label><select><option>Reset Admin Password</option><option>Rotate API Key</option><option>Reset Verification Key</option></select></div></div><button className="btn btn-pri" style={{background:'var(--red)',marginTop:4}}>⚠️ Execute</button></div>}
+{tab==='log'&&<div className="card"><div style={{fontSize:12,fontWeight:700,marginBottom:8}}>Setup Log</div><div className="log">{logs.length===0?<div style={{color:'var(--mut)'}}>No activity yet</div>:logs.map((l,i)=><div key={i}>{l}</div>)}</div></div>}
+</div>;}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script></body></html>

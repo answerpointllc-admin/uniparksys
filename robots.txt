@@ -1,0 +1,10 @@
+# UniPark - uniparksystems.com
+User-agent: *
+Allow: /
+Allow: /trial/
+Disallow: /app/
+Disallow: /admin/
+Disallow: /portal/
+Disallow: /login/
+
+Sitemap: https://www.uniparksystems.com/sitemap.xml

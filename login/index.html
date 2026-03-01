@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><path d='M18 2L32 9V23L18 34L4 23V9Z' fill='%231B2A4A'/><text x='18' y='20' text-anchor='middle' font-family='sans-serif' font-weight='800' font-size='12' fill='white'>P</text><circle cx='18' cy='29.5' r='2.5' fill='%23E8883E'/></svg>">
+<title>UniPark — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#1B2A4A;--navy-d:#0F1A2E;--teal:#3BA0B5;--teal-d:#2D8295;--org:#E8883E;--gold:#D4A843;--green:#22C55E;--red:#DC2626;--border:#E2E8F0;--muted:#64748B;--bg:#F8FAFB}
+body{font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;background:linear-gradient(135deg,var(--navy-d) 0%,var(--navy) 50%,#243B5E 100%);position:relative;overflow:hidden}
+body::before{content:'';position:absolute;top:-30%;right:-15%;width:60%;height:160%;background:radial-gradient(ellipse,rgba(59,160,181,.1) 0%,transparent 60%);pointer-events:none}
+body::after{content:'';position:absolute;bottom:-20%;left:-10%;width:50%;height:100%;background:radial-gradient(ellipse,rgba(232,136,62,.06) 0%,transparent 50%);pointer-events:none}
+h1,h2,h3{font-family:'Montserrat',sans-serif}
+.container{display:flex;align-items:center;justify-content:center;flex:1;padding:24px;position:relative;z-index:1}
+.login-card{background:#fff;border-radius:16px;padding:40px;width:420px;max-width:100%;box-shadow:0 8px 32px rgba(0,0,0,.2),0 2px 8px rgba(0,0,0,.1)}
+.logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px}
+.logo svg{width:36px;height:36px}
+.logo span{font-family:'Montserrat';font-weight:800;font-size:22px;color:var(--navy)}
+.logo .u{color:var(--navy)}.logo .p{color:var(--teal)}
+.subtitle{text-align:center;font-size:13px;color:var(--muted);margin-bottom:28px}
+.label{font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px}
+.input{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans';outline:none;transition:.2s;margin-bottom:14px}
+.input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(59,160,181,.1)}
+.sel{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans';background:#fff;outline:none;margin-bottom:14px;cursor:pointer}
+.sel:focus{border-color:var(--teal)}
+.role-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.role-card{border:2px solid var(--border);border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:.2s}
+.role-card:hover{border-color:rgba(59,160,181,.4)}
+.role-card.selected{border-color:var(--teal);background:rgba(59,160,181,.04);box-shadow:0 0 0 3px rgba(59,160,181,.1)}
+.role-card .rc-icon{font-size:22px;margin-bottom:4px}
+.role-card .rc-name{font-size:12px;font-weight:700;color:var(--navy)}
+.role-card .rc-desc{font-size:10px;color:var(--muted);margin-top:2px}
+.btn-login{width:100%;padding:13px;border-radius:10px;font-family:'Montserrat';font-weight:800;font-size:14px;cursor:pointer;border:none;background:var(--teal);color:#fff;transition:.2s;margin-bottom:12px}
+.btn-login:hover{background:var(--teal-d);transform:translateY(-1px)}
+.divider{display:flex;align-items:center;gap:12px;margin:16px 0;font-size:11px;color:var(--muted)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.btn-sso{width:100%;padding:11px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--navy);transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px}
+.btn-sso:hover{border-color:var(--teal);color:var(--teal)}
+.demo-box{background:rgba(232,136,62,.06);border:1px solid rgba(232,136,62,.2);border-radius:10px;padding:12px;margin-bottom:18px;font-size:12px;line-height:1.6}
+.demo-box strong{color:var(--org)}
+.demo-box code{background:rgba(0,0,0,.05);padding:2px 6px;border-radius:3px;font-size:11px}
+.footer-links{text-align:center;font-size:11px;color:var(--muted);margin-top:16px}
+.footer-links a{color:var(--teal);text-decoration:none}
+/* LOADING */
+.login-loading{display:none;text-align:center;padding:32px 0}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin:14px 0}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--org));border-radius:2px;width:0;animation:progressAnim 1.8s ease forwards}
+@keyframes progressAnim{0%{width:0}40%{width:60%}70%{width:85%}100%{width:100%}}
+.step-list{text-align:left;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.step-item{display:flex;align-items:center;gap:8px;opacity:.4;transition:.3s}
+.step-item.done{opacity:1;color:var(--green)}
+.step-item.active{opacity:1;color:var(--navy)}
+</style>
+<script src="/app/js/apms-error-handler.js"></script>
+<script>APMSErrorHandler.init({product:'unipark',module:'login'});</script>
+</head>
+<body>
+<div class="container">
+<div class="login-card">
+<!-- FORM -->
+<div id="formState">
+<div class="logo">
+<svg viewBox="0 0 36 36" fill="none"><path d="M18 2L32 9V23L18 34L4 23V9L18 2Z" fill="#1B2A4A" stroke="#3BA0B5" stroke-width="1.2"/><text x="18" y="20" text-anchor="middle" font-family="Montserrat" font-weight="800" font-size="12" fill="#FFF">P</text><circle cx="18" cy="29.5" r="2.5" fill="#E8883E" stroke="#1B2A4A" stroke-width="1"/></svg>
+<span><span class="u">Uni</span><span class="p">Park</span></span>
+</div>
+<div class="subtitle">Sign in to your UniPark account</div>
+<div class="demo-box">
+<strong>Demo Environment</strong> — pre-filled credentials:<br>
+Email: <code>demo@unipark.com</code> · Password: <code>demo2026</code><br>
+Select a role below to explore different portals.
+</div>
+<label class="label">Email</label>
+<input class="input" id="email" value="demo@unipark.com">
+<label class="label">Password</label>
+<input class="input" id="pass" type="password" value="demo2026">
+<label class="label">Sign in as</label>
+<div class="role-cards">
+<div class="role-card selected" onclick="selectRole(this,'global')"><div class="rc-icon">🛡️</div><div class="rc-name">Global Admin</div><div class="rc-desc">Platform operations</div></div>
+<div class="role-card" onclick="selectRole(this,'local')"><div class="rc-icon">📊</div><div class="rc-name">Local Admin</div><div class="rc-desc">Facility operator</div></div>
+<div class="role-card" onclick="selectRole(this,'consumer')"><div class="rc-icon">🚗</div><div class="rc-name">Consumer</div><div class="rc-desc">Find & book parking</div></div>
+<div class="role-card" onclick="selectRole(this,'client')"><div class="rc-icon">🏗️</div><div class="rc-name">Client</div><div class="rc-desc">Facility owner</div></div>
+</div>
+<button class="btn-login" onclick="doLogin()">🔑 Sign In</button>
+<div class="divider">or</div>
+<button class="btn-sso">🔐 Sign in with SSO / SAML</button>
+<div class="footer-links">
+<a href="/trial/">Create a free trial account</a> · <a href="/">Back to uniparksystems.com</a>
+</div>
+</div>
+<!-- LOADING -->
+<div class="login-loading" id="loadingState">
+<div class="spinner"></div>
+<h3 style="font-size:16px;margin-bottom:4px" id="loadingTitle">Authenticating...</h3>
+<p style="font-size:12px;color:var(--muted)" id="loadingDesc">Verifying credentials and loading your environment</p>
+<div class="progress-bar"><div class="progress-fill"></div></div>
+<div class="step-list" id="stepList">
+<div class="step-item active" id="s1">⏳ Verifying credentials</div>
+<div class="step-item" id="s2">⏳ Loading permissions</div>
+<div class="step-item" id="s3">⏳ Preparing dashboard</div>
+<div class="step-item" id="s4">⏳ Redirecting...</div>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+let role='global';
+const routes={global:'/app/',local:'/admin/local/',consumer:'/portal/consumer/',client:'/portal/client/'};
+const titles={global:'Global Admin Dashboard',local:'Local Admin Portal',consumer:'Consumer Portal',client:'Client Portal'};
+function selectRole(el,r){
+document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('selected'));
+el.classList.add('selected');
+role=r;
+}
+function doLogin(){
+document.getElementById('formState').style.display='none';
+document.getElementById('loadingState').style.display='block';
+document.getElementById('loadingDesc').textContent='Signing in as '+titles[role];
+const steps=['s1','s2','s3','s4'];
+let i=0;
+const iv=setInterval(()=>{
+if(i>0)document.getElementById(steps[i-1]).classList.remove('active'),document.getElementById(steps[i-1]).classList.add('done'),document.getElementById(steps[i-1]).innerHTML='✅ '+document.getElementById(steps[i-1]).textContent.slice(2);
+if(i<steps.length){document.getElementById(steps[i]).classList.add('active')}
+i++;
+if(i>steps.length){clearInterval(iv);setTimeout(()=>{window.location.href=routes[role]},300)}
+},500);
+}
+</script>
+</body>
+</html>
