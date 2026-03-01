@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>UniPark — Map Acquisition Engine</title>
+  <meta name="description" content="UniPark Mobile Access Engine. Real-time facility access management and occupancy monitoring for parking operators.">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{--navy:#1A2332;--navy2:#0F1D35;--navy3:#253A5E;--teal:#3BA0B5;--org:#E8883E;--org2:#D4752E;--gold:#D4A843;--grn:#48BB78;--red:#E53E3E;--txt:#E8ECF1;--txt2:#A0AEC0;--txt3:#718096;--bdr:#2D3748;--card:#1E2D3D;--card2:#243447;--rl:12px;--r:8px;--tr:all .2s ease}
@@ -91,6 +92,11 @@ select.fi{cursor:pointer}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 .pulse{animation:pulse 2s ease infinite}
 </style>
+  <meta property="og:title"       content="UniPark Mobile Access Engine (MAE)">
+  <meta property="og:description" content="Manage facility access and real-time parking operations with UniPark MAE.">
+  <meta property="og:image"       content="https://uniparksystems.com/assets/og-image.svg">
+  <meta property="og:url"         content="https://uniparksystems.com/app/mae/">
+  <meta property="og:type"        content="website">
 </head>
 <body>
 <div class="hdr">
@@ -591,7 +597,7 @@ async function parkerSend(){
   c.scrollTop=c.scrollHeight;
   var reply='';
   try{
-    var r=await fetch('https://answerpointintelligence.ai/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,product:'parker',history:[]})});
+    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,product:'parker',history:[]})});
     var d=await r.json();reply=d&&(d.reply||d.message)||'';
   }catch(e){}
   if(!reply){
@@ -618,5 +624,18 @@ function parkerContactSubmit(){
 }
 </script>
 
+<footer style="background:#0d1b2e;border-top:1px solid rgba(255,255,255,.1);padding:18px 20px;text-align:center;color:rgba(255,255,255,.45);font-size:12px">
+  <div style="max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 16px">
+    <span><strong style="color:#fff">UniPark</strong> &mdash; Smart Parking Technology</span>
+    <span>&middot;</span>
+    <a href="tel:2166163188" style="color:#2BA4B5;text-decoration:none">216-616-3188</a>
+    <span>&middot;</span>
+    <a href="/privacy/" style="color:rgba(255,255,255,.4);text-decoration:none">Privacy</a>
+    <span>&middot;</span>
+    <a href="/terms/"   style="color:rgba(255,255,255,.4);text-decoration:none">Terms</a>
+    <span>&middot;</span>
+    <span style="font-size:10px">&copy; 2025 UniPark</span>
+  </div>
+</footer>
 </body>
 </html>

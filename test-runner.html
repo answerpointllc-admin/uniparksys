@@ -290,7 +290,7 @@ const CONFIG = {
       sub:   'POST /api/chat · product=parker',
       run: async () => {
         const t0 = Date.now();
-        const r = await fetch('https://answerpointintelligence.ai/api/chat', {
+        const r = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message: 'What is UniPark?', product: 'parker', history: [] }),

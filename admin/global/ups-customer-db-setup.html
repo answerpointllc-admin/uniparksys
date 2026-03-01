@@ -1,5 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>UPS Customer DB Setup</title>
+  <meta name="description" content="UniPark customer database setup and initialization tool for system administrators.">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
@@ -20,7 +21,12 @@ input{width:100%;padding:7px 10px;background:#0D2137;border:1px solid var(--bdr)
 .log{background:#060E1A;border-radius:5px;padding:8px;font-family:monospace;font-size:10px;color:var(--grn);max-height:180px;overflow-y:auto;line-height:1.6}
 .vk{background:linear-gradient(135deg,#132337,#1A3352);border:2px solid var(--teal);border-radius:8px;padding:14px;text-align:center;margin-top:10px}
 .vk-key{font-family:monospace;font-size:16px;color:var(--teal);letter-spacing:2px;margin:6px 0}
-</style></head><body><div id="root"></div>
+</style>  <meta property="og:title"       content="UniPark Customer DB Setup">
+  <meta property="og:description" content="Configure and initialize the UniPark customer database for new deployments.">
+  <meta property="og:image"       content="https://uniparksystems.com/assets/og-image.svg">
+  <meta property="og:url"         content="https://uniparksystems.com/admin/global/ups-customer-db-setup.html">
+  <meta property="og:type"        content="website">
+</head><body><div id="root"></div>
 <script type="text/babel">
 const {useState}=React;
 const TASKS=['Validate connection','Create schema','Deploy 21 tables','Create 12 stored procs','Create triggers','Setup replication user','Configure replication','Create API bridge user','Deploy API procs','Seed reference data','Create indexes','Run integrity check','Generate verification key'];
@@ -227,7 +233,7 @@ async function parkerSend(){
   c.scrollTop=c.scrollHeight;
   var reply='';
   try{
-    var r=await fetch('https://answerpointintelligence.ai/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,product:'parker',history:[]})});
+    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,product:'parker',history:[]})});
     var d=await r.json();reply=d&&(d.reply||d.message)||'';
   }catch(e){}
   if(!reply){
@@ -254,4 +260,17 @@ function parkerContactSubmit(){
 }
 </script>
 
+<footer style="background:#0d1b2e;border-top:1px solid rgba(255,255,255,.1);padding:18px 20px;text-align:center;color:rgba(255,255,255,.45);font-size:12px">
+  <div style="max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 16px">
+    <span><strong style="color:#fff">UniPark</strong> &mdash; Smart Parking Technology</span>
+    <span>&middot;</span>
+    <a href="tel:2166163188" style="color:#2BA4B5;text-decoration:none">216-616-3188</a>
+    <span>&middot;</span>
+    <a href="/privacy/" style="color:rgba(255,255,255,.4);text-decoration:none">Privacy</a>
+    <span>&middot;</span>
+    <a href="/terms/"   style="color:rgba(255,255,255,.4);text-decoration:none">Terms</a>
+    <span>&middot;</span>
+    <span style="font-size:10px">&copy; 2025 UniPark</span>
+  </div>
+</footer>
 </body></html>

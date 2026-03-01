@@ -1,5 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>UniPark Locator</title>
+  <meta name="description" content="Find available parking near you with UniPark. Real-time spot availability, instant booking, and secure payment. Park in under 60 seconds.">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0B0F14;--card:#131A24;--card2:#1A2332;--bdr:#1E2D3D;--navy:#1A2332;--navy2:#253A5E;--navy3:#0F1D35;--teal:#3BA0B5;--teal2:#4FC3D9;--gold:#D4A843;--org:#E8883E;--org2:#F5A623;--grn:#48BB78;--red:#F56565;--txt:#F7FAFC;--txt2:#E2E8F0;--txt3:#94A3B8;--mut:#4A5568;--r:12px;--rl:16px;--mono:'JetBrains Mono',monospace;--tr:all .2s ease}
@@ -109,6 +110,11 @@ h1,h2,h3{font-family:'Montserrat',sans-serif}
 /* Utility */
 .tc{text-align:center}
 </style>
+  <meta property="og:title"       content="Find Parking Near You — UniPark">
+  <meta property="og:description" content="Real-time parking availability and instant booking. Find and reserve your spot in seconds.">
+  <meta property="og:image"       content="https://uniparksystems.com/assets/og-image.svg">
+  <meta property="og:url"         content="https://uniparksystems.com/app/locator/">
+  <meta property="og:type"        content="website">
 </head>
 <body>
 <div class="app">
@@ -452,7 +458,7 @@ async function parkerSend(){
   c.scrollTop=c.scrollHeight;
   var reply='';
   try{
-    var r=await fetch('https://answerpointintelligence.ai/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,product:'parker',history:[]})});
+    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,product:'parker',history:[]})});
     var d=await r.json();reply=d&&(d.reply||d.message)||'';
   }catch(e){}
   if(!reply){
@@ -479,5 +485,18 @@ function parkerContactSubmit(){
 }
 </script>
 
+<footer style="background:#0d1b2e;border-top:1px solid rgba(255,255,255,.1);padding:18px 20px;text-align:center;color:rgba(255,255,255,.45);font-size:12px">
+  <div style="max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 16px">
+    <span><strong style="color:#fff">UniPark</strong> &mdash; Smart Parking Technology</span>
+    <span>&middot;</span>
+    <a href="tel:2166163188" style="color:#2BA4B5;text-decoration:none">216-616-3188</a>
+    <span>&middot;</span>
+    <a href="/privacy/" style="color:rgba(255,255,255,.4);text-decoration:none">Privacy</a>
+    <span>&middot;</span>
+    <a href="/terms/"   style="color:rgba(255,255,255,.4);text-decoration:none">Terms</a>
+    <span>&middot;</span>
+    <span style="font-size:10px">&copy; 2025 UniPark</span>
+  </div>
+</footer>
 </body>
 </html>

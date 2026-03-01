@@ -301,7 +301,7 @@ h1,h2,h3,h4{font-family:'Montserrat',sans-serif}
 </div>
 </section>
 
-<footer class="footer">
+<footer class="footer"><div style="text-align:center;padding:4px 0;font-size:12px"><a href="tel:2166163188" style="color:#2BA4B5">216-616-3188</a></div>
 <div class="container">© 2026 Universal Parking Systems. All rights reserved. · Cleveland, Ohio · <a href="/" style="color:var(--teal)">uniparksystems.com</a></div>
 </footer>
 
@@ -531,7 +531,7 @@ async function parkerSend(){
   c.scrollTop=c.scrollHeight;
   var reply='';
   try{
-    var r=await fetch('https://answerpointintelligence.ai/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,product:'parker',history:[]})});
+    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,product:'parker',history:[]})});
     var d=await r.json();reply=d&&(d.reply||d.message)||'';
   }catch(e){}
   if(!reply){

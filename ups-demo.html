@@ -445,7 +445,7 @@ async function testParkerAPI() {
   log('info', 'Testing Parker chat API…');
   try {
     const start = Date.now();
-    const resp = await fetch('https://answerpointintelligence.ai/api/chat', {
+    const resp = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: 'What is UniPark?', product: 'parker', history: [] })
