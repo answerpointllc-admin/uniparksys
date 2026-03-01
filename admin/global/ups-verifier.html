@@ -24,7 +24,13 @@ input{width:100%;padding:8px 12px;border:1px solid var(--bdr);border-radius:5px;
   <meta property="og:image"       content="https://uniparksystems.com/assets/og-image.svg">
   <meta property="og:url"         content="https://uniparksystems.com/admin/global/ups-verifier.html">
   <meta property="og:type"        content="website">
-</head><body><div id="root"></div>
+</head><body>
+<nav style="background:#1B2A4A;padding:10px 20px;display:flex;align-items:center;gap:20px;font-family:'DM Sans',sans-serif;border-bottom:1px solid rgba(255,255,255,.08)">
+  <a href="/" style="color:#fff;font-weight:800;font-family:'Montserrat',sans-serif;font-size:14px;text-decoration:none">Uni<span style="color:#2BA4B5">Park</span></a>
+  <a href="/app/locator/" style="color:rgba(255,255,255,.65);text-decoration:none;font-size:13px">Find Parking</a>
+  <a href="/trial/" style="color:rgba(255,255,255,.65);text-decoration:none;font-size:13px">Free Trial</a>
+  <a href="/portal/consumer/" style="color:rgba(255,255,255,.65);text-decoration:none;font-size:13px">My Account</a>
+</nav><div id="root"></div>
 <script type="text/babel">
 const {useState}=React;
 const CKS=[{n:'Key format',c:'Key'},{n:'Checksum validation',c:'Key'},{n:'Instance ID lookup',c:'Key'},{n:'Database connectivity',c:'DB'},{n:'Schema version',c:'DB'},{n:'Table count (21)',c:'DB'},{n:'Stored procs (12)',c:'DB'},{n:'FK integrity',c:'DB'},{n:'Replication status',c:'Repl'},{n:'Replication lag',c:'Repl'},{n:'API health',c:'API'},{n:'API auth test',c:'API'},{n:'Webhook delivery',c:'Integ'},{n:'Admin login',c:'Access'},{n:'SSL certificate',c:'Security'}];
