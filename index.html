@@ -56,7 +56,35 @@ h1,h2,h3{font-family:'Montserrat',sans-serif}
 }
 
 /* === HERO === */
-.hero{background:linear-gradient(135deg,#1B2A4A 0%,#2D3748 100%);color:#FFF;padding:60px 40px;text-align:center;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hero{background:linear-gradient(135deg,#1B2A4A 0%,#0f1e38 60%,#1a3a5c 100%);color:#FFF;padding:80px 60px 60px;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding-top:120px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.06) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;z-index:0}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,transparent,#1B2A4A 100%);pointer-events:none;z-index:0}
+.hero-inner{display:flex;align-items:flex-start;gap:48px;max-width:1100px;width:100%;position:relative;z-index:1}
+.hero-left{flex:0 0 55%;max-width:55%}
+.hero-right{flex:0 0 45%;max-width:45%;padding-top:12px}
+/* Dashboard mockup */
+.dash-mock{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:20px;transform:perspective(1000px) rotateY(-6deg) rotateX(2deg);box-shadow:0 32px 64px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.05);backdrop-filter:blur(4px)}
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.dash-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em}
+.dash-dot{width:8px;height:8px;border-radius:50%;background:#48BB78;box-shadow:0 0 6px #48BB78}
+.dash-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px 16px;margin-bottom:10px}
+.dash-card:last-child{margin-bottom:0}
+.dash-card-label{font-size:10px;font-weight:600;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+.dash-card-val{font-family:"Montserrat",sans-serif;font-size:22px;font-weight:800;color:#FFF;line-height:1}
+.dash-card-sub{font-size:10px;color:rgba(255,255,255,.35);margin-top:3px}
+.dash-card-val .up{color:#48BB78;font-size:12px;font-weight:600;margin-left:6px}
+/* Bar chart */
+.bar-chart{display:flex;align-items:flex-end;gap:5px;height:52px;margin-top:6px}
+.bar{border-radius:4px 4px 0 0;flex:1;transition:height .3s}
+.bar-wrap{display:flex;flex-direction:column;align-items:center;flex:1;gap:3px}
+.bar-lbl{font-size:8px;color:rgba(255,255,255,.3)}
+/* Progress bar */
+.dash-progress{height:6px;background:rgba(255,255,255,.1);border-radius:3px;margin-top:8px;overflow:hidden}
+.dash-progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#2BA4B5,#48BB78)}
+/* Ping dot */
+@keyframes ping{0%{transform:scale(1);opacity:1}100%{transform:scale(2);opacity:0}}
+.live-dot{position:relative;display:inline-flex;align-items:center;gap:5px;margin-bottom:6px}
+.live-dot::before{content:"";width:7px;height:7px;border-radius:50%;background:#48BB78;display:inline-block;box-shadow:0 0 0 0 rgba(72,187,120,.4);animation:ping 1.5s cubic-bezier(0,0,.2,1) infinite}
 .hero h1{font-size:clamp(28px,5vw,42px);margin-bottom:12px;line-height:1.15}
 .hero h1 span{color:var(--teal)}
 .hero p{max-width:600px;margin:0 auto 24px;color:#CBD5E0;font-size:15px;line-height:1.6}
@@ -116,7 +144,7 @@ footer a{color:var(--teal);text-decoration:none}
 @keyframes stmtRotate{0%,25%{transform:translateY(0)}33%,58%{transform:translateY(-32px)}66%,91%{transform:translateY(-64px)}100%{transform:translateY(0)}}
 
 @media(max-width:768px){
-  section,.hero{padding:40px 16px}
+  section{padding:40px 16px}.hero{padding:80px 20px 48px;padding-top:100px}.hero-inner{flex-direction:column;gap:32px}.hero-left,.hero-right{flex:none;max-width:100%}.dash-mock{transform:none}
   .hero-stats{gap:20px}
   footer{padding:20px 16px}
 }
@@ -190,15 +218,70 @@ function closeMob(){document.getElementById('mobOverlay').classList.remove('open
 
 <!-- HERO -->
 <div class="hero">
-  <svg viewBox="0 0 200 210" width="64" height="68" style="margin-bottom:16px"><defs><linearGradient id="ha" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1B2A4A"/><stop offset="100%" stop-color="#2B4C6F"/></linearGradient><linearGradient id="hb" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#E8952E"/><stop offset="100%" stop-color="#F5A623"/></linearGradient></defs><path d="M100,10 L180,40 L180,130 Q100,185 20,130 L20,40 Z" fill="url(#ha)"/><path d="M100,26 L166,50 L166,124 Q100,170 34,124 L34,50 Z" fill="none" stroke="#2BA4B5" stroke-width="2.5"/><text x="100" y="112" text-anchor="middle" fill="url(#hb)" font-family="Georgia,serif" font-size="66" font-weight="bold">P</text><circle cx="100" cy="192" r="6" fill="#E8952E"/></svg>
-  <div class="tag">INTELLIGENT PARKING TECHNOLOGY</div>
-  <h1>Transform Your Parking <span>Revenue</span></h1>
-  <p>UniPark is the complete SaaS platform for parking operators — real-time booking, dynamic pricing, IoT occupancy monitoring, and automated payment processing.</p>
-  <div><a class="btn btn-org" href="/app/locator/" style="font-size:15px;padding:12px 28px">Find Parking Now</a> <a class="btn btn-out" href="/trial/" style="font-size:15px;padding:12px 28px;border-color:#FFF;color:#FFF">Start Free Trial</a></div>
-  <div class="hero-stats">
-    <div class="hero-stat"><div class="v" style="color:#2BA4B5">32%</div><div class="l">Average Revenue Uplift</div></div>
-    <div class="hero-stat"><div class="v" style="color:#E8952E">60s</div><div class="l">Average Booking Time</div></div>
-    <div class="hero-stat"><div class="v" style="color:#48BB78">99.9%</div><div class="l">Platform Uptime</div></div>
+  <div class="hero-inner">
+
+    <!-- LEFT: Content -->
+    <div class="hero-left">
+      <div class="tag" style="margin-bottom:16px">INTELLIGENT PARKING TECHNOLOGY</div>
+      <h1 style="font-size:clamp(28px,4vw,46px);margin-bottom:14px;line-height:1.1">Transform Your Parking <span style="color:#2BA4B5">Revenue</span></h1>
+      <p style="color:#94A3B8;font-size:16px;line-height:1.7;margin-bottom:28px;max-width:480px">UniPark is the complete SaaS platform for parking operators — real-time booking, dynamic pricing, IoT occupancy monitoring, and automated payment processing.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px">
+        <a class="btn btn-org" href="/app/locator/" style="font-size:14px;padding:12px 24px">Find Parking Now</a>
+        <a class="btn btn-out" href="/trial/" style="font-size:14px;padding:12px 24px;border-color:rgba(255,255,255,.3);color:#FFF">Start Free Trial</a>
+      </div>
+      <div class="hero-stats" style="justify-content:flex-start;gap:32px">
+        <div class="hero-stat"><div class="v" style="color:#2BA4B5">32%</div><div class="l">Revenue Uplift</div></div>
+        <div class="hero-stat"><div class="v" style="color:#E8952E">60s</div><div class="l">Avg Booking Time</div></div>
+        <div class="hero-stat"><div class="v" style="color:#48BB78">99.9%</div><div class="l">Uptime</div></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Dashboard mockup -->
+    <div class="hero-right">
+      <div class="dash-mock">
+        <div class="dash-header">
+          <span class="dash-title">UniPark Live Dashboard</span>
+          <span class="live-dot" style="font-size:10px;color:#48BB78;font-weight:600">LIVE</span>
+        </div>
+
+        <!-- Occupancy bar chart -->
+        <div class="dash-card">
+          <div class="dash-card-label">Live Occupancy — Lot A–D</div>
+          <div class="bar-chart">
+            <div class="bar-wrap"><div class="bar" style="height:38px;background:linear-gradient(180deg,#2BA4B5,#1B8A99)"></div><div class="bar-lbl">A</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:48px;background:linear-gradient(180deg,#E8952E,#D07D1E)"></div><div class="bar-lbl">B</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:24px;background:linear-gradient(180deg,#48BB78,#38A169)"></div><div class="bar-lbl">C</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:42px;background:linear-gradient(180deg,#2BA4B5,#1B8A99)"></div><div class="bar-lbl">D</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:30px;background:linear-gradient(180deg,#48BB78,#38A169)"></div><div class="bar-lbl">E</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:52px;background:linear-gradient(180deg,#E8952E,#D07D1E)"></div><div class="bar-lbl">F</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:18px;background:linear-gradient(180deg,#48BB78,#38A169)"></div><div class="bar-lbl">G</div></div>
+          </div>
+        </div>
+
+        <!-- Revenue -->
+        <div class="dash-card">
+          <div class="dash-card-label">Revenue Today</div>
+          <div class="dash-card-val">$4,280<span class="up">↑ 14%</span></div>
+          <div class="dash-card-sub">vs. $3,752 yesterday</div>
+          <div class="dash-progress" style="margin-top:10px"><div class="dash-progress-fill" style="width:71%"></div></div>
+        </div>
+
+        <!-- Spots available -->
+        <div class="dash-card" style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div class="dash-card-label">Spots Available</div>
+            <div class="dash-card-val" style="font-size:28px">142<span style="font-size:14px;color:rgba(255,255,255,.3);font-weight:400">/200</span></div>
+            <div class="dash-card-sub">71% capacity · 4 lots</div>
+          </div>
+          <svg viewBox="0 0 36 36" width="52" height="52" style="transform:rotate(-90deg)">
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="3"/>
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke="#2BA4B5" stroke-width="3" stroke-dasharray="71 29" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </div>
 
