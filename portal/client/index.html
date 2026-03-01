@@ -408,35 +408,81 @@ document.getElementById('pageTitle').textContent=titles[id]||id;
 function switchInner(el){el.parentElement.querySelectorAll('.inner-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active')}
 </script>
 
+
 <!-- PARKER AI WIDGET -->
 <style>
-.parker-btn{position:fixed;bottom:20px;right:20px;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#1B2A4A,#2BA4B5);color:#FFF;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 24px rgba(43,164,181,.4);z-index:9000;font-size:22px;transition:transform .2s;border:none}
+.parker-btn{position:fixed;bottom:20px;right:20px;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#1B2A4A,#2BA4B5);color:#FFF;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 24px rgba(43,164,181,.4);z-index:9000;font-size:22px;transition:transform .2s;border:none;padding:0}
 .parker-btn:hover{transform:scale(1.08)}
 .parker-badge{position:absolute;top:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:#E8952E;border:2px solid #FFF}
-.parker-panel{display:none;position:fixed;bottom:88px;right:20px;width:340px;max-height:480px;background:#FFF;border:1px solid #E2E8F0;border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,.15);z-index:9001;overflow:hidden;flex-direction:column}
+.parker-panel{display:none;position:fixed;bottom:88px;right:20px;width:350px;max-height:500px;background:#FFF;border:1px solid #E2E8F0;border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,.18);z-index:9001;overflow:hidden;flex-direction:column}
 .parker-panel.show{display:flex}
-.parker-hdr{background:linear-gradient(135deg,#1B2A4A,#2B4C6F);padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.parker-hdr{background:linear-gradient(135deg,#1B2A4A,#2B4C6F);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
 .parker-hdr-info{display:flex;align-items:center;gap:10px}
-.parker-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2BA4B5,#1B8A99);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#FFF}
-.parker-hdr-text .pname{font-size:14px;font-weight:700;color:#FFF}
+.parker-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2BA4B5,#1B8A99);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#FFF;flex-shrink:0}
+.parker-hdr-text .pname{font-size:14px;font-weight:700;color:#FFF;line-height:1.2}
 .parker-hdr-text .psub{font-size:10px;color:rgba(255,255,255,.5)}
-.parker-close{background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:18px;line-height:1}
+.parker-close{background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:18px;line-height:1;padding:0}
 .parker-close:hover{color:#FFF}
-.parker-msgs{flex:1;overflow-y:auto;padding:12px;background:#F7FAFC;min-height:260px;max-height:320px}
+.parker-tabs{display:flex;background:#F7FAFC;border-bottom:1px solid #E2E8F0;flex-shrink:0}
+.ptab{flex:1;padding:8px 4px;font-size:10px;font-weight:700;text-align:center;cursor:pointer;color:#718096;border-bottom:2px solid transparent;transition:all .15s;border-top:none;border-left:none;border-right:none;background:none;font-family:inherit}
+.ptab:hover{color:#2BA4B5;background:rgba(43,164,181,.04)}
+.ptab.active{color:#2BA4B5;border-bottom-color:#2BA4B5;background:#FFF}
+.parker-body{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.ptab-content{display:none;flex:1;flex-direction:column;overflow:hidden}
+.ptab-content.show{display:flex}
+/* Chat tab */
+.parker-msgs{flex:1;overflow-y:auto;padding:12px;background:#F7FAFC;min-height:220px}
 .pmsg-bot{display:flex;gap:8px;margin-bottom:10px}
-.pmsg-bot .pbubble{background:#FFF;border:1px solid #E2E8F0;border-radius:12px;border-bottom-left-radius:4px;padding:10px 12px;font-size:12px;color:#2D3748;line-height:1.6;max-width:230px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.pmsg-bot .pb{background:#FFF;border:1px solid #E2E8F0;border-radius:12px;border-bottom-left-radius:4px;padding:9px 12px;font-size:12px;color:#2D3748;line-height:1.6;max-width:240px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .pmsg-user{display:flex;justify-content:flex-end;margin-bottom:10px}
-.pmsg-user .pbubble{background:linear-gradient(135deg,#2BA4B5,#1B8A99);color:#FFF;border-radius:12px;border-bottom-right-radius:4px;padding:10px 12px;font-size:12px;line-height:1.6;max-width:230px}
+.pmsg-user .pb{background:linear-gradient(135deg,#2BA4B5,#1B8A99);color:#FFF;border-radius:12px;border-bottom-right-radius:4px;padding:9px 12px;font-size:12px;line-height:1.6;max-width:240px}
 .parker-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
-.parker-chip{padding:5px 10px;background:#EBF8FF;border:1px solid #BEE3F8;border-radius:14px;color:#2BA4B5;font-size:10px;font-weight:600;cursor:pointer;transition:all .15s}
+.parker-chip{padding:5px 9px;background:#EBF8FF;border:1px solid #BEE3F8;border-radius:14px;color:#2BA4B5;font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
 .parker-chip:hover{background:#BEE3F8}
-.parker-input-row{padding:8px;border-top:1px solid #E2E8F0;display:flex;gap:6px;background:#FFF}
+.parker-input-row{padding:8px;border-top:1px solid #E2E8F0;display:flex;gap:6px;background:#FFF;flex-shrink:0}
 .parker-input{flex:1;border:1px solid #E2E8F0;border-radius:20px;padding:8px 14px;font-size:12px;font-family:inherit;outline:none;color:#2D3748;background:#F7FAFC;transition:border .2s}
 .parker-input:focus{border-color:#2BA4B5}
 .parker-send{width:34px;height:34px;border-radius:50%;background:#2BA4B5;color:#FFF;border:none;cursor:pointer;font-size:14px;flex-shrink:0;transition:background .15s}
 .parker-send:hover{background:#1B8A99}
+/* Find Parking tab */
+.pfind{padding:16px;overflow-y:auto;flex:1}
+.pfind h4{font-size:13px;font-weight:700;color:#1B2A4A;margin-bottom:4px}
+.pfind p{font-size:11px;color:#718096;margin-bottom:14px;line-height:1.5}
+.pfind-btn{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#F7FAFC;border:1px solid #E2E8F0;border-radius:10px;text-decoration:none;color:#1B2A4A;margin-bottom:8px;transition:all .2s;font-size:13px;font-weight:600}
+.pfind-btn:hover{border-color:#2BA4B5;background:#EBF8FF;color:#2BA4B5}
+.pfind-btn .pfi{font-size:22px;width:36px;text-align:center;flex-shrink:0}
+.pfind-btn .pft{font-size:11px;color:#718096;font-weight:400;margin-top:1px}
+/* Pricing tab */
+.ppricing{padding:12px;overflow-y:auto;flex:1}
+.pplan{border:1px solid #E2E8F0;border-radius:10px;padding:12px 14px;margin-bottom:8px;transition:all .2s}
+.pplan:hover{border-color:#2BA4B5}
+.pplan.pop{border-color:#2BA4B5;background:#F0FFFE}
+.pplan-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.pplan-name{font-size:13px;font-weight:700;color:#1B2A4A}
+.pplan-price{font-size:16px;font-weight:800;color:#2BA4B5;font-family:'Montserrat',sans-serif}
+.pplan-price span{font-size:11px;color:#718096;font-weight:400}
+.pplan-features{font-size:11px;color:#718096;line-height:1.8}
+.pplan-features li{list-style:none;padding-left:0}
+.pplan-features li::before{content:"✓ ";color:#2BA4B5;font-weight:700}
+.pplan-badge{font-size:9px;background:#2BA4B5;color:#FFF;padding:2px 7px;border-radius:10px;font-weight:700;letter-spacing:.5px}
+.ppricing-cta{display:block;text-align:center;padding:10px;background:#2BA4B5;color:#FFF;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;margin-top:4px;transition:background .2s}
+.ppricing-cta:hover{background:#1B8A99}
+/* Contact tab */
+.pcontact{padding:14px;overflow-y:auto;flex:1}
+.pcontact-info{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F7FAFC;border-radius:8px;margin-bottom:8px;font-size:12px;color:#2D3748;text-decoration:none}
+.pcontact-info:hover{background:#EBF8FF}
+.pcontact-info .pci{font-size:18px;width:28px;text-align:center}
+.pcontact-label{font-size:10px;color:#718096;font-weight:500}
+.pcontact-val{font-weight:600;color:#1B2A4A}
+.pcontact-divider{font-size:11px;font-weight:700;color:#718096;text-transform:uppercase;letter-spacing:.05em;margin:12px 0 8px}
+.pcontact-form input,.pcontact-form select{width:100%;padding:8px 10px;border:1px solid #E2E8F0;border-radius:7px;font-size:12px;font-family:inherit;color:#2D3748;outline:none;margin-bottom:6px;transition:border .2s}
+.pcontact-form input:focus,.pcontact-form select:focus{border-color:#2BA4B5}
+.pcontact-submit{width:100%;padding:9px;background:#E8952E;color:#FFF;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s}
+.pcontact-submit:hover{background:#D07D1E}
+.pcontact-success{display:none;background:#F0FFF4;border:1px solid #9AE6B4;border-radius:7px;padding:10px;text-align:center;font-size:12px;color:#276749;font-weight:600;margin-top:4px}
 @media(max-width:768px){.parker-panel{width:calc(100% - 32px);right:16px;left:16px}}
 </style>
+
 <button class="parker-btn" onclick="toggleParker()" aria-label="Chat with Parker">💬<span class="parker-badge"></span></button>
 <div class="parker-panel" id="parkerPanel">
   <div class="parker-hdr">
@@ -446,29 +492,96 @@ function switchInner(el){el.parentElement.querySelectorAll('.inner-tab').forEach
     </div>
     <button class="parker-close" onclick="toggleParker()">✕</button>
   </div>
-  <div class="parker-msgs" id="parkerMsgs">
-    <div class="pmsg-bot"><div class="pbubble">Hi! I'm Parker, UniPark's AI assistant. Ask me anything about the platform, pricing, or your parking operation.</div></div>
-    <div class="parker-chips">
-      <span class="parker-chip" onclick="parkerQuick('How does dynamic pricing work?')">Dynamic pricing</span>
-      <span class="parker-chip" onclick="parkerQuick('What does the Pro plan include?')">Pro plan</span>
-      <span class="parker-chip" onclick="parkerQuick('How does IoT occupancy work?')">IoT sensors</span>
-      <span class="parker-chip" onclick="parkerQuick('How long does setup take?')">Setup time</span>
-    </div>
+  <div class="parker-tabs">
+    <button class="ptab active" onclick="parkerTab('chat')">💬 Chat</button>
+    <button class="ptab" onclick="parkerTab('find')">🚗 Find</button>
+    <button class="ptab" onclick="parkerTab('pricing')">💰 Pricing</button>
+    <button class="ptab" onclick="parkerTab('contact')">📞 Contact</button>
   </div>
-  <div class="parker-input-row">
-    <input class="parker-input" id="parkerIn" placeholder="Ask about UniPark..." onkeydown="if(event.key==='Enter')parkerSend()">
-    <button class="parker-send" onclick="parkerSend()">↑</button>
+  <div class="parker-body">
+
+    <!-- CHAT TAB -->
+    <div class="ptab-content show" id="ptab-chat">
+      <div class="parker-msgs" id="parkerMsgs">
+        <div class="pmsg-bot"><div class="pb">Hi! I'm Parker, UniPark's AI assistant. Ask me anything about the platform, pricing, or your parking operation.</div></div>
+        <div class="parker-chips">
+          <span class="parker-chip" onclick="parkerQuick('How does dynamic pricing work?')">Dynamic pricing</span>
+          <span class="parker-chip" onclick="parkerQuick('What does the Pro plan include?')">Pro plan</span>
+          <span class="parker-chip" onclick="parkerQuick('How does IoT occupancy work?')">IoT sensors</span>
+          <span class="parker-chip" onclick="parkerQuick('How long does setup take?')">Setup time</span>
+        </div>
+      </div>
+      <div class="parker-input-row">
+        <input class="parker-input" id="parkerIn" placeholder="Ask about UniPark..." onkeydown="if(event.key==='Enter')parkerSend()">
+        <button class="parker-send" onclick="parkerSend()">↑</button>
+      </div>
+    </div>
+
+    <!-- FIND PARKING TAB -->
+    <div class="ptab-content" id="ptab-find">
+      <div class="pfind">
+        <h4>Find & Book Parking</h4>
+        <p>Search available spots near you, book in seconds, and navigate straight to your space.</p>
+        <a class="pfind-btn" href="/app/locator/"><span class="pfi">🧭</span><div><div>Parking Locator</div><div class="pft">Find available spots near you now</div></div></a>
+        <a class="pfind-btn" href="/app-download/"><span class="pfi">📱</span><div><div>Download the App</div><div class="pft">Free iOS &amp; Android — voice navigation</div></div></a>
+        <a class="pfind-btn" href="/app/"><span class="pfi">📊</span><div><div>Operator Dashboard</div><div class="pft">Manage your parking facilities</div></div></a>
+        <a class="pfind-btn" href="/trial/"><span class="pfi">🚀</span><div><div>Start Free Trial</div><div class="pft">15 days free — no credit card required</div></div></a>
+      </div>
+    </div>
+
+    <!-- PRICING TAB -->
+    <div class="ptab-content" id="ptab-pricing">
+      <div class="ppricing">
+        <div class="pplan">
+          <div class="pplan-hdr"><span class="pplan-name">Starter</span><span class="pplan-price">$199<span>/mo</span></span></div>
+          <ul class="pplan-features"><li>Up to 3 facilities</li><li>Online booking</li><li>Basic analytics</li><li>Email support</li></ul>
+        </div>
+        <div class="pplan pop">
+          <div class="pplan-hdr"><span class="pplan-name">Professional <span class="pplan-badge">POPULAR</span></span><span class="pplan-price">$499<span>/mo</span></span></div>
+          <ul class="pplan-features"><li>Up to 15 facilities</li><li>Dynamic pricing AI</li><li>IoT sensor integration</li><li>Priority support</li></ul>
+        </div>
+        <div class="pplan">
+          <div class="pplan-hdr"><span class="pplan-name">Enterprise</span><span class="pplan-price">Custom</span></div>
+          <ul class="pplan-features"><li>Unlimited facilities</li><li>Dedicated account manager</li><li>API access + SLA</li><li>White-label option</li></ul>
+        </div>
+        <a class="ppricing-cta" href="/trial/">Start 15-Day Free Trial →</a>
+      </div>
+    </div>
+
+    <!-- CONTACT TAB -->
+    <div class="ptab-content" id="ptab-contact">
+      <div class="pcontact">
+        <a class="pcontact-info" href="mailto:hello@uniparksystems.com"><span class="pci">✉️</span><div><div class="pcontact-label">Email</div><div class="pcontact-val">hello@uniparksystems.com</div></div></a>
+        <a class="pcontact-info" href="/trial/"><span class="pci">🚀</span><div><div class="pcontact-label">Get Started</div><div class="pcontact-val">Start your free 15-day trial</div></div></a>
+        <div class="pcontact-divider">Request a Demo</div>
+        <div class="pcontact-form" id="pContactForm">
+          <input type="text" id="pcName" placeholder="Your name" required>
+          <input type="email" id="pcEmail" placeholder="Work email" required>
+          <input type="text" id="pcCompany" placeholder="Company / facility name" required>
+          <select id="pcSize"><option value="">Facility count...</option><option>1-3 facilities</option><option>4-15 facilities</option><option>16-50 facilities</option><option>50+ facilities</option></select>
+          <button class="pcontact-submit" onclick="parkerContactSubmit()">Request Demo →</button>
+          <div class="pcontact-success" id="pcSuccess">✅ Got it! We'll reach out within 1 business day.</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
+
 <script>
 if(!window._parkerLoaded){window._parkerLoaded=true;
 function toggleParker(){document.getElementById('parkerPanel').classList.toggle('show')}
+function parkerTab(t){
+  document.querySelectorAll('.ptab').forEach(function(el,i){el.classList.toggle('active',['chat','find','pricing','contact'][i]===t)});
+  document.querySelectorAll('.ptab-content').forEach(function(el){el.classList.remove('show')});
+  var el=document.getElementById('ptab-'+t);if(el)el.classList.add('show');
+}
 function parkerQuick(t){document.getElementById('parkerIn').value=t;parkerSend()}
 async function parkerSend(){
   var inp=document.getElementById('parkerIn'),t=inp.value.trim();if(!t)return;inp.value='';
   var c=document.getElementById('parkerMsgs');
-  c.innerHTML+='<div class="pmsg-user"><div class="pbubble">'+t+'</div></div>';
-  c.innerHTML+='<div class="pmsg-bot" id="pTyping"><div class="pbubble" style="color:#A0AEC0">Parker is thinking...</div></div>';
+  c.innerHTML+='<div class="pmsg-user"><div class="pb">'+t+'</div></div>';
+  c.innerHTML+='<div class="pmsg-bot" id="pTyping"><div class="pb" style="color:#A0AEC0">Parker is thinking...</div></div>';
   c.scrollTop=c.scrollHeight;
   var reply='';
   try{
@@ -476,13 +589,25 @@ async function parkerSend(){
     var d=await r.json();reply=d&&(d.reply||d.message)||'';
   }catch(e){}
   if(!reply){
-    var canned={'dynamic pricing':'Our AI-driven dynamic pricing adjusts rates based on real-time demand, events, and competitor pricing. Operators typically see 20-35% revenue uplift in the first 90 days.','pro plan':'The Professional plan ($499/mo) includes up to 15 facilities, dynamic pricing AI, IoT sensor integration, priority support, and custom branding.','iot':'UniPark integrates with standard parking sensors via MQTT. Real-time occupancy data flows into your dashboard across every lot, level, and zone.','setup':'Most operators are live within 2-3 business days. Our onboarding team handles everything — no technical team required on your end.'};
+    var canned={'dynamic pricing':'Our AI-driven dynamic pricing adjusts rates based on real-time demand, events, and competitor pricing. Operators typically see 20-35% revenue uplift in the first 90 days.','pro plan':'The Professional plan ($499/mo) includes up to 15 facilities, dynamic pricing AI, IoT sensor integration, and priority support. 15-day free trial included.','iot':'UniPark integrates with standard parking sensors via MQTT. Real-time occupancy data flows into your dashboard across every lot, level, and zone.','setup':'Most operators are live within 2-3 business days. Our team handles facility configuration, rate setup, and payment activation — no technical team required on your end.'};
     var key=Object.keys(canned).find(function(k){return t.toLowerCase().indexOf(k)>=0});
-    reply=canned[key]||'Great question! UniPark covers booking, dynamic pricing, IoT occupancy, and analytics. Would you like to request a demo or learn more about a specific feature?';
+    reply=canned[key]||'Great question! UniPark covers booking, dynamic pricing, IoT occupancy, and analytics. Switch to the Pricing or Contact tab to learn more or request a demo.';
   }
   var el=document.getElementById('pTyping');if(el)el.remove();
-  c.innerHTML+='<div class="pmsg-bot"><div class="pbubble">'+reply+'</div></div>';
+  c.innerHTML+='<div class="pmsg-bot"><div class="pb">'+reply+'</div></div>';
   c.scrollTop=c.scrollHeight;
+}
+function parkerContactSubmit(){
+  var name=document.getElementById('pcName').value.trim();
+  var email=document.getElementById('pcEmail').value.trim();
+  var company=document.getElementById('pcCompany').value.trim();
+  if(!name||!email||!company){alert('Please fill in your name, email, and company.');return;}
+  document.querySelector('.pcontact-submit').textContent='Sending...';
+  document.querySelector('.pcontact-submit').disabled=true;
+  setTimeout(function(){
+    document.getElementById('pcSuccess').style.display='block';
+    document.querySelector('.pcontact-submit').style.display='none';
+  },700);
 }
 }
 </script>
