@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Self-Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#1B2A4A;--teal:#2BA4B5;--orange:#E8952E;--dark:#0C1219;--card:#111827;--border:#1E293B;--text:#E2E8F0;--muted:#94A3B8}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);min-height:100vh}
+.top{background:var(--navy);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--teal)}
+.top h1{font-size:22px;color:#fff;font-weight:700}
+.top h1 span{color:var(--teal)}
+.top .badge{background:var(--orange);color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:1px}
+.hero{text-align:center;padding:60px 32px 40px;max-width:800px;margin:0 auto}
+.hero h2{font-size:36px;color:#fff;margin-bottom:16px}
+.hero h2 span{color:var(--teal)}
+.hero p{color:var(--muted);font-size:16px;line-height:1.6;margin-bottom:32px}
+.modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;padding:0 32px 40px;max-width:1200px;margin:0 auto}
+.mod{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.mod:hover{border-color:var(--teal);transform:translateY(-4px);box-shadow:0 8px 32px rgba(43,164,181,.15)}
+.mod::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--teal);transform:scaleX(0);transition:transform .3s;transform-origin:left}
+.mod:hover::before{transform:scaleX(1)}
+.mod .icon{font-size:32px;margin-bottom:12px}
+.mod h3{font-size:18px;color:#fff;margin-bottom:8px}
+.mod p{font-size:13px;color:var(--muted);line-height:1.5}
+.mod .role{display:inline-block;margin-top:12px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;letter-spacing:.5px}
+.r1{background:rgba(239,68,68,.15);color:#EF4444}.r2{background:rgba(249,115,22,.15);color:#F97316}
+.r3{background:rgba(34,197,94,.15);color:#22C55E}.r4{background:rgba(59,130,246,.15);color:#3B82F6}
+.r5{background:rgba(43,164,181,.15);color:var(--teal)}
+.demo-panel{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:100;padding:20px;overflow-y:auto}
+.demo-panel.active{display:flex;flex-direction:column;align-items:center}
+.demo-content{background:var(--card);border:1px solid var(--border);border-radius:16px;max-width:1000px;width:100%;padding:32px;position:relative;animation:slideUp .4s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+.demo-content .close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer}
+.demo-content .close:hover{color:#fff}
+.demo-content h2{font-size:24px;color:#fff;margin-bottom:8px}
+.demo-content .sub{color:var(--teal);font-size:14px;margin-bottom:24px}
+.tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+.tab{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;transition:all .2s}
+.tab.active,.tab:hover{background:var(--teal);color:#fff;border-color:var(--teal)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.mock{background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:16px}
+.mock h4{color:var(--teal);font-size:14px;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:rgba(43,164,181,.08);border:1px solid rgba(43,164,181,.2);border-radius:8px;padding:14px;text-align:center}
+.kpi .val{font-size:24px;font-weight:700;color:#fff}
+.kpi .lbl{font-size:11px;color:var(--muted);margin-top:4px}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{background:var(--navy);color:#fff;padding:10px 12px;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text)}
+.tbl tr:hover td{background:rgba(43,164,181,.05)}
+.status{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.s-green{background:rgba(34,197,94,.15);color:#22C55E}
+.s-blue{background:rgba(59,130,246,.15);color:#3B82F6}
+.s-orange{background:rgba(249,115,22,.15);color:#F97316}
+.s-red{background:rgba(239,68,68,.15);color:#EF4444}
+.lot-map{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin:16px 0}
+.spot{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
+.spot.free{background:#166534}.spot.occ{background:#991B1B}.spot.res{background:#1E40AF}.spot.mnt{background:#525252}
+.creds{background:rgba(232,149,46,.08);border:1px solid rgba(232,149,46,.3);border-radius:8px;padding:20px;margin:32px auto;max-width:1200px}
+.creds h4{color:var(--orange);font-size:14px;margin-bottom:12px}
+.creds table{width:100%;font-size:13px;border-collapse:collapse}
+.creds td,.creds th{padding:6px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.creds th{color:var(--muted);font-size:11px;text-transform:uppercase}
+.footer{text-align:center;padding:40px;color:var(--muted);font-size:12px;border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+<div class="top">
+  <div style="display:flex;align-items:center;gap:12px"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 340 60'%3E%3Cpath d='M25,3 L47,12 L47,34 Q25,47 3,34 L3,12 Z' fill='%231B2A4A'/%3E%3Cpath d='M25,8 L43,15 L43,32 Q25,43 7,32 L7,15 Z' fill='none' stroke='%232BA4B5' stroke-width='1'/%3E%3Ctext x='25' y='27' text-anchor='middle' fill='%232BA4B5' font-family='Arial' font-size='14' font-weight='bold'%3EUPS%3C/text%3E%3Ctext x='25' y='37' text-anchor='middle' fill='%23E8952E' font-family='Arial' font-size='7'%3ESaaS%3C/text%3E%3Ctext x='60' y='22' font-family='Arial' font-size='14' fill='%23E2E8F0' letter-spacing='3'%3EUNIVERSAL%3C/text%3E%3Ctext x='60' y='36' font-family='Arial' font-size='14' font-weight='bold' fill='%232BA4B5' letter-spacing='2'%3EPARKING%3C/text%3E%3Ctext x='60' y='48' font-family='Arial' font-size='9' fill='%2364748B' letter-spacing='3'%3ESYSTEMS%3C/text%3E%3C/svg%3E" style="height:40px" alt="UPS Logo"/><span style="font-size:14px;color:var(--muted)">Interactive Demo</span></div>
+  <span class="badge">SELF-GUIDED DEMO</span>
+</div>
+
+<div class="hero">
+  <h2>Experience <span>UniPark</span> Firsthand</h2>
+  <p>Click any module below to explore the interface. Every screen is interactive with live mock data. No login required — just click and explore.</p>
+</div>
+
+<div class="modules">
+  <div class="mod" onclick="openDemo('global')">
+    <div class="icon">🔴</div>
+    <h3>Global Admin</h3>
+    <p>Platform-wide oversight with 11 tabs: fleet analytics, facility provisioning, LPR monitoring, and audit trails.</p>
+    <span class="role r1">UPS Internal Staff</span>
+  </div>
+  <div class="mod" onclick="openDemo('local')">
+    <div class="icon">🟠</div>
+    <h3>Local Admin</h3>
+    <p>Company-level operations: staff management, compliance tracking, incident reporting, and CCTV with PTZ control.</p>
+    <span class="role r2">Regional Managers</span>
+  </div>
+  <div class="mod" onclick="openDemo('consumer')">
+    <div class="icon">🟢</div>
+    <h3>Consumer Portal</h3>
+    <p>Driver experience: search parking, book spots, manage reservations, QR code entry/exit, and payment.</p>
+    <span class="role r3">Drivers / Public</span>
+  </div>
+  <div class="mod" onclick="openDemo('customer')">
+    <div class="icon">🔵</div>
+    <h3>Customer Portal</h3>
+    <p>Facility operator dashboard: revenue analytics, live lot map, booking management, and descriptor files.</p>
+    <span class="role r4">Facility Operators</span>
+  </div>
+  <div class="mod" onclick="openDemo('website')">
+    <div class="icon">🌐</div>
+    <h3>Public Website</h3>
+    <p>Marketing site with location search, pricing tiers, feature showcase, testimonials, and demo request.</p>
+    <span class="role r5">Public Facing</span>
+  </div>
+</div>
+
+<div class="creds">
+  <h4>🔐 Demo Credentials</h4>
+  <table>
+    <tr><th>Username</th><th>Password</th><th>Site</th><th>Role</th></tr>
+    <tr><td>gmcgregor</td><td>UniPark2026!</td><td>aps-master</td><td>Super Admin</td></tr>
+    <tr><td>cp-admin</td><td>demo1234</td><td>cleveland-parking</td><td>Facility Manager</td></tr>
+    <tr><td>demo</td><td>demo</td><td>(any)</td><td>Viewer</td></tr>
+  </table>
+</div>
+
+<!-- DEMO PANELS -->
+<div id="dp-global" class="demo-panel">
+  <div class="demo-content">
+    <button class="close" onclick="closeDemo()">&times;</button>
+    <h2>🔴 Global Admin</h2>
+    <div class="sub">AnswerPoint UPS — Platform Management</div>
+    <div class="tabs">
+      <button class="tab active" onclick="showTab(this,'ga-dash')">Dashboard</button>
+      <button class="tab" onclick="showTab(this,'ga-fac')">Facilities</button>
+      <button class="tab" onclick="showTab(this,'ga-lpr')">LPR Monitor</button>
+      <button class="tab" onclick="showTab(this,'ga-audit')">Audit Log</button>
+    </div>
+    <div id="ga-dash" class="tab-panel active">
+      <div class="kpi-row">
+        <div class="kpi"><div class="val">47</div><div class="lbl">Active Facilities</div></div>
+        <div class="kpi"><div class="val">$1.2M</div><div class="lbl">Monthly Revenue</div></div>
+        <div class="kpi"><div class="val">78.4%</div><div class="lbl">Fleet Occupancy</div></div>
+        <div class="kpi"><div class="val">12,847</div><div class="lbl">Active Reservations</div></div>
+      </div>
+      <div class="mock"><h4>Top Facilities by Revenue</h4>
+        <table class="tbl"><tr><th>Facility</th><th>City</th><th>Occupancy</th><th>Revenue (MTD)</th><th>Status</th></tr>
+        <tr><td>Cleveland Clinic Garage A</td><td>Cleveland</td><td>94%</td><td>$87,420</td><td><span class="status s-green">Active</span></td></tr>
+        <tr><td>University Circle Lot</td><td>Cleveland</td><td>82%</td><td>$64,310</td><td><span class="status s-green">Active</span></td></tr>
+        <tr><td>Playhouse Square Garage</td><td>Cleveland</td><td>71%</td><td>$52,880</td><td><span class="status s-green">Active</span></td></tr>
+        <tr><td>Hopkins Airport Economy</td><td>Cleveland</td><td>88%</td><td>$41,200</td><td><span class="status s-blue">Maintenance</span></td></tr></table>
+      </div>
+    </div>
+    <div id="ga-fac" class="tab-panel">
+      <div class="mock"><h4>Facility Management</h4>
+        <table class="tbl"><tr><th>Facility</th><th>Operator</th><th>Tier</th><th>Capacity</th><th>Status</th></tr>
+        <tr><td>Cleveland Clinic Garage A</td><td>Cleveland Parking Auth</td><td>Enterprise</td><td>2,400</td><td><span class="status s-green">Active</span></td></tr>
+        <tr><td>University Circle Lot</td><td>University Circle Inc</td><td>Professional</td><td>800</td><td><span class="status s-green">Active</span></td></tr>
+        <tr><td>CSU Parking Deck</td><td>Cleveland State University</td><td>Professional</td><td>1,200</td><td><span class="status s-orange">Pending</span></td></tr></table>
+      </div>
+    </div>
+    <div id="ga-lpr" class="tab-panel">
+      <div class="mock"><h4>Live LPR Events</h4>
+        <table class="tbl"><tr><th>Time</th><th>Plate</th><th>Facility</th><th>Event</th><th>Status</th></tr>
+        <tr><td>14:32:07</td><td>OH-ABC1234</td><td>Clinic Garage A</td><td>ENTRY</td><td><span class="status s-green">Matched</span></td></tr>
+        <tr><td>14:31:52</td><td>OH-XYZ9876</td><td>Univ Circle Lot</td><td>EXIT</td><td><span class="status s-green">Matched</span></td></tr>
+        <tr><td>14:31:18</td><td>PA-DEF5678</td><td>Clinic Garage A</td><td>ENTRY</td><td><span class="status s-red">Violation</span></td></tr></table>
+      </div>
+    </div>
+    <div id="ga-audit" class="tab-panel">
+      <div class="mock"><h4>Recent Audit Entries</h4>
+        <table class="tbl"><tr><th>Time</th><th>User</th><th>Action</th><th>Resource</th><th>IP</th></tr>
+        <tr><td>14:30:12</td><td>gmcgregor</td><td>UPDATE</td><td>Facility #12 rates</td><td>73.158.xx.xx</td></tr>
+        <tr><td>14:28:44</td><td>eweisberg</td><td>VIEW</td><td>Fleet Analytics</td><td>74.102.xx.xx</td></tr>
+        <tr><td>14:25:01</td><td>system</td><td>AUTO</td><td>SSL cert renewed</td><td>127.0.0.1</td></tr></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="dp-local" class="demo-panel">
+  <div class="demo-content">
+    <button class="close" onclick="closeDemo()">&times;</button>
+    <h2>🟠 Local Admin</h2>
+    <div class="sub">Cleveland Parking Authority — Operations</div>
+    <div class="tabs">
+      <button class="tab active" onclick="showTab(this,'la-dash')">Dashboard</button>
+      <button class="tab" onclick="showTab(this,'la-staff')">Staff</button>
+      <button class="tab" onclick="showTab(this,'la-cctv')">CCTV</button>
+    </div>
+    <div id="la-dash" class="tab-panel active">
+      <div class="kpi-row">
+        <div class="kpi"><div class="val">5</div><div class="lbl">Facilities</div></div>
+        <div class="kpi"><div class="val">$245K</div><div class="lbl">Monthly Revenue</div></div>
+        <div class="kpi"><div class="val">23</div><div class="lbl">Staff</div></div>
+        <div class="kpi"><div class="val">2</div><div class="lbl">Compliance Alerts</div></div>
+      </div>
+    </div>
+    <div id="la-staff" class="tab-panel">
+      <div class="mock"><h4>Staff Directory</h4>
+        <table class="tbl"><tr><th>Name</th><th>Role</th><th>Site</th><th>Status</th></tr>
+        <tr><td>Mike Johnson</td><td>Manager</td><td>Clinic Garage A</td><td><span class="status s-green">On Duty</span></td></tr>
+        <tr><td>Sarah Williams</td><td>Attendant</td><td>Univ Circle</td><td><span class="status s-green">On Duty</span></td></tr>
+        <tr><td>James Brown</td><td>Attendant</td><td>Clinic Garage A</td><td><span class="status s-orange">Off Duty</span></td></tr></table>
+      </div>
+    </div>
+    <div id="la-cctv" class="tab-panel">
+      <div class="mock"><h4>CCTV Feeds — PTZ Control Enabled</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div style="background:#000;border-radius:8px;padding:40px;text-align:center;color:var(--muted)">📷 Camera 1 — Entry Gate<br><span style="color:var(--teal);font-size:11px">LIVE • PTZ Active</span></div>
+          <div style="background:#000;border-radius:8px;padding:40px;text-align:center;color:var(--muted)">📷 Camera 2 — Level 2<br><span style="color:var(--teal);font-size:11px">LIVE • PTZ Active</span></div>
+          <div style="background:#000;border-radius:8px;padding:40px;text-align:center;color:var(--muted)">📷 Camera 3 — Exit Gate<br><span style="color:var(--teal);font-size:11px">LIVE • PTZ Active</span></div>
+          <div style="background:#000;border-radius:8px;padding:40px;text-align:center;color:var(--muted)">📷 Camera 4 — LPR<br><span style="color:var(--orange);font-size:11px">LIVE • LPR Active</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="dp-consumer" class="demo-panel">
+  <div class="demo-content">
+    <button class="close" onclick="closeDemo()">&times;</button>
+    <h2>🟢 Consumer Portal</h2>
+    <div class="sub">Find & Book Parking</div>
+    <div class="tabs">
+      <button class="tab active" onclick="showTab(this,'cp-search')">Search</button>
+      <button class="tab" onclick="showTab(this,'cp-book')">My Bookings</button>
+      <button class="tab" onclick="showTab(this,'cp-qr')">QR Code</button>
+    </div>
+    <div id="cp-search" class="tab-panel active">
+      <div class="mock"><h4>Find Parking Near You</h4>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:16px;display:flex;gap:8px">
+          <input type="text" value="Cleveland Clinic Main Campus" style="flex:1;background:var(--dark);border:1px solid var(--border);border-radius:6px;padding:10px;color:#fff;font-family:'DM Sans'">
+          <button style="background:var(--teal);color:#fff;border:none;border-radius:6px;padding:10px 20px;cursor:pointer;font-family:'DM Sans';font-weight:600">Search</button>
+        </div>
+        <table class="tbl"><tr><th>Facility</th><th>Distance</th><th>Rate</th><th>Available</th><th></th></tr>
+        <tr><td>Clinic Garage A</td><td>0.1 mi</td><td>$3/hr</td><td><span class="status s-green">142 spots</span></td><td><button style="background:var(--teal);color:#fff;border:none;border-radius:4px;padding:4px 12px;cursor:pointer;font-size:12px">Book</button></td></tr>
+        <tr><td>Euclid Ave Lot</td><td>0.3 mi</td><td>$2/hr</td><td><span class="status s-orange">23 spots</span></td><td><button style="background:var(--teal);color:#fff;border:none;border-radius:4px;padding:4px 12px;cursor:pointer;font-size:12px">Book</button></td></tr></table>
+      </div>
+    </div>
+    <div id="cp-book" class="tab-panel">
+      <div class="mock"><h4>Upcoming Reservations</h4>
+        <table class="tbl"><tr><th>Facility</th><th>Date</th><th>Time</th><th>Amount</th><th>Status</th></tr>
+        <tr><td>Clinic Garage A</td><td>Mar 3, 2026</td><td>8:00 AM - 5:00 PM</td><td>$27.00</td><td><span class="status s-blue">Confirmed</span></td></tr></table>
+      </div>
+    </div>
+    <div id="cp-qr" class="tab-panel">
+      <div class="mock" style="text-align:center"><h4>Your Entry QR Code</h4>
+        <div style="background:#fff;display:inline-block;padding:20px;border-radius:8px;margin:16px 0">
+          <div style="width:150px;height:150px;background:repeating-conic-gradient(#000 0% 25%,#fff 0% 50%) 0/20px 20px;border-radius:4px"></div>
+        </div>
+        <p style="color:var(--muted);font-size:13px">Present this code at the facility entrance scanner</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="dp-customer" class="demo-panel">
+  <div class="demo-content">
+    <button class="close" onclick="closeDemo()">&times;</button>
+    <h2>🔵 Customer Portal</h2>
+    <div class="sub">Cleveland Parking Authority — Facility Operations</div>
+    <div class="tabs">
+      <button class="tab active" onclick="showTab(this,'cu-dash')">Dashboard</button>
+      <button class="tab" onclick="showTab(this,'cu-map')">Lot Map</button>
+      <button class="tab" onclick="showTab(this,'cu-book')">Bookings</button>
+    </div>
+    <div id="cu-dash" class="tab-panel active">
+      <div class="kpi-row">
+        <div class="kpi"><div class="val">$4,280</div><div class="lbl">Today's Revenue</div></div>
+        <div class="kpi"><div class="val">87%</div><div class="lbl">Occupancy</div></div>
+        <div class="kpi"><div class="val">342</div><div class="lbl">Active Bookings</div></div>
+        <div class="kpi"><div class="val">$127K</div><div class="lbl">MTD Revenue</div></div>
+      </div>
+    </div>
+    <div id="cu-map" class="tab-panel">
+      <div class="mock"><h4>Live Lot Map — Clinic Garage A, Level 1</h4>
+        <div class="lot-map" id="lotMap"></div>
+        <div style="display:flex;gap:16px;margin-top:8px;font-size:11px;color:var(--muted)">
+          <span>🟢 Available</span><span>🔴 Occupied</span><span>🔵 Reserved</span><span>⬛ Maintenance</span>
+        </div>
+      </div>
+    </div>
+    <div id="cu-book" class="tab-panel">
+      <div class="mock"><h4>Recent Bookings</h4>
+        <table class="tbl"><tr><th>Driver</th><th>Vehicle</th><th>Space</th><th>Entry</th><th>Status</th></tr>
+        <tr><td>J. Smith</td><td>OH-ABC1234</td><td>A-101</td><td>8:14 AM</td><td><span class="status s-green">Active</span></td></tr>
+        <tr><td>M. Chen</td><td>OH-XYZ9876</td><td>A-204</td><td>9:02 AM</td><td><span class="status s-green">Active</span></td></tr>
+        <tr><td>R. Patel</td><td>PA-DEF5678</td><td>B-112</td><td>7:45 AM</td><td><span class="status s-orange">Overstay</span></td></tr></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="dp-website" class="demo-panel">
+  <div class="demo-content">
+    <button class="close" onclick="closeDemo()">&times;</button>
+    <h2>🌐 Public Website</h2>
+    <div class="sub">uniparksystems.com</div>
+    <div class="mock" style="text-align:center;padding:40px">
+      <h3 style="color:#fff;font-size:28px;margin-bottom:8px">Smart Parking. <span style="color:var(--teal)">Simplified.</span></h3>
+      <p style="color:var(--muted);margin-bottom:24px">The complete parking management platform for modern operators.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button style="background:var(--teal);color:#fff;border:none;border-radius:8px;padding:12px 24px;cursor:pointer;font-family:'DM Sans';font-weight:600">Find Parking Now</button>
+        <button style="background:transparent;color:var(--teal);border:1px solid var(--teal);border-radius:8px;padding:12px 24px;cursor:pointer;font-family:'DM Sans';font-weight:600">Start Free Trial</button>
+      </div>
+    </div>
+    <div class="mock"><h4>Pricing</h4>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+        <div style="background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:20px;text-align:center">
+          <div style="color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px">Starter</div>
+          <div style="color:#fff;font-size:28px;font-weight:700;margin:8px 0">$1,500<span style="font-size:14px;color:var(--muted)">/mo</span></div>
+          <div style="color:var(--muted);font-size:12px">Up to 200 spaces</div>
+        </div>
+        <div style="background:var(--dark);border:2px solid var(--teal);border-radius:8px;padding:20px;text-align:center">
+          <div style="color:var(--teal);font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:700">Professional</div>
+          <div style="color:#fff;font-size:28px;font-weight:700;margin:8px 0">$3,500<span style="font-size:14px;color:var(--muted)">/mo</span></div>
+          <div style="color:var(--muted);font-size:12px">Up to 2,000 spaces</div>
+        </div>
+        <div style="background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:20px;text-align:center">
+          <div style="color:var(--orange);font-size:12px;text-transform:uppercase;letter-spacing:1px">Enterprise</div>
+          <div style="color:#fff;font-size:28px;font-weight:700;margin:8px 0">Custom</div>
+          <div style="color:var(--muted);font-size:12px">Unlimited spaces</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  UniPark &middot; Universal Parking Systems &middot; The AnswerPoint LLC &middot; Cleveland Heights, Ohio &middot; 1-800-UNI-PARK &middot; &copy; 2026
+</div>
+
+<script>
+function openDemo(id){document.getElementById('dp-'+id).classList.add('active');document.body.style.overflow='hidden'}
+function closeDemo(){document.querySelectorAll('.demo-panel').forEach(p=>p.classList.remove('active'));document.body.style.overflow=''}
+function showTab(btn,id){const p=btn.closest('.demo-content');p.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));p.querySelectorAll('.tab-panel').forEach(t=>t.classList.remove('active'));btn.classList.add('active');document.getElementById(id).classList.add('active')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDemo()});
+// Generate lot map
+const map=document.getElementById('lotMap');
+for(let i=0;i<40;i++){const d=document.createElement('div');d.className='spot ';const r=Math.random();d.className+= r<.55?'occ':r<.8?'free':r<.92?'res':'mnt';d.textContent=String.fromCharCode(65+Math.floor(i/10))+'-'+(i%10+1);map.appendChild(d)}
+</script>
+</body>
+</html>

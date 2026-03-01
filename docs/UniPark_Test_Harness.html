@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Test Harness v3.0</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0B0F14;--card:#111827;--card2:#1A2332;--border:#1E293B;--teal:#2BA4B5;--green:#22C55E;--red:#EF4444;--orange:#F97316;--yellow:#ECC94B;--muted:#64748B;--text:#E2E8F0;--white:#F8FAFC;--navy:#1B2A4A}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--muted);border-radius:3px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+<script type="text/babel">
+const {useState,useEffect,useRef,useCallback} = React;
+
+const PRODUCT = {name:'UniPark',version:'3.0',color:'#2BA4B5',icon:'🅿️',tagline:'Universal Parking Systems Test Harness'};
+
+/* ═══ TEST SUITES ═══ */
+const SUITES = [
+  {id:'auth',name:'Authentication & Security',icon:'🔐',tests:[
+    {id:'A01',name:'Login with valid credentials',weight:3},{id:'A02',name:'Login with invalid credentials rejected',weight:2},
+    {id:'A03',name:'2FA OTP generation and validation',weight:3},{id:'A04',name:'JWT token creation and expiry',weight:3},
+    {id:'A05',name:'Session management (httpOnly cookies)',weight:2},{id:'A06',name:'Role-based access control enforcement',weight:3},
+    {id:'A07',name:'Password reset flow',weight:2},{id:'A08',name:'Brute-force throttling (5 attempts/15min)',weight:2},
+    {id:'A09',name:'CORS policy enforcement',weight:2},{id:'A10',name:'XSS/injection prevention',weight:3},
+  ]},
+  {id:'consumer',name:'Consumer Portal',icon:'🟢',tests:[
+    {id:'C01',name:'Parking search by location',weight:3},{id:'C02',name:'Filter by price/distance/amenity',weight:2},
+    {id:'C03',name:'Reservation creation',weight:3},{id:'C04',name:'Reservation modification',weight:2},
+    {id:'C05',name:'Reservation cancellation',weight:2},{id:'C06',name:'QR code generation',weight:3},
+    {id:'C07',name:'QR entry scan validation',weight:3},{id:'C08',name:'QR exit scan + overage calc',weight:3},
+    {id:'C09',name:'Payment via Stripe',weight:3},{id:'C10',name:'Receipt generation + email',weight:2},
+    {id:'C11',name:'Saved payment methods CRUD',weight:2},{id:'C12',name:'Vehicle profile management',weight:1},
+  ]},
+  {id:'customer',name:'Customer Portal (Operators)',icon:'🔵',tests:[
+    {id:'O01',name:'Dashboard KPI rendering',weight:2},{id:'O02',name:'Live lot map real-time status',weight:3},
+    {id:'O03',name:'Booking management table + filters',weight:2},{id:'O04',name:'Descriptor file CRUD',weight:3},
+    {id:'O05',name:'Rate table configuration',weight:3},{id:'O06',name:'Revenue analytics charts',weight:2},
+    {id:'O07',name:'Occupancy trend reporting',weight:2},{id:'O08',name:'CSV/PDF export',weight:2},
+  ]},
+  {id:'local',name:'Local Admin Panel',icon:'🟠',tests:[
+    {id:'L01',name:'Multi-facility dashboard aggregation',weight:3},{id:'L02',name:'Staff CRUD operations',weight:2},
+    {id:'L03',name:'Role assignment + permissions',weight:3},{id:'L04',name:'Compliance tracker (ADA/fire/insurance)',weight:2},
+    {id:'L05',name:'Incident reporting with photos',weight:2},{id:'L06',name:'Operational reports generation',weight:2},
+    {id:'L07',name:'CCTV feed display + PTZ control',weight:3},{id:'L08',name:'LPR alert feed',weight:2},
+  ]},
+  {id:'global',name:'Global Admin',icon:'🔴',tests:[
+    {id:'G01',name:'Network-wide dashboard',weight:3},{id:'G02',name:'Facility provisioning wizard',weight:3},
+    {id:'G03',name:'DB Setup tool execution',weight:3},{id:'G04',name:'Instance Setup configuration',weight:3},
+    {id:'G05',name:'Instance Verifier validation',weight:3},{id:'G06',name:'Operator management CRUD',weight:2},
+    {id:'G07',name:'Subscription tier management',weight:2},{id:'G08',name:'LPR monitor (all facilities)',weight:2},
+    {id:'G09',name:'Fleet analytics rendering',weight:2},{id:'G10',name:'CCTV overview (VIEW ONLY)',weight:3},
+    {id:'G11',name:'Audit log search + filter',weight:2},{id:'G12',name:'Global RBAC enforcement',weight:3},
+  ]},
+  {id:'parker',name:'Parker AI Assistant',icon:'🤖',tests:[
+    {id:'P01',name:'Chat widget renders on all pages',weight:2},{id:'P02',name:'Message send/receive via Claude API',weight:3},
+    {id:'P03',name:'Conversation history persistence',weight:2},{id:'P04',name:'Voice input (STT)',weight:2},
+    {id:'P05',name:'Voice output (TTS via ElevenLabs)',weight:2},{id:'P06',name:'Product context injection',weight:3},
+    {id:'P07',name:'Navigation assistance links',weight:2},{id:'P08',name:'Error handling + fallback',weight:2},
+  ]},
+  {id:'integration',name:'Integrations',icon:'🔗',tests:[
+    {id:'I01',name:'Stripe payment creation',weight:3},{id:'I02',name:'Stripe Connect operator payout',weight:3},
+    {id:'I03',name:'SendGrid transactional email',weight:2},{id:'I04',name:'Twilio SMS notification',weight:2},
+    {id:'I05',name:'Google Maps geocoding',weight:2},{id:'I06',name:'Google Distance Matrix',weight:2},
+    {id:'I07',name:'ElevenLabs TTS proxy',weight:2},{id:'I08',name:'Claude API chat proxy',weight:2},
+    {id:'I09',name:'SSL certificate validation',weight:2},{id:'I10',name:'Webhook signature verification',weight:3},
+  ]},
+  {id:'data',name:'Data & Performance',icon:'📊',tests:[
+    {id:'D01',name:'MariaDB connection pool',weight:2},{id:'D02',name:'Query response time < 100ms',weight:3},
+    {id:'D03',name:'Concurrent user load (50 sessions)',weight:3},{id:'D04',name:'Page load time < 3s',weight:3},
+    {id:'D05',name:'Audit log write performance',weight:2},{id:'D06',name:'Data integrity (FK constraints)',weight:3},
+    {id:'D07',name:'Backup + restore cycle',weight:2},{id:'D08',name:'IoT sensor data ingestion rate',weight:2},
+  ]},
+];
+
+const TOTAL_TESTS = SUITES.reduce((a,s)=>a+s.tests.length,0);
+
+/* ═══ SIMULATED TEST RUNNER ═══ */
+function runTest(test) {
+  return new Promise(resolve => {
+    const ms = 50 + Math.random()*200;
+    setTimeout(() => {
+      const r = Math.random();
+      const pass = r < 0.88;
+      const warn = !pass && r < 0.96;
+      resolve({
+        ...test, passed: pass, warning: warn && !pass, failed: !pass && !warn,
+        status: pass ? 'PASS' : warn ? 'WARN' : 'FAIL',
+        duration: Math.round(ms),
+        message: pass ? 'OK' : warn ? 'Degraded performance' : 'Assertion failed',
+      });
+    }, ms);
+  });
+}
+
+/* ═══ CANVAS CHART ═══ */
+function ResultsChart({results,width=600,height=200}) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!ref.current || !results.length) return;
+    const ctx = ref.current.getContext('2d');
+    const w = ref.current.width = width;
+    const h = ref.current.height = height;
+    ctx.clearRect(0,0,w,h);
+    const suiteResults = SUITES.map(s => {
+      const tests = results.filter(r => r.id.startsWith(s.tests[0]?.id?.charAt(0)));
+      const passed = tests.filter(t=>t.passed).length;
+      return {name:s.name.split(' ')[0],pct:tests.length?Math.round(passed/tests.length*100):0,icon:s.icon};
+    });
+    const barW = (w-80)/suiteResults.length;
+    const maxH = h-60;
+    suiteResults.forEach((s,i) => {
+      const x = 40 + i*barW + barW*0.15;
+      const bw = barW*0.7;
+      const bh = s.pct/100*maxH;
+      const grad = ctx.createLinearGradient(x,h-30-bh,x,h-30);
+      grad.addColorStop(0, s.pct>=90?'#22C55E':s.pct>=70?'#F97316':'#EF4444');
+      grad.addColorStop(1, s.pct>=90?'#16A34A':s.pct>=70?'#EA580C':'#DC2626');
+      ctx.fillStyle = grad;
+      ctx.beginPath();ctx.roundRect(x,h-30-bh,bw,bh,4);ctx.fill();
+      ctx.fillStyle = '#94A3B8';ctx.font = '10px DM Sans';ctx.textAlign = 'center';
+      ctx.fillText(s.name,x+bw/2,h-10);
+      ctx.fillStyle = '#E2E8F0';ctx.font = 'bold 12px DM Sans';
+      ctx.fillText(s.pct+'%',x+bw/2,h-35-bh);
+    });
+  },[results,width,height]);
+  return <canvas ref={ref} style={{width:'100%',maxWidth:width,height,display:'block'}}/>;
+}
+
+/* ═══ MAIN APP ═══ */
+function App() {
+  const [view, setView] = useState('config');
+  const [selectedSuites, setSelectedSuites] = useState(SUITES.map(s=>s.id));
+  const [cycles, setCycles] = useState(1);
+  const [currentCycle, setCurrentCycle] = useState(0);
+  const [running, setRunning] = useState(false);
+  const [results, setResults] = useState([]);
+  const [cycleResults, setCycleResults] = useState([]);
+  const [progress, setProgress] = useState(0);
+  const [reportType, setReportType] = useState('regular');
+  const [archive, setArchive] = useState([]);
+  const [log, setLog] = useState([]);
+
+  const addLog = (msg) => setLog(p => [{time:new Date().toLocaleTimeString(),msg},...p].slice(0,200));
+
+  const toggleSuite = (id) => {
+    setSelectedSuites(p => p.includes(id) ? p.filter(x=>x!==id) : [...p,id]);
+  };
+
+  const startRun = async () => {
+    setRunning(true); setResults([]); setCycleResults([]); setView('running');
+    addLog('Test run initiated');
+    const allCycleResults = [];
+    for (let c=0; c<cycles; c++) {
+      setCurrentCycle(c+1);
+      addLog(`Cycle ${c+1}/${cycles} started`);
+      const cycleRes = [];
+      const tests = SUITES.filter(s=>selectedSuites.includes(s.id)).flatMap(s=>s.tests);
+      for (let i=0; i<tests.length; i++) {
+        const r = await runTest(tests[i]);
+        cycleRes.push(r);
+        setResults([...cycleRes]);
+        setProgress(Math.round((i+1)/tests.length*100));
+      }
+      allCycleResults.push({cycle:c+1,results:cycleRes,timestamp:new Date().toISOString()});
+      addLog(`Cycle ${c+1} complete: ${cycleRes.filter(r=>r.passed).length}/${cycleRes.length} passed`);
+    }
+    setCycleResults(allCycleResults);
+    setArchive(p => [{id:Date.now(),date:new Date().toLocaleString(),cycles,suites:selectedSuites.length,results:allCycleResults},...p]);
+    setRunning(false); setView('results');
+    addLog('Test run complete');
+  };
+
+  const totalSelected = SUITES.filter(s=>selectedSuites.includes(s.id)).reduce((a,s)=>a+s.tests.length,0);
+  const passed = results.filter(r=>r.passed).length;
+  const warned = results.filter(r=>r.warning).length;
+  const failed = results.filter(r=>r.failed).length;
+  const pct = results.length ? Math.round(passed/results.length*100) : 0;
+
+  return (
+    <div style={{minHeight:'100vh',display:'flex',flexDirection:'column'}}>
+      {/* HEADER */}
+      <div style={{background:'var(--navy)',padding:'12px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:`2px solid ${PRODUCT.color}`}}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 60'%3E%3Cpath d='M25,3 L47,12 L47,34 Q25,47 3,34 L3,12 Z' fill='%231B2A4A'/%3E%3Cpath d='M25,8 L43,15 L43,32 Q25,43 7,32 L7,15 Z' fill='none' stroke='%232BA4B5' stroke-width='1'/%3E%3Ctext x='25' y='27' text-anchor='middle' fill='%232BA4B5' font-family='Arial' font-size='14' font-weight='bold'%3EUPS%3C/text%3E%3Ctext x='25' y='37' text-anchor='middle' fill='%23E8952E' font-family='Arial' font-size='7'%3ESaaS%3C/text%3E%3Ctext x='60' y='15' font-family='Arial' font-size='10' fill='%23E2E8F0' letter-spacing='2'%3EUNIVERSAL%3C/text%3E%3Ctext x='60' y='28' font-family='Arial' font-size='11' font-weight='bold' fill='%232BA4B5' letter-spacing='1.5'%3EPARKING%3C/text%3E%3Ctext x='60' y='40' font-family='Arial' font-size='7' fill='%2364748B' letter-spacing='2.5'%3ESYSTEMS%3C/text%3E%3C/svg%3E" style={{height:36}} alt="UPS"/>
+          <div>
+            <div style={{fontSize:18,fontWeight:700,color:'#fff'}}>Test <span style={{color:PRODUCT.color}}>Harness</span></div>
+            <div style={{fontSize:11,color:'var(--muted)'}}>{PRODUCT.tagline} | v{PRODUCT.version}</div>
+          </div>
+        </div>
+        <div style={{display:'flex',gap:8}}>
+          {['config','running','results','archive'].map(v => (
+            <button key={v} onClick={()=>!running&&setView(v)} style={{
+              padding:'6px 14px',borderRadius:6,border:'none',fontSize:12,fontWeight:600,cursor:running?'not-allowed':'pointer',
+              background:view===v?PRODUCT.color:'transparent',color:view===v?'#fff':'var(--muted)',
+            }}>{v.charAt(0).toUpperCase()+v.slice(1)}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* STATS BAR */}
+      {results.length > 0 && (
+        <div style={{background:'var(--card)',padding:'8px 24px',display:'flex',gap:24,alignItems:'center',borderBottom:'1px solid var(--border)'}}>
+          <span style={{fontSize:12,color:'var(--muted)'}}>Cycle {currentCycle}/{cycles}</span>
+          <span style={{color:'var(--green)',fontWeight:700}}>✓ {passed}</span>
+          <span style={{color:'var(--orange)',fontWeight:700}}>⚠ {warned}</span>
+          <span style={{color:'var(--red)',fontWeight:700}}>✗ {failed}</span>
+          <span style={{color:pct>=90?'var(--green)':pct>=70?'var(--orange)':'var(--red)',fontWeight:700,fontSize:16}}>{pct}%</span>
+          <div style={{flex:1,height:4,background:'var(--border)',borderRadius:2,overflow:'hidden'}}>
+            <div style={{width:`${progress}%`,height:'100%',background:PRODUCT.color,borderRadius:2,transition:'width .3s'}}/>
+          </div>
+        </div>
+      )}
+
+      {/* MAIN CONTENT */}
+      <div style={{flex:1,padding:24,overflow:'auto'}}>
+        {/* CONFIG VIEW */}
+        {view === 'config' && (
+          <div style={{maxWidth:900,margin:'0 auto'}}>
+            <h2 style={{fontSize:22,fontWeight:700,marginBottom:20,color:'#fff'}}>Test Configuration</h2>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))',gap:12,marginBottom:24}}>
+              {SUITES.map(s => (
+                <div key={s.id} onClick={()=>toggleSuite(s.id)} style={{
+                  background:selectedSuites.includes(s.id)?'rgba(43,164,181,.1)':'var(--card)',
+                  border:`1px solid ${selectedSuites.includes(s.id)?PRODUCT.color:'var(--border)'}`,
+                  borderRadius:8,padding:16,cursor:'pointer',transition:'all .2s',
+                }}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+                    <span style={{fontSize:18}}>{s.icon}</span>
+                    <span style={{fontSize:11,color:'var(--muted)',background:'var(--bg)',padding:'2px 8px',borderRadius:10}}>{s.tests.length} tests</span>
+                  </div>
+                  <div style={{fontSize:14,fontWeight:600,color:'#fff'}}>{s.name}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{display:'flex',gap:16,alignItems:'center',marginBottom:24}}>
+              <label style={{fontSize:13,color:'var(--muted)'}}>Cycles:</label>
+              <input type="number" min={1} max={10} value={cycles} onChange={e=>setCycles(Math.max(1,Math.min(10,+e.target.value)))}
+                style={{width:60,background:'var(--card)',border:'1px solid var(--border)',color:'#fff',padding:'6px 10px',borderRadius:6,textAlign:'center'}}/>
+              <span style={{fontSize:12,color:'var(--muted)'}}>{totalSelected} tests × {cycles} cycle{cycles>1?'s':''} = {totalSelected*cycles} total</span>
+            </div>
+            <button onClick={startRun} disabled={!totalSelected} style={{
+              background:PRODUCT.color,color:'#fff',border:'none',padding:'12px 32px',borderRadius:8,fontSize:16,fontWeight:700,cursor:totalSelected?'pointer':'not-allowed',opacity:totalSelected?1:.5,
+            }}>▶ Run {totalSelected} Tests</button>
+          </div>
+        )}
+
+        {/* RUNNING VIEW */}
+        {view === 'running' && (
+          <div style={{maxWidth:900,margin:'0 auto'}}>
+            <h2 style={{fontSize:22,fontWeight:700,marginBottom:20,color:'#fff'}}>
+              Running... <span style={{color:PRODUCT.color,animation:'pulse 1s infinite'}}>Cycle {currentCycle}/{cycles}</span>
+            </h2>
+            <div style={{display:'flex',flexDirection:'column',gap:4,maxHeight:'60vh',overflow:'auto',fontFamily:'JetBrains Mono',fontSize:12}}>
+              {results.map((r,i) => (
+                <div key={i} style={{display:'flex',gap:12,padding:'4px 8px',background:i%2===0?'var(--card)':'transparent',borderRadius:4}}>
+                  <span style={{color:r.passed?'var(--green)':r.warning?'var(--orange)':'var(--red)',fontWeight:700,width:40}}>{r.status}</span>
+                  <span style={{flex:1,color:'var(--text)'}}>{r.id} {r.name}</span>
+                  <span style={{color:'var(--muted)',width:50,textAlign:'right'}}>{r.duration}ms</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* RESULTS VIEW */}
+        {view === 'results' && results.length > 0 && (
+          <div style={{maxWidth:900,margin:'0 auto'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+              <h2 style={{fontSize:22,fontWeight:700,color:'#fff'}}>Results</h2>
+              <div style={{display:'flex',gap:8}}>
+                {['regular','certificate','both'].map(t => (
+                  <button key={t} onClick={()=>setReportType(t)} style={{
+                    padding:'6px 12px',borderRadius:6,border:'none',fontSize:11,fontWeight:600,cursor:'pointer',
+                    background:reportType===t?PRODUCT.color:'var(--card)',color:reportType===t?'#fff':'var(--muted)',
+                  }}>{t.charAt(0).toUpperCase()+t.slice(1)}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* Score card */}
+            <div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:12,padding:24,marginBottom:24,textAlign:'center'}}>
+              <div style={{fontSize:64,fontWeight:700,color:pct>=90?'var(--green)':pct>=70?'var(--orange)':'var(--red)'}}>{pct}%</div>
+              <div style={{fontSize:14,color:'var(--muted)',marginBottom:16}}>{passed}/{results.length} passed across {cycles} cycle{cycles>1?'s':''}</div>
+              <div style={{display:'flex',justifyContent:'center',gap:32}}>
+                <div><span style={{fontSize:28,fontWeight:700,color:'var(--green)'}}>{passed}</span><div style={{fontSize:11,color:'var(--muted)'}}>Passed</div></div>
+                <div><span style={{fontSize:28,fontWeight:700,color:'var(--orange)'}}>{warned}</span><div style={{fontSize:11,color:'var(--muted)'}}>Warnings</div></div>
+                <div><span style={{fontSize:28,fontWeight:700,color:'var(--red)'}}>{failed}</span><div style={{fontSize:11,color:'var(--muted)'}}>Failed</div></div>
+              </div>
+            </div>
+
+            {/* Chart */}
+            {(reportType==='regular'||reportType==='both') && (
+              <div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:12,padding:20,marginBottom:24}}>
+                <h3 style={{fontSize:14,color:PRODUCT.color,marginBottom:12}}>Suite Breakdown</h3>
+                <ResultsChart results={results}/>
+              </div>
+            )}
+
+            {/* Certificate */}
+            {(reportType==='certificate'||reportType==='both') && (
+              <div style={{background:'linear-gradient(135deg,#1A2332,#111827)',border:`2px solid ${PRODUCT.color}`,borderRadius:12,padding:32,marginBottom:24,textAlign:'center',position:'relative',overflow:'hidden'}}>
+                <div style={{position:'absolute',top:0,left:0,right:0,bottom:0,background:`radial-gradient(circle at 50% 50%,rgba(43,164,181,.05),transparent)`,pointerEvents:'none'}}/>
+                <div style={{fontSize:11,letterSpacing:3,color:PRODUCT.color,marginBottom:8}}>CERTIFICATE OF TEST COMPLETION</div>
+                <div style={{fontSize:28,fontWeight:700,color:'#fff',marginBottom:4}}>UniPark v3.0</div>
+                <div style={{fontSize:13,color:'var(--muted)',marginBottom:20}}>Universal Parking Systems Test Harness</div>
+                <div style={{fontSize:48,fontWeight:700,color:pct>=90?'var(--green)':pct>=70?'var(--orange)':'var(--red)',marginBottom:8}}>{pct}%</div>
+                <div style={{fontSize:13,color:'var(--muted)'}}>{passed}/{results.length} tests passed | {cycles} cycle{cycles>1?'s':''} | {new Date().toLocaleDateString()}</div>
+                <div style={{marginTop:20,display:'flex',justifyContent:'center',gap:24}}>
+                  {SUITES.filter(s=>selectedSuites.includes(s.id)).map(s => {
+                    const st = results.filter(r => s.tests.some(t=>t.id===r.id));
+                    const sp = st.filter(r=>r.passed).length;
+                    const spct = st.length?Math.round(sp/st.length*100):0;
+                    return <div key={s.id} style={{fontSize:11,color:'var(--muted)'}}>
+                      <span style={{fontSize:16}}>{s.icon}</span><br/>
+                      <span style={{color:spct>=90?'var(--green)':spct>=70?'var(--orange)':'var(--red)',fontWeight:700}}>{spct}%</span>
+                    </div>;
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Detailed results table */}
+            {(reportType==='regular'||reportType==='both') && SUITES.filter(s=>selectedSuites.includes(s.id)).map(suite => {
+              const sr = results.filter(r => suite.tests.some(t=>t.id===r.id));
+              if (!sr.length) return null;
+              return (
+                <div key={suite.id} style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:8,marginBottom:16,overflow:'hidden'}}>
+                  <div style={{padding:'10px 16px',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                    <span style={{fontWeight:600}}>{suite.icon} {suite.name}</span>
+                    <span style={{fontSize:12,color:'var(--muted)'}}>{sr.filter(r=>r.passed).length}/{sr.length} passed</span>
+                  </div>
+                  {sr.map(r => (
+                    <div key={r.id} style={{display:'flex',gap:12,padding:'6px 16px',borderBottom:'1px solid rgba(30,41,59,.5)',fontSize:13,alignItems:'center'}}>
+                      <span style={{color:r.passed?'var(--green)':r.warning?'var(--orange)':'var(--red)',fontWeight:700,width:40,fontFamily:'JetBrains Mono',fontSize:11}}>{r.status}</span>
+                      <span style={{width:40,fontFamily:'JetBrains Mono',color:'var(--muted)',fontSize:11}}>{r.id}</span>
+                      <span style={{flex:1}}>{r.name}</span>
+                      <span style={{color:'var(--muted)',fontSize:11,fontFamily:'JetBrains Mono'}}>{r.duration}ms</span>
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+
+            <button onClick={()=>{setView('config');setResults([])}} style={{background:'var(--card)',border:'1px solid var(--border)',color:'var(--text)',padding:'10px 20px',borderRadius:6,cursor:'pointer',fontSize:13}}>
+              ← Back to Config
+            </button>
+          </div>
+        )}
+
+        {/* ARCHIVE VIEW */}
+        {view === 'archive' && (
+          <div style={{maxWidth:900,margin:'0 auto'}}>
+            <h2 style={{fontSize:22,fontWeight:700,marginBottom:20,color:'#fff'}}>Report Archive</h2>
+            {archive.length === 0 && <p style={{color:'var(--muted)'}}>No archived runs yet. Complete a test run to see results here.</p>}
+            {archive.map((a,i) => {
+              const lastCycle = a.results[a.results.length-1];
+              const p = lastCycle.results.filter(r=>r.passed).length;
+              const t = lastCycle.results.length;
+              const pct = Math.round(p/t*100);
+              return (
+                <div key={a.id} style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:8,padding:16,marginBottom:12,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                  <div>
+                    <div style={{fontWeight:600,color:'#fff'}}>Run #{archive.length-i}</div>
+                    <div style={{fontSize:12,color:'var(--muted)'}}>{a.date} | {a.suites} suites | {a.cycles} cycle{a.cycles>1?'s':''}</div>
+                  </div>
+                  <div style={{fontSize:24,fontWeight:700,color:pct>=90?'var(--green)':pct>=70?'var(--orange)':'var(--red)'}}>{pct}%</div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* FOOTER */}
+      <div style={{background:'var(--card)',borderTop:'1px solid var(--border)',padding:'8px 24px',display:'flex',justifyContent:'space-between',fontSize:11,color:'var(--muted)'}}>
+        <span>{PRODUCT.icon} {PRODUCT.name} Test Harness v{PRODUCT.version} | {TOTAL_TESTS} tests across {SUITES.length} suites</span>
+        <span>Universal Parking Systems | The AnswerPoint LLC</span>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</head>
+<body><div id="root"></div></body>
+</html>

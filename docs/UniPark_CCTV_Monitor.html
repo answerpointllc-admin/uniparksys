@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>View Commander</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#1B2A4A;--teal:#2BA4B5;--orange:#E8952E;--dark:#0C1219;--card:#111827;--border:#1E293B;--text:#E2E8F0;--muted:#94A3B8;--red:#EF4444;--green:#22C55E;--blue:#3B82F6}
+body{font-family:'Segoe UI',sans-serif;background:var(--dark);color:var(--text);min-height:100vh}
+.header{background:var(--navy);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--teal)}
+.header h1{font-size:18px;color:#fff}.header h1 span{color:var(--teal)}
+.role-badge{padding:4px 12px;border-radius:16px;font-size:11px;font-weight:700;letter-spacing:.5px}
+.role-global{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.role-local{background:rgba(249,115,22,.15);color:var(--orange);border:1px solid rgba(249,115,22,.3)}
+.toolbar{background:var(--card);padding:10px 24px;display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.toolbar select,.toolbar input{background:var(--dark);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-size:13px}
+.toolbar .btn{padding:6px 14px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-teal{background:var(--teal);color:#fff}.btn-teal:hover{opacity:.85}
+.btn-outline{background:transparent;color:var(--teal);border:1px solid var(--teal)}.btn-outline:hover{background:var(--teal);color:#fff}
+.btn-disabled{background:#333;color:#666;cursor:not-allowed;border:1px solid #444}
+.main{display:grid;grid-template-columns:1fr 320px;height:calc(100vh - 100px)}
+.feeds{padding:16px;overflow-y:auto}
+.grid-2x2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-3x2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.feed-card{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;position:relative}
+.feed-card.selected{border-color:var(--teal);box-shadow:0 0 12px rgba(43,164,181,.2)}
+.feed-video{aspect-ratio:16/9;background:#000;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer}
+.feed-video .cam-icon{font-size:36px;opacity:.3}
+.feed-video .live-dot{position:absolute;top:8px;left:8px;display:flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:var(--red)}
+.feed-video .live-dot::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--red);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.feed-video .cam-label{position:absolute;bottom:8px;left:8px;font-size:11px;color:#fff;background:rgba(0,0,0,.7);padding:2px 8px;border-radius:4px}
+.feed-video .snapshot-btn{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);border:none;color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;cursor:pointer;opacity:0;transition:opacity .2s}
+.feed-card:hover .snapshot-btn{opacity:1}
+.feed-info{padding:8px 12px;display:flex;justify-content:space-between;align-items:center}
+.feed-info .name{font-size:12px;font-weight:600}
+.feed-info .status{font-size:10px;padding:2px 8px;border-radius:10px}
+.s-online{background:rgba(34,197,94,.15);color:var(--green)}
+.s-offline{background:rgba(239,68,68,.15);color:var(--red)}
+.s-warning{background:rgba(249,115,22,.15);color:var(--orange)}
+.sidebar{background:var(--card);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sidebar-section{padding:16px;border-bottom:1px solid var(--border)}
+.sidebar-section h3{font-size:13px;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.ptz-controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;max-width:180px;margin:0 auto}
+.ptz-btn{background:var(--dark);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:6px;cursor:pointer;font-size:14px;text-align:center;transition:all .2s}
+.ptz-btn:hover:not(.ptz-disabled){background:var(--teal);color:#fff;border-color:var(--teal)}
+.ptz-btn.ptz-center{background:var(--navy)}
+.ptz-disabled{opacity:.3;cursor:not-allowed}
+.zoom-row{display:flex;gap:8px;justify-content:center;margin-top:8px}
+.zoom-btn{background:var(--dark);border:1px solid var(--border);color:var(--text);padding:6px 16px;border-radius:6px;cursor:pointer;font-size:16px;font-weight:700}
+.zoom-btn:hover:not(.ptz-disabled){background:var(--teal);color:#fff}
+.lpr-feed{max-height:200px;overflow-y:auto}
+.lpr-entry{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.lpr-plate{font-family:monospace;font-weight:700;color:#fff;background:var(--navy);padding:2px 8px;border-radius:4px}
+.lpr-type{font-size:10px;padding:2px 6px;border-radius:8px}
+.health-list{display:flex;flex-direction:column;gap:6px}
+.health-item{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:4px 0}
+.health-bar{width:60px;height:6px;background:var(--dark);border-radius:3px;overflow:hidden}
+.health-fill{height:100%;border-radius:3px;transition:width .3s}
+.notice-banner{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--red);display:flex;align-items:center;gap:8px}
+.notice-banner.info{background:rgba(43,164,181,.1);border-color:rgba(43,164,181,.3);color:var(--teal)}
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:100;align-items:center;justify-content:center}
+.modal.active{display:flex}
+.modal-content{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:500px;width:90%}
+.modal h3{font-size:16px;color:#fff;margin-bottom:16px}
+.modal .close{float:right;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer}
+.snap-preview{width:100%;aspect-ratio:16/9;background:#000;border-radius:8px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div style="display:flex;align-items:center;gap:12px">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 60'%3E%3Cpath d='M25,3 L47,12 L47,34 Q25,47 3,34 L3,12 Z' fill='%231B2A4A'/%3E%3Cpath d='M25,8 L43,15 L43,32 Q25,43 7,32 L7,15 Z' fill='none' stroke='%232BA4B5' stroke-width='1'/%3E%3Ctext x='25' y='27' text-anchor='middle' fill='%232BA4B5' font-family='Arial' font-size='14' font-weight='bold'%3EUPS%3C/text%3E%3Ctext x='25' y='37' text-anchor='middle' fill='%23E8952E' font-family='Arial' font-size='7'%3ESaaS%3C/text%3E%3Ctext x='60' y='15' font-family='Arial' font-size='10' fill='%23E2E8F0' letter-spacing='2'%3EUNIVERSAL%3C/text%3E%3Ctext x='60' y='28' font-family='Arial' font-size='11' font-weight='bold' fill='%232BA4B5' letter-spacing='1.5'%3EPARKING%3C/text%3E%3Ctext x='60' y='40' font-family='Arial' font-size='7' fill='%2364748B' letter-spacing='2.5'%3ESYSTEMS%3C/text%3E%3C/svg%3E" style="height:36px" alt="UPS"/>
+    <div><h1>View <span>Commander</span></h1><div style="font-size:10px;color:var(--muted)">CCTV Surveillance &amp; LPR Monitor</div></div>
+  </div>
+  <div style="display:flex;gap:12px;align-items:center">
+    <select id="roleSwitch" onchange="switchRole(this.value)" style="background:var(--dark);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:12px">
+      <option value="global">Global Admin</option>
+      <option value="local">Local Admin</option>
+    </select>
+    <span id="roleBadge" class="role-badge role-global">GLOBAL ADMIN</span>
+  </div>
+</div>
+
+<div class="toolbar">
+  <select id="siteFilter">
+    <option value="all">All Sites</option>
+    <option value="clinic">Cleveland Clinic Garage A</option>
+    <option value="univ">University Circle Lot</option>
+    <option value="play">Playhouse Square Garage</option>
+    <option value="csu">CSU Parking Deck</option>
+  </select>
+  <select id="layoutSelect" onchange="changeLayout(this.value)">
+    <option value="2x2">2×2 Grid</option>
+    <option value="3x2">3×2 Grid</option>
+    <option value="1x1">Single View</option>
+  </select>
+  <button class="btn btn-teal" onclick="refreshFeeds()">↻ Refresh</button>
+  <button class="btn btn-outline" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+  <span style="margin-left:auto;font-size:12px;color:var(--muted)" id="camCount">8 cameras online</span>
+</div>
+
+<div class="main">
+  <div class="feeds" id="feedContainer">
+    <div id="feedGrid" class="grid-2x2"></div>
+  </div>
+
+  <div class="sidebar">
+    <div class="sidebar-section" id="ptzSection">
+      <h3>PTZ Controls</h3>
+      <div id="ptzNotice"></div>
+      <div class="ptz-controls" id="ptzGrid">
+        <div class="ptz-btn" onclick="ptzCmd('up-left')">↖</div>
+        <div class="ptz-btn" onclick="ptzCmd('up')">↑</div>
+        <div class="ptz-btn" onclick="ptzCmd('up-right')">↗</div>
+        <div class="ptz-btn" onclick="ptzCmd('left')">←</div>
+        <div class="ptz-btn ptz-center" onclick="ptzCmd('home')">⌂</div>
+        <div class="ptz-btn" onclick="ptzCmd('right')">→</div>
+        <div class="ptz-btn" onclick="ptzCmd('down-left')">↙</div>
+        <div class="ptz-btn" onclick="ptzCmd('down')">↓</div>
+        <div class="ptz-btn" onclick="ptzCmd('down-right')">↘</div>
+      </div>
+      <div class="zoom-row" id="zoomRow">
+        <button class="zoom-btn" onclick="ptzCmd('zoom-out')">−</button>
+        <span style="font-size:12px;color:var(--muted);align-self:center">Zoom</span>
+        <button class="zoom-btn" onclick="ptzCmd('zoom-in')">+</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>LPR Events</h3>
+      <div class="lpr-feed" id="lprFeed"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Camera Health</h3>
+      <div class="health-list" id="healthList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="snapModal">
+  <div class="modal-content">
+    <button class="close" onclick="closeSnap()">&times;</button>
+    <h3>📸 Snapshot Captured</h3>
+    <div class="snap-preview" id="snapPreview">Snapshot preview</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-teal" onclick="closeSnap()">Save to Incident</button>
+      <button class="btn btn-outline" onclick="closeSnap()">Download</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CAMERAS=[
+  {id:'CAM-001',name:'Entry Gate',site:'clinic',siteName:'Cleveland Clinic Garage A',type:'ptz',hasLpr:true,status:'online',health:98},
+  {id:'CAM-002',name:'Level 2 East',site:'clinic',siteName:'Cleveland Clinic Garage A',type:'ptz',hasLpr:false,status:'online',health:95},
+  {id:'CAM-003',name:'Exit Gate',site:'clinic',siteName:'Cleveland Clinic Garage A',type:'fixed',hasLpr:true,status:'online',health:100},
+  {id:'CAM-004',name:'Elevator Lobby',site:'clinic',siteName:'Cleveland Clinic Garage A',type:'ptz',hasLpr:false,status:'warning',health:72},
+  {id:'CAM-005',name:'Main Entrance',site:'univ',siteName:'University Circle Lot',type:'ptz',hasLpr:true,status:'online',health:99},
+  {id:'CAM-006',name:'Row A-D',site:'univ',siteName:'University Circle Lot',type:'fixed',hasLpr:false,status:'online',health:88},
+  {id:'CAM-007',name:'Loading Dock',site:'play',siteName:'Playhouse Square Garage',type:'ptz',hasLpr:false,status:'online',health:94},
+  {id:'CAM-008',name:'Stairwell B',site:'play',siteName:'Playhouse Square Garage',type:'fixed',hasLpr:false,status:'offline',health:0},
+  {id:'CAM-009',name:'Main Gate',site:'csu',siteName:'CSU Parking Deck',type:'ptz',hasLpr:true,status:'online',health:97},
+  {id:'CAM-010',name:'Level 3',site:'csu',siteName:'CSU Parking Deck',type:'ptz',hasLpr:false,status:'online',health:91},
+];
+
+const LPR_EVENTS=[
+  {time:'14:32:07',plate:'OH-ABC1234',cam:'CAM-001',type:'entry',status:'matched'},
+  {time:'14:31:52',plate:'OH-XYZ9876',cam:'CAM-005',type:'exit',status:'matched'},
+  {time:'14:31:18',plate:'PA-DEF5678',cam:'CAM-001',type:'entry',status:'violation'},
+  {time:'14:30:44',plate:'OH-GHJ3456',cam:'CAM-009',type:'entry',status:'matched'},
+  {time:'14:29:11',plate:'OH-KLM7890',cam:'CAM-003',type:'exit',status:'matched'},
+  {time:'14:28:33',plate:'MI-NOP2345',cam:'CAM-005',type:'entry',status:'unregistered'},
+  {time:'14:27:55',plate:'OH-QRS6789',cam:'CAM-009',type:'exit',status:'matched'},
+];
+
+let role='global';
+let selectedCam=null;
+let localSite='clinic';
+let layout='2x2';
+
+function switchRole(r){
+  role=r;
+  const badge=document.getElementById('roleBadge');
+  if(r==='global'){
+    badge.className='role-badge role-global';badge.textContent='GLOBAL ADMIN';
+    document.getElementById('siteFilter').value='all';
+    document.getElementById('siteFilter').disabled=false;
+  } else {
+    badge.className='role-badge role-local';badge.textContent='LOCAL ADMIN';
+    document.getElementById('siteFilter').value=localSite;
+    document.getElementById('siteFilter').disabled=true;
+  }
+  updatePTZ();renderFeeds();
+}
+
+function getVisibleCams(){
+  const site=document.getElementById('siteFilter').value;
+  if(role==='local') return CAMERAS.filter(c=>c.site===localSite);
+  if(site==='all') return CAMERAS;
+  return CAMERAS.filter(c=>c.site===site);
+}
+
+function renderFeeds(){
+  const cams=getVisibleCams();
+  const grid=document.getElementById('feedGrid');
+  grid.className=layout==='3x2'?'grid-3x2':layout==='1x1'?'':'grid-2x2';
+  if(layout==='1x1'&&!selectedCam&&cams.length) selectedCam=cams[0].id;
+  const show=layout==='1x1'?cams.filter(c=>c.id===selectedCam):cams;
+  grid.innerHTML=show.map(c=>`
+    <div class="feed-card ${selectedCam===c.id?'selected':''}" onclick="selectCam('${c.id}')">
+      <div class="feed-video">
+        <span class="cam-icon">📷</span>
+        ${c.status==='online'||c.status==='warning'?'<span class="live-dot">● LIVE</span>':'<span class="live-dot" style="color:var(--muted)">● OFFLINE</span>'}
+        <span class="cam-label">${c.siteName} — ${c.name}</span>
+        <button class="snapshot-btn" onclick="event.stopPropagation();takeSnapshot('${c.id}')">📸 Snapshot</button>
+      </div>
+      <div class="feed-info">
+        <span class="name">${c.id} ${c.type==='ptz'?'(PTZ)':'(Fixed)'} ${c.hasLpr?'🔍 LPR':''}</span>
+        <span class="status ${c.status==='online'?'s-online':c.status==='warning'?'s-warning':'s-offline'}">${c.status}</span>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('camCount').textContent=`${cams.filter(c=>c.status!=='offline').length}/${cams.length} cameras online`;
+  renderHealth(cams);
+}
+
+function selectCam(id){selectedCam=id;renderFeeds();updatePTZ()}
+
+function updatePTZ(){
+  const notice=document.getElementById('ptzNotice');
+  const btns=document.querySelectorAll('.ptz-btn, .zoom-btn');
+  if(role==='global'){
+    notice.innerHTML='<div class="notice-banner">🔒 VIEW ONLY — Global Admins cannot control cameras. PTZ restricted to Local Admins at their assigned sites.</div>';
+    btns.forEach(b=>b.classList.add('ptz-disabled'));
+  } else {
+    const cam=CAMERAS.find(c=>c.id===selectedCam);
+    if(cam&&cam.type==='ptz'&&cam.status!=='offline'){
+      notice.innerHTML='<div class="notice-banner info">🎮 PTZ Active — You have control of this camera.</div>';
+      btns.forEach(b=>b.classList.remove('ptz-disabled'));
+    } else if(cam&&cam.type==='fixed'){
+      notice.innerHTML='<div class="notice-banner">📌 Fixed camera — No PTZ available.</div>';
+      btns.forEach(b=>b.classList.add('ptz-disabled'));
+    } else {
+      notice.innerHTML='<div class="notice-banner">Select a PTZ camera to control.</div>';
+      btns.forEach(b=>b.classList.add('ptz-disabled'));
+    }
+  }
+}
+
+function ptzCmd(dir){
+  if(role==='global') return;
+  const cam=CAMERAS.find(c=>c.id===selectedCam);
+  if(!cam||cam.type!=='ptz') return;
+  console.log(`PTZ ${dir} → ${cam.id}`);
+}
+
+function takeSnapshot(id){
+  const cam=CAMERAS.find(c=>c.id===id);
+  document.getElementById('snapPreview').textContent=`${cam.siteName} — ${cam.name} | ${new Date().toLocaleTimeString()}`;
+  document.getElementById('snapModal').classList.add('active');
+}
+function closeSnap(){document.getElementById('snapModal').classList.remove('active')}
+
+function renderLPR(){
+  document.getElementById('lprFeed').innerHTML=LPR_EVENTS.map(e=>{
+    const col=e.status==='matched'?'s-online':e.status==='violation'?'s-offline':'s-warning';
+    return `<div class="lpr-entry">
+      <span style="color:var(--muted)">${e.time}</span>
+      <span class="lpr-plate">${e.plate}</span>
+      <span class="lpr-type ${col}">${e.type}</span>
+      <span class="status ${col}">${e.status}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderHealth(cams){
+  document.getElementById('healthList').innerHTML=cams.map(c=>{
+    const col=c.health>90?'var(--green)':c.health>70?'var(--orange)':'var(--red)';
+    return `<div class="health-item">
+      <span>${c.id}</span>
+      <div class="health-bar"><div class="health-fill" style="width:${c.health}%;background:${col}"></div></div>
+      <span style="color:${col};font-weight:600;font-size:11px">${c.health}%</span>
+    </div>`;
+  }).join('');
+}
+
+function changeLayout(l){layout=l;renderFeeds()}
+function refreshFeeds(){renderFeeds();renderLPR()}
+function toggleFullscreen(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}
+
+document.getElementById('siteFilter').addEventListener('change',()=>renderFeeds());
+renderFeeds();renderLPR();updatePTZ();
+</script>
+</body>
+</html>
