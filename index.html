@@ -56,7 +56,7 @@ h1,h2,h3{font-family:'Montserrat',sans-serif}
 }
 
 /* === HERO === */
-.hero{background:linear-gradient(135deg,#1B2A4A 0%,#0f1e38 60%,#1a3a5c 100%);color:#FFF;padding:80px 60px 60px;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding-top:120px;position:relative;overflow:hidden}
+.hero{background:linear-gradient(135deg,#1B2A4A 0%,#0f1e38 60%,#1a3a5c 100%);color:#FFF;padding:80px 60px 40px;min-height:auto;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.06) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;z-index:0}
 .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,transparent,#1B2A4A 100%);pointer-events:none;z-index:0}
 .hero-inner{display:flex;align-items:flex-start;gap:48px;max-width:1100px;width:100%;position:relative;z-index:1}
@@ -144,7 +144,7 @@ footer a{color:var(--teal);text-decoration:none}
 @keyframes stmtRotate{0%,25%{transform:translateY(0)}33%,58%{transform:translateY(-32px)}66%,91%{transform:translateY(-64px)}100%{transform:translateY(0)}}
 
 @media(max-width:768px){
-  section{padding:40px 16px}.hero{padding:80px 20px 48px;padding-top:100px}.hero-inner{flex-direction:column;gap:32px}.hero-left,.hero-right{flex:none;max-width:100%}.dash-mock{transform:none}
+  section{padding:40px 16px}.hero{padding:72px 20px 36px}.hero-inner{flex-direction:column;gap:32px}.hero-left,.hero-right{flex:none;max-width:100%}.dash-mock{transform:none}
   .hero-stats{gap:20px}
   footer{padding:20px 16px}
 }
@@ -223,7 +223,7 @@ function closeMob(){document.getElementById('mobOverlay').classList.remove('open
     <!-- LEFT: Content -->
     <div class="hero-left">
       <div class="tag" style="margin-bottom:16px">INTELLIGENT PARKING TECHNOLOGY</div>
-      <h1 style="font-size:clamp(28px,4vw,46px);margin-bottom:14px;line-height:1.1">Transform Your Parking <span style="color:#2BA4B5">Revenue</span></h1>
+      <h1 style="font-size:clamp(28px,4vw,46px);margin-bottom:14px;line-height:1.1">Before You Hit the Road, You Have to <span style="color:#2BA4B5">Park</span></h1>
       <p style="color:#94A3B8;font-size:16px;line-height:1.7;margin-bottom:28px;max-width:480px">UniPark is the complete SaaS platform for parking operators — real-time booking, dynamic pricing, IoT occupancy monitoring, and automated payment processing.</p>
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px">
         <a class="btn btn-org" href="/app/locator/" style="font-size:14px;padding:12px 24px">Find Parking Now</a>
@@ -236,148 +236,14 @@ function closeMob(){document.getElementById('mobOverlay').classList.remove('open
       </div>
     </div>
 
-    <!-- RIGHT: Parking illustration -->
-    <div class="hero-right" style="display:flex;align-items:flex-start;justify-content:center;padding-top:8px">
-      <div style="width:100%;max-width:420px;filter:drop-shadow(0 32px 48px rgba(0,0,0,.5))">
-        <svg viewBox="0 0 400 310" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%">
-          <defs>
-            <linearGradient id="asphalt" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a2c42"/><stop offset="100%" stop-color="#162438"/></linearGradient>
-            <linearGradient id="lane" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0f1d2e"/><stop offset="100%" stop-color="#0c1828"/></linearGradient>
-            <linearGradient id="navyCar" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1e3a5f"/><stop offset="100%" stop-color="#122540"/></linearGradient>
-            <linearGradient id="orangeCar" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f0a040"/><stop offset="100%" stop-color="#c97a1a"/></linearGradient>
-            <radialGradient id="spotGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#2BA4B5" stop-opacity="0.45"/><stop offset="100%" stop-color="#2BA4B5" stop-opacity="0"/></radialGradient>
-            <filter id="glowF" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="7" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
-            <filter id="softF" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="10"/></filter>
-            <clipPath id="svgClip"><rect width="400" height="310" rx="14"/></clipPath>
-          </defs>
-
-          <g clip-path="url(#svgClip)">
-            <!-- Parking surface -->
-            <rect width="400" height="185" fill="url(#asphalt)"/>
-            <!-- Lane -->
-            <rect y="185" width="400" height="125" fill="url(#lane)"/>
-            <!-- Top accent bar -->
-            <rect width="400" height="3" fill="#2BA4B5" opacity="0.7" rx="14 14 0 0"/>
-            <!-- Divider line (dashed) -->
-            <line x1="0" y1="185" x2="400" y2="185" stroke="rgba(255,255,255,0.18)" stroke-width="1.5" stroke-dasharray="10 6"/>
-            <!-- Lane center arrow guide -->
-            <line x1="0" y1="247" x2="400" y2="247" stroke="rgba(255,255,255,0.07)" stroke-width="2" stroke-dasharray="22 14"/>
-
-            <!-- Parking spot top line -->
-            <line x1="0" y1="18" x2="400" y2="18" stroke="rgba(255,255,255,0.55)" stroke-width="2.5"/>
-            <!-- Vertical spot dividers: 4 spots, each 100px wide -->
-            <line x1="0"   y1="18" x2="0"   y2="185" stroke="rgba(255,255,255,0.45)" stroke-width="2"/>
-            <line x1="100" y1="18" x2="100" y2="185" stroke="rgba(255,255,255,0.45)" stroke-width="2"/>
-            <line x1="200" y1="18" x2="200" y2="185" stroke="rgba(255,255,255,0.45)" stroke-width="2"/>
-            <line x1="300" y1="18" x2="300" y2="185" stroke="rgba(255,255,255,0.45)" stroke-width="2"/>
-            <line x1="400" y1="18" x2="400" y2="185" stroke="rgba(255,255,255,0.45)" stroke-width="2"/>
-
-            <!-- SPOT 3 GLOW (x=200-300) animated -->
-            <rect x="200" y="18" width="100" height="167" fill="url(#spotGlow)">
-              <animate attributeName="opacity" values="0.6;1;0.6" dur="2.2s" repeatCount="indefinite"/>
-            </rect>
-            <rect x="205" y="18" width="90" height="167" fill="#2BA4B5" opacity="0.04">
-              <animate attributeName="opacity" values="0.04;0.12;0.04" dur="2.2s" repeatCount="indefinite"/>
-            </rect>
-            <!-- Spot 3 teal border glow -->
-            <rect x="200" y="18" width="100" height="167" fill="none" stroke="#2BA4B5" stroke-width="1.5" opacity="0.4">
-              <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2.2s" repeatCount="indefinite"/>
-            </rect>
-
-            <!-- PARKED CAR — Spot 1 (center x=50) -->
-            <g transform="translate(50,100)">
-              <rect x="-27" y="-58" width="54" height="116" rx="7" fill="url(#navyCar)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-              <!-- windshield -->
-              <rect x="-19" y="-47" width="38" height="22" rx="4" fill="rgba(43,164,181,0.38)" stroke="rgba(43,164,181,0.25)" stroke-width="1"/>
-              <!-- rear window -->
-              <rect x="-16" y="27" width="32" height="16" rx="3" fill="rgba(43,164,181,0.2)"/>
-              <!-- wheels -->
-              <rect x="-34" y="-50" width="9" height="15" rx="3" fill="#08131f"/>
-              <rect x="25"  y="-50" width="9" height="15" rx="3" fill="#08131f"/>
-              <rect x="-34" y="36"  width="9" height="15" rx="3" fill="#08131f"/>
-              <rect x="25"  y="36"  width="9" height="15" rx="3" fill="#08131f"/>
-              <!-- hood seam -->
-              <line x1="-20" y1="-25" x2="20" y2="-25" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-            </g>
-
-            <!-- PARKED CAR — Spot 2 (center x=150) -->
-            <g transform="translate(150,100)">
-              <rect x="-27" y="-58" width="54" height="116" rx="7" fill="url(#navyCar)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-              <rect x="-19" y="-47" width="38" height="22" rx="4" fill="rgba(43,164,181,0.38)" stroke="rgba(43,164,181,0.25)" stroke-width="1"/>
-              <rect x="-16" y="27" width="32" height="16" rx="3" fill="rgba(43,164,181,0.2)"/>
-              <rect x="-34" y="-50" width="9" height="15" rx="3" fill="#08131f"/>
-              <rect x="25"  y="-50" width="9" height="15" rx="3" fill="#08131f"/>
-              <rect x="-34" y="36"  width="9" height="15" rx="3" fill="#08131f"/>
-              <rect x="25"  y="36"  width="9" height="15" rx="3" fill="#08131f"/>
-              <line x1="-20" y1="-25" x2="20" y2="-25" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-            </g>
-
-            <!-- PARKED CAR — Spot 4 (center x=350) -->
-            <g transform="translate(350,100)">
-              <rect x="-27" y="-58" width="54" height="116" rx="7" fill="url(#navyCar)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-              <rect x="-19" y="-47" width="38" height="22" rx="4" fill="rgba(43,164,181,0.38)" stroke="rgba(43,164,181,0.25)" stroke-width="1"/>
-              <rect x="-16" y="27" width="32" height="16" rx="3" fill="rgba(43,164,181,0.2)"/>
-              <rect x="-34" y="-50" width="9" height="15" rx="3" fill="#08131f"/>
-              <rect x="25"  y="-50" width="9" height="15" rx="3" fill="#08131f"/>
-              <rect x="-34" y="36"  width="9" height="15" rx="3" fill="#08131f"/>
-              <rect x="25"  y="36"  width="9" height="15" rx="3" fill="#08131f"/>
-              <line x1="-20" y1="-25" x2="20" y2="-25" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-            </g>
-
-            <!-- ENTERING CAR — orange, pulling into spot 3 from lane below, angled -->
-            <g transform="translate(252,213) rotate(-18)">
-              <!-- soft glow under car -->
-              <ellipse cx="0" cy="8" rx="36" ry="64" fill="#2BA4B5" opacity="0.12" filter="url(#softF)"/>
-              <!-- body -->
-              <rect x="-27" y="-58" width="54" height="116" rx="7" fill="url(#orangeCar)" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>
-              <!-- windshield (front = top, car heading up) -->
-              <rect x="-19" y="-48" width="38" height="24" rx="4" fill="rgba(255,255,255,0.28)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-              <!-- rear window -->
-              <rect x="-15" y="25" width="30" height="16" rx="3" fill="rgba(255,255,255,0.12)"/>
-              <!-- wheels -->
-              <rect x="-34" y="-50" width="9" height="15" rx="3" fill="#5c2c00"/>
-              <rect x="25"  y="-50" width="9" height="15" rx="3" fill="#5c2c00"/>
-              <rect x="-34" y="36"  width="9" height="15" rx="3" fill="#5c2c00"/>
-              <rect x="25"  y="36"  width="9" height="15" rx="3" fill="#5c2c00"/>
-              <!-- hood seam -->
-              <line x1="-20" y1="-28" x2="20" y2="-28" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
-              <!-- center body line -->
-              <line x1="0" y1="-55" x2="0" y2="55" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-            </g>
-
-            <!-- "P" PIN above spot 3 -->
-            <g transform="translate(250,12)">
-              <!-- outer pulse ring -->
-              <circle cx="0" cy="-22" r="20" fill="#2BA4B5" opacity="0">
-                <animate attributeName="r" values="16;26;16" dur="2.2s" repeatCount="indefinite"/>
-                <animate attributeName="opacity" values="0.3;0;0.3" dur="2.2s" repeatCount="indefinite"/>
-              </circle>
-              <!-- pin circle -->
-              <circle cx="0" cy="-22" r="15" fill="#2BA4B5" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
-              <!-- pin tail -->
-              <path d="M-5,-8 Q0,2 5,-8" fill="#2BA4B5"/>
-              <circle cx="0" cy="4" r="3" fill="#2BA4B5"/>
-              <!-- P letter -->
-              <text x="0" y="-16" text-anchor="middle" fill="white" font-family="Montserrat,Georgia,sans-serif" font-size="14" font-weight="800">P</text>
-            </g>
-
-            <!-- Direction arrows in lane -->
-            <g opacity="0.15" fill="white">
-              <polygon points="40,245 50,225 60,245"/>
-              <polygon points="330,245 340,225 350,245"/>
-            </g>
-
-            <!-- Subtle dot grid overlay -->
-            <rect width="400" height="310" fill="url(#dotGrid)" opacity="0.4"/>
-          </g>
-
-          <!-- Dot grid pattern def (outside clip for reference) -->
-          <defs>
-            <pattern id="dotGrid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-              <circle cx="10" cy="10" r="0.8" fill="rgba(255,255,255,0.3)"/>
-            </pattern>
-          </defs>
-        </svg>
+    <!-- RIGHT: Hero car photo -->
+    <div class="hero-right" style="display:flex;align-items:center;justify-content:center;position:relative">
+      <div style="position:relative;width:100%;max-width:560px">
+        <img src="/assets/hero-car.jpg" alt="Parking" style="width:100%;max-width:560px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.4)">
+        <!-- Left + right edge fade into dark background -->
+        <div style="position:absolute;inset:0;border-radius:16px;background:linear-gradient(to right,#0f1e38 0%,transparent 28%,transparent 72%,#0f1e38 100%);pointer-events:none"></div>
+        <!-- Bottom edge fade -->
+        <div style="position:absolute;inset:0;border-radius:16px;background:linear-gradient(to bottom,transparent 50%,rgba(11,22,44,0.72) 100%);pointer-events:none"></div>
       </div>
     </div>
 
