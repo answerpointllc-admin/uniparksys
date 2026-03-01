@@ -3,518 +3,683 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>UniPark Test Harness</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<title>UniPark Automated Test Harness</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=DM+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root{--navy:#1B2A4A;--teal:#2BA4B5;--orange:#E8952E;--green:#48BB78;--red:#FC8181;--bg:#0d1b2e}
+:root{--navy:#1B2A4A;--teal:#2BA4B5;--orange:#E8952E;--green:#48BB78;--red:#FC8181;--yellow:#F6E05E;--bg:#0d1b2e;--surface:#162238;--surface2:#1e2f47;--border:rgba(255,255,255,.08);--text:rgba(255,255,255,.85);--muted:rgba(255,255,255,.35)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#fff;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
 
-/* TOP BAR */
-.topbar{background:var(--navy);border-bottom:1px solid rgba(255,255,255,.1);padding:10px 20px;display:flex;align-items:center;gap:16px;flex-shrink:0}
-.topbar-logo{font-family:'Montserrat',sans-serif;font-size:15px;font-weight:800;color:#fff;letter-spacing:-.3px}
-.topbar-logo span{color:var(--teal)}
-.topbar-tag{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;border-left:1px solid rgba(255,255,255,.15);padding-left:16px}
-.topbar-score{margin-left:auto;display:flex;align-items:center;gap:10px}
-.score-pill{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(43,164,181,.15);color:var(--teal);border:1px solid rgba(43,164,181,.3)}
-.parker-status{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;transition:all .3s}
-.ps-ok{background:rgba(72,187,120,.15);color:var(--green);border:1px solid rgba(72,187,120,.3)}
-.ps-missing{background:rgba(252,129,129,.15);color:var(--red);border:1px solid rgba(252,129,129,.3)}
-.ps-checking{background:rgba(255,255,255,.08);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1)}
-
-/* TIMER BAR */
-.timer-track{height:3px;background:rgba(255,255,255,.07);flex-shrink:0}
-.timer-fill{height:3px;background:var(--orange);width:0%;transition:width linear}
-
-/* BODY LAYOUT */
-.body{display:flex;flex:1;overflow:hidden}
-
-/* SIDEBAR */
-.sidebar{width:300px;flex-shrink:0;background:#162238;border-right:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;overflow:hidden}
-.sidebar-scroll{flex:1;overflow-y:auto}
-.sidebar-scroll::-webkit-scrollbar{width:4px}
-.sidebar-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
-
-/* SECTION HEADERS */
-.sec-hdr{padding:10px 16px 4px;font-size:9px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em}
+/* TOPBAR */
+.topbar{background:var(--navy);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:16px;flex-shrink:0;position:sticky;top:0;z-index:100}
+.logo{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:800;color:#fff}
+.logo span{color:var(--teal)}
+.logo-tag{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;border-left:1px solid var(--border);padding-left:16px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.score-main{font-family:'Montserrat',sans-serif;font-size:20px;font-weight:800;color:#fff}
+.score-main .passed{color:var(--green)}
+.score-main .failed{color:var(--red)}
+.score-pct{font-size:11px;color:var(--muted);margin-left:4px}
+.run-btn{padding:9px 20px;border-radius:8px;background:var(--teal);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:7px;transition:all .15s;white-space:nowrap}
+.run-btn:hover:not(:disabled){filter:brightness(1.1)}
+.run-btn:disabled{opacity:.5;cursor:not-allowed}
+.run-btn.running{background:var(--orange)}
 
 /* PROGRESS */
-.progress-wrap{padding:0 16px 12px}
-.progress-track{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--green));border-radius:3px;transition:width .4s;width:0%}
-.progress-lbl{font-size:10px;color:rgba(255,255,255,.35);margin-top:5px}
+.progress-bar{height:3px;background:rgba(255,255,255,.07);flex-shrink:0}
+.progress-fill{height:3px;background:linear-gradient(90deg,var(--teal),var(--green));width:0%;transition:width .3s}
 
-/* PAGE LIST */
-.page-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;transition:background .15s;border-left:3px solid transparent;position:relative}
-.page-item:hover{background:rgba(255,255,255,.04)}
-.page-item.active{background:rgba(43,164,181,.1);border-left-color:var(--teal)}
-.page-item.passed{border-left-color:var(--green)}
-.page-item.failed{border-left-color:var(--red)}
-.page-num{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;transition:all .2s}
-.page-item.active .page-num{background:var(--teal)}
-.page-item.passed .page-num{background:var(--green)}
-.page-item.failed .page-num{background:var(--red)}
-.page-info{flex:1;min-width:0}
-.page-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.page-url{font-size:10px;color:rgba(255,255,255,.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.page-icon{font-size:14px;flex-shrink:0}
-.parker-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.15);flex-shrink:0;transition:background .3s}
-.parker-dot.ok{background:var(--green)}
-.parker-dot.missing{background:var(--red)}
+/* LAYOUT */
+.page-wrap{flex:1;padding:24px;max-width:1400px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:20px}
 
-/* CHECKLIST */
-.checklist{padding:4px 0 8px}
-.check-item{display:flex;align-items:center;gap:8px;padding:7px 16px;cursor:pointer;transition:background .1s}
-.check-item:hover{background:rgba(255,255,255,.03)}
-.check-box{width:15px;height:15px;border-radius:4px;border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;transition:all .15s}
-.check-item.ticked .check-box{background:var(--green);border-color:var(--green)}
-.check-item.ticked .check-lbl{color:rgba(255,255,255,.35);text-decoration:line-through}
-.check-lbl{font-size:11px;color:rgba(255,255,255,.7)}
+/* SUMMARY CARDS */
+.summary-row{display:flex;gap:12px;flex-wrap:wrap}
+.scard{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;flex:1;min-width:120px}
+.scard-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.scard-val{font-family:'Montserrat',sans-serif;font-size:24px;font-weight:800}
+.scard-val.green{color:var(--green)}
+.scard-val.red{color:var(--red)}
+.scard-val.orange{color:var(--orange)}
+.scard-val.teal{color:var(--teal)}
 
-/* MANUAL BUTTONS */
-.manual-btns{padding:8px 12px}
-.mbtn{width:100%;padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:rgba(255,255,255,.75);font-size:11px;font-weight:600;cursor:pointer;margin-bottom:6px;text-align:left;display:flex;align-items:center;gap:8px;transition:all .2s;font-family:'DM Sans',sans-serif}
-.mbtn:hover{background:rgba(255,255,255,.1)}
-.mbtn.pass{border-color:var(--green);color:var(--green);background:rgba(72,187,120,.08)}
-.mbtn.fail{border-color:var(--red);color:var(--red);background:rgba(252,129,129,.08)}
-.mbtn .mi{font-size:13px;width:18px;text-align:center}
-.mbtn .ms{margin-left:auto;font-size:10px;opacity:.6}
+/* STATUS BAR */
+.status-bar{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0}
+.pulse.running{background:var(--orange);animation:pulseAnim 1s ease-in-out infinite}
+.pulse.done{background:var(--green)}
+.pulse.idle{background:var(--muted)}
+@keyframes pulseAnim{0%,100%{opacity:1}50%{opacity:.4}}
 
-/* CTRL BUTTONS */
-.ctrls{padding:10px 12px;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:6px}
-.cbtn{flex:1;padding:8px 6px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
-.cbtn-prev{background:rgba(255,255,255,.08);color:#fff}
-.cbtn-prev:hover{background:rgba(255,255,255,.14)}
-.cbtn-next{background:var(--teal);color:#fff}
-.cbtn-next:hover{filter:brightness(1.1)}
-.cbtn-pass{background:var(--green);color:#fff}
-.cbtn-pass:hover{filter:brightness(1.1)}
-.cbtn-fail{background:var(--red);color:#fff}
-.cbtn-fail:hover{filter:brightness(1.1)}
-.cbtn-auto{background:var(--orange);color:#fff;font-size:10px}
-.cbtn-auto:hover{filter:brightness(1.1)}
+/* RESULTS TABLE */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.table-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.table-title{font-size:13px;font-weight:700}
+.table-legend{display:flex;gap:14px;font-size:11px;color:var(--muted)}
+.legend-item{display:flex;align-items:center;gap:5px}
+.legend-dot{width:8px;height:8px;border-radius:50%}
 
-/* MAIN AREA */
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.frame-hdr{background:#1a2c44;border-bottom:1px solid rgba(255,255,255,.08);padding:8px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
-.frame-dots{display:flex;gap:5px}
-.frame-dot{width:10px;height:10px;border-radius:50%}
-.frame-url{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:4px 12px;font-size:11px;color:rgba(255,255,255,.5);font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.frame-label{font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
-.iframe-wrap{flex:1;position:relative}
-.iframe-wrap iframe{width:100%;height:100%;border:none;display:block}
-.iframe-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);flex-direction:column;gap:10px;pointer-events:none;transition:opacity .4s}
-.iframe-overlay.hidden{opacity:0}
-.spinner{width:28px;height:28px;border:3px solid rgba(255,255,255,.1);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-lbl{font-size:12px;color:rgba(255,255,255,.4)}
+.tbl{width:100%;border-collapse:collapse;table-layout:fixed}
+.tbl th{padding:9px 10px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border);text-align:center;background:rgba(255,255,255,.02)}
+.tbl th:first-child{text-align:left;padding-left:20px;width:180px}
+.tbl td{padding:9px 10px;text-align:center;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;vertical-align:middle}
+.tbl td:first-child{text-align:left;padding-left:20px;font-size:12px;font-weight:600}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,.02)}
+.tbl tr.row-pass{border-left:3px solid var(--green)}
+.tbl tr.row-fail{border-left:3px solid var(--red)}
+.tbl tr.row-running td:first-child{color:var(--orange)}
 
-/* NOTES */
-.notes-bar{background:#162238;border-top:1px solid rgba(255,255,255,.08);padding:6px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
-.notes-in{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 10px;font-size:11px;color:#fff;font-family:'DM Sans',sans-serif;outline:none}
-.notes-in::placeholder{color:rgba(255,255,255,.25)}
-.notes-in:focus{border-color:var(--teal)}
-.notes-save{padding:5px 12px;background:var(--navy);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:rgba(255,255,255,.6);font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
-.notes-save:hover{color:#fff}
+/* CELLS */
+.cell{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;font-size:12px;cursor:default;transition:all .2s;position:relative}
+.cell.pending{background:rgba(255,255,255,.05);color:rgba(255,255,255,.2)}
+.cell.running{background:rgba(232,149,46,.1);color:var(--orange);animation:cellPulse .8s ease-in-out infinite}
+.cell.pass{background:rgba(72,187,120,.15);color:var(--green)}
+.cell.fail{background:rgba(252,129,129,.15);color:var(--red)}
+.cell.warn{background:rgba(246,224,94,.12);color:var(--yellow)}
+@keyframes cellPulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* Tooltip */
+.cell[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#0d1b2e;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:10px;white-space:nowrap;color:#fff;z-index:20;pointer-events:none}
+
+/* PAGE NAME */
+.page-name-cell{display:flex;flex-direction:column;gap:1px}
+.page-name-label{font-size:12px;font-weight:700;color:#fff}
+.page-name-url{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+
+/* ROW STATUS ICON */
+.row-icon{margin-left:6px;font-size:11px}
+
+/* API TESTS */
+.api-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.api-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+.api-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.api-card-title{font-size:13px;font-weight:700}
+.api-badge{padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700}
+.badge-pending{background:rgba(255,255,255,.07);color:var(--muted)}
+.badge-pass{background:rgba(72,187,120,.15);color:var(--green);border:1px solid rgba(72,187,120,.25)}
+.badge-fail{background:rgba(252,129,129,.15);color:var(--red);border:1px solid rgba(252,129,129,.25)}
+.badge-running{background:rgba(232,149,46,.12);color:var(--orange);border:1px solid rgba(232,149,46,.25)}
+.api-detail{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);white-space:pre-wrap;word-break:break-all;max-height:80px;overflow-y:auto;line-height:1.5}
+.api-detail.pass-text{color:rgba(72,187,120,.8)}
+.api-detail.fail-text{color:rgba(252,129,129,.8)}
+
+/* PHONE CONSISTENCY */
+.phone-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+.phone-table{width:100%;border-collapse:collapse;margin-top:8px}
+.phone-table td{padding:5px 8px;font-size:11px;border-bottom:1px solid rgba(255,255,255,.04)}
+.phone-table td:first-child{color:var(--muted);width:160px}
+.phone-table td:last-child{font-family:'JetBrains Mono',monospace}
+.phone-table tr:last-child td{border-bottom:none}
+
+/* LOG */
+.log-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.log-header{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.log-title{font-size:12px;font-weight:700}
+.log-clear{background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.log-clear:hover{color:#fff}
+.log-body{padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;max-height:160px;overflow-y:auto;line-height:1.7}
+.log-body::-webkit-scrollbar{width:4px}
+.log-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1)}
+.log-line{color:var(--muted)}
+.log-line.ok{color:rgba(72,187,120,.8)}
+.log-line.err{color:rgba(252,129,129,.8)}
+.log-line.info{color:rgba(43,164,181,.8)}
+.log-line.warn{color:rgba(246,224,94,.8)}
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
+<!-- TOPBAR -->
 <div class="topbar">
-  <div class="topbar-logo">Uni<span>Park</span></div>
-  <div class="topbar-tag">Test Harness</div>
-  <div style="font-size:11px;color:rgba(255,255,255,.3)" id="pageCounter">Page 1 of 10</div>
-  <div class="topbar-score">
-    <div class="score-pill" id="scorePill">0 / 10 passed</div>
-    <div class="parker-status ps-checking" id="parkerGlobal">🤖 Parker: checking…</div>
+  <div class="logo">Uni<span>Park</span></div>
+  <div class="logo-tag">Automated Test Harness</div>
+  <div style="font-size:11px;color:var(--muted)" id="testTime"></div>
+  <div class="topbar-right">
+    <div class="score-main" id="scoreMain"><span class="passed" id="scorePassed">–</span> / <span id="scoreTotal">–</span> <span class="score-pct" id="scorePct"></span></div>
+    <button class="run-btn" id="runBtn" onclick="startTests()">▶ Run All Tests</button>
   </div>
 </div>
-<div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
 
-<!-- BODY -->
-<div class="body">
+<!-- MAIN -->
+<div class="page-wrap">
 
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <div class="sidebar-scroll">
-
-      <!-- Progress -->
-      <div class="sec-hdr">Overall Progress</div>
-      <div class="progress-wrap">
-        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-        <div class="progress-lbl" id="progressLbl">0 of 10 pages verified</div>
-      </div>
-
-      <!-- Page list -->
-      <div class="sec-hdr">Pages</div>
-      <div id="pageList"></div>
-
-      <!-- Per-page checklist -->
-      <div class="sec-hdr" style="margin-top:8px">Page Checklist</div>
-      <div class="checklist" id="checklist">
-        <div class="check-item" data-check="loads" onclick="toggleCheck(this)">
-          <div class="check-box">✓</div><div class="check-lbl">Page loads (200 OK)</div>
-        </div>
-        <div class="check-item" data-check="nav" onclick="toggleCheck(this)">
-          <div class="check-box">✓</div><div class="check-lbl">Nav renders correctly</div>
-        </div>
-        <div class="check-item" data-check="parker" onclick="toggleCheck(this)">
-          <div class="check-box">✓</div><div class="check-lbl">Parker bubble visible</div>
-        </div>
-        <div class="check-item" data-check="cta" onclick="toggleCheck(this)">
-          <div class="check-box">✓</div><div class="check-lbl">Primary CTA present</div>
-        </div>
-        <div class="check-item" data-check="mobile" onclick="toggleCheck(this)">
-          <div class="check-box">✓</div><div class="check-lbl">Mobile layout OK</div>
-        </div>
-        <div class="check-item" data-check="noerror" onclick="toggleCheck(this)">
-          <div class="check-box">✓</div><div class="check-lbl">No JS errors / 404s</div>
-        </div>
-      </div>
-
-      <!-- Global manual checks -->
-      <div class="sec-hdr" style="margin-top:4px">Manual Checks</div>
-      <div class="manual-btns">
-        <button class="mbtn" onclick="toggleManual(this)">
-          <span class="mi">💬</span> Parker TTS responds
-          <span class="ms">click to toggle</span>
-        </button>
-        <button class="mbtn" onclick="toggleManual(this)">
-          <span class="mi">🎤</span> Parker STT works
-          <span class="ms">click to toggle</span>
-        </button>
-        <button class="mbtn" onclick="toggleManual(this)">
-          <span class="mi">🔗</span> Nav links all working
-          <span class="ms">click to toggle</span>
-        </button>
-        <button class="mbtn" onclick="toggleManual(this)">
-          <span class="mi">📱</span> Mobile responsive OK
-          <span class="ms">click to toggle</span>
-        </button>
-        <button class="mbtn" onclick="toggleManual(this)">
-          <span class="mi">💳</span> Stripe checkout loads
-          <span class="ms">click to toggle</span>
-        </button>
-        <button class="mbtn" onclick="toggleManual(this)">
-          <span class="mi">🔒</span> Privacy + Terms pages live
-          <span class="ms">click to toggle</span>
-        </button>
-      </div>
-
-    </div><!-- /sidebar-scroll -->
-
-    <!-- Controls -->
-    <div class="ctrls">
-      <button class="cbtn cbtn-prev" onclick="prevPage()">← Prev</button>
-      <button class="cbtn cbtn-pass" onclick="markPage('passed')">✓ Pass</button>
-      <button class="cbtn cbtn-fail" onclick="markPage('failed')">✗ Fail</button>
-      <button class="cbtn cbtn-next" onclick="nextPage()">Next →</button>
-      <button class="cbtn cbtn-auto" id="autoBtn" onclick="toggleAuto()">▶ Auto</button>
+  <!-- STATUS + SUMMARY -->
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div class="status-bar">
+      <div class="pulse idle" id="pulseDot"></div>
+      <div id="statusText">Ready — click Run All Tests to begin</div>
     </div>
-  </div><!-- /sidebar -->
+    <div style="font-size:11px;color:var(--muted)" id="elapsedTime"></div>
+  </div>
 
-  <!-- MAIN IFRAME AREA -->
-  <div class="main">
-    <div class="frame-hdr">
-      <div class="frame-dots">
-        <div class="frame-dot" style="background:#FC8181"></div>
-        <div class="frame-dot" style="background:#F6AD55"></div>
-        <div class="frame-dot" style="background:#68D391"></div>
-      </div>
-      <div class="frame-url" id="frameUrl">https://uniparksystems.com/</div>
-      <div class="frame-label" id="frameLabel">Homepage</div>
-    </div>
-    <div class="iframe-wrap">
-      <iframe id="mainFrame" src="" onload="onFrameLoad()" onerror="onFrameError()"></iframe>
-      <div class="iframe-overlay" id="iframeOverlay">
-        <div class="spinner"></div>
-        <div class="loading-lbl" id="loadingLbl">Loading page…</div>
+  <div class="summary-row" id="summaryRow">
+    <div class="scard"><div class="scard-label">Pages Tested</div><div class="scard-val teal" id="scPages">0 / 15</div></div>
+    <div class="scard"><div class="scard-label">Tests Passed</div><div class="scard-val green" id="scPassed">–</div></div>
+    <div class="scard"><div class="scard-label">Tests Failed</div><div class="scard-val red" id="scFailed">–</div></div>
+    <div class="scard"><div class="scard-label">Parker Coverage</div><div class="scard-val orange" id="scParker">–</div></div>
+    <div class="scard"><div class="scard-label">API Health</div><div class="scard-val teal" id="scApi">–</div></div>
+  </div>
+
+  <!-- RESULTS TABLE -->
+  <div class="table-wrap">
+    <div class="table-header">
+      <div class="table-title">Page Test Results</div>
+      <div class="table-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Pass</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Fail</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Warning</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,.15)"></div>Pending</div>
       </div>
     </div>
-    <!-- Notes bar -->
-    <div class="notes-bar">
-      <span style="font-size:11px;color:rgba(255,255,255,.3);white-space:nowrap">Notes:</span>
-      <input class="notes-in" id="notesIn" placeholder="Add notes for this page…" onkeydown="if(event.key==='Enter')saveNote()">
-      <button class="notes-save" onclick="saveNote()">Save</button>
-      <span style="font-size:10px;color:rgba(255,255,255,.25)" id="notesStatus"></span>
+    <div style="overflow-x:auto">
+      <table class="tbl" id="resultsTable">
+        <thead>
+          <tr>
+            <th>Page</th>
+            <th title="HTTP 200 response">HTTP</th>
+            <th title="Parker widget present">Parker</th>
+            <th title="Title tag present and non-empty">&lt;title&gt;</th>
+            <th title="Meta description present">Meta Desc</th>
+            <th title="Meta viewport set">Viewport</th>
+            <th title="Footer element present">Footer</th>
+            <th title="Nav element with links">Nav</th>
+            <th title="Phone number found">Phone</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
     </div>
   </div>
+
+  <!-- API TESTS -->
+  <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:-8px">API &amp; Infrastructure Tests</div>
+  <div class="api-grid" id="apiGrid">
+    <div class="api-card" id="api-parker">
+      <div class="api-card-header">
+        <div class="api-card-title">🤖 Parker Chat API</div>
+        <div class="api-badge badge-pending" id="badge-parker">Pending</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">POST /api/chat · product=parker</div>
+      <div class="api-detail" id="detail-parker">Waiting for test run…</div>
+    </div>
+    <div class="api-card" id="api-reachable">
+      <div class="api-card-header">
+        <div class="api-card-title">🌐 AnswerPoint API Reachable</div>
+        <div class="api-badge badge-pending" id="badge-reachable">Pending</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">HEAD answerpointintelligence.ai</div>
+      <div class="api-detail" id="detail-reachable">Waiting for test run…</div>
+    </div>
+    <div class="api-card" id="api-assets">
+      <div class="api-card-header">
+        <div class="api-card-title">🖼 Hero Asset (hero-car.jpg)</div>
+        <div class="api-badge badge-pending" id="badge-assets">Pending</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">GET /assets/hero-car.jpg</div>
+      <div class="api-detail" id="detail-assets">Waiting for test run…</div>
+    </div>
+    <div class="api-card" id="api-privacy">
+      <div class="api-card-header">
+        <div class="api-card-title">📄 Privacy &amp; Terms Pages</div>
+        <div class="api-badge badge-pending" id="badge-privacy">Pending</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">GET /privacy/ · /terms/</div>
+      <div class="api-detail" id="detail-privacy">Waiting for test run…</div>
+    </div>
+  </div>
+
+  <!-- PHONE CONSISTENCY -->
+  <div class="phone-card">
+    <div style="font-size:13px;font-weight:700;margin-bottom:4px">📞 Phone Number Consistency</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Checks whether a consistent phone number appears across all pages</div>
+    <table class="phone-table" id="phoneTable">
+      <tbody><tr><td colspan="2" style="color:var(--muted)">Run tests to see results</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- LOG -->
+  <div class="log-wrap">
+    <div class="log-header">
+      <div class="log-title">Test Log</div>
+      <button class="log-clear" onclick="clearLog()">Clear</button>
+    </div>
+    <div class="log-body" id="logBody">
+      <div class="log-line info">UniPark Test Harness ready. Click "Run All Tests" to begin.</div>
+    </div>
+  </div>
+
+  <div style="height:16px"></div>
 </div>
 
 <script>
-const BASE = 'https://uniparksystems.com';
+const BASE = '';  // same origin
+const PHONE_REGEX = /\(?\d{3}\)?[-.\s]?\d{3}[-.\s]\d{4}/g;
+const EXPECTED_PHONE = '216-616-3188';
+
 const PAGES = [
-  { name: 'Homepage Hero',      url: BASE + '/',                  icon: '🏠' },
-  { name: 'Pricing (3-tier)',   url: BASE + '/#pricing',          icon: '💰' },
-  { name: 'Trial Page',         url: BASE + '/trial/',            icon: '🚀' },
-  { name: 'App Locator',        url: BASE + '/app/locator/',      icon: '🅿️' },
-  { name: 'Consumer Portal',    url: BASE + '/portal/consumer/',  icon: '👤' },
-  { name: 'Client Portal',      url: BASE + '/portal/client/',    icon: '🏢' },
-  { name: 'Global Admin',       url: BASE + '/admin/global/',     icon: '⚙️' },
-  { name: 'Local Admin',        url: BASE + '/admin/local/',      icon: '🔧' },
-  { name: 'Compliance Engine',  url: BASE + '/app/compliance/',   icon: '📋' },
-  { name: 'App Download',       url: BASE + '/app-download/',     icon: '📲' },
+  { name: 'Homepage',              short: 'Home',        url: '/' },
+  { name: 'Trial Page',            short: 'Trial',       url: '/trial/' },
+  { name: 'App — Locator',         short: 'Locator',     url: '/app/locator/' },
+  { name: 'App — Main',            short: 'App',         url: '/app/' },
+  { name: 'App — MAE',             short: 'MAE',         url: '/app/mae/' },
+  { name: 'App — Compliance',      short: 'Compliance',  url: '/app/compliance/' },
+  { name: 'Consumer Portal',       short: 'Consumer',    url: '/portal/consumer/' },
+  { name: 'Client Portal',         short: 'Client',      url: '/portal/client/' },
+  { name: 'Global Admin',          short: 'GlobalAdmin', url: '/admin/global/' },
+  { name: 'Global — DB Setup',     short: 'DB Setup',    url: '/admin/global/ups-customer-db-setup.html' },
+  { name: 'Global — Instance',     short: 'Instance',    url: '/admin/global/ups-instance-setup.html' },
+  { name: 'Global — Verifier',     short: 'Verifier',    url: '/admin/global/ups-verifier.html' },
+  { name: 'Local Admin',           short: 'LocalAdmin',  url: '/admin/local/' },
+  { name: 'Login',                 short: 'Login',       url: '/login/' },
+  { name: 'App Download',          short: 'Download',    url: '/app-download/' },
 ];
 
+const TESTS = ['http','parker','title','desc','viewport','footer','nav','phone'];
+
 // State
-let current = 0;
-let pageStates = PAGES.map(() => ({ status: 'pending', checks: {}, parkerOk: null, notes: '' }));
-let autoMode = false;
-let autoTimer = null;
-let timerAnim = null;
-const AUTO_DURATION = 12000; // ms per page
+let results = {};     // { url: { http, parker, title, desc, viewport, footer, nav, phone } }
+let phoneMap = {};    // { url: phoneString|null }
+let running = false;
+let startTime = null;
+let elapsed = null;
 
-// Build sidebar page list
-function buildPageList() {
-  const list = document.getElementById('pageList');
-  list.innerHTML = PAGES.map((p, i) => `
-    <div class="page-item" id="pi-${i}" onclick="goTo(${i})">
-      <div class="page-num" id="pn-${i}">${i + 1}</div>
-      <div class="page-info">
-        <div class="page-name">${p.icon} ${p.name}</div>
-        <div class="page-url">${p.url.replace('https://uniparksystems.com', '')}</div>
-      </div>
-      <div class="parker-dot" id="pd-${i}" title="Parker status"></div>
-    </div>`).join('');
+// ── Init table ──────────────────────────────────────────────────────────────
+function buildTable() {
+  const tbody = document.getElementById('resultsBody');
+  tbody.innerHTML = PAGES.map(p => `
+    <tr id="row-${rowId(p.url)}">
+      <td>
+        <div class="page-name-cell">
+          <div class="page-name-label">${p.name}</div>
+          <div class="page-name-url">${p.url}</div>
+        </div>
+      </td>
+      ${TESTS.map(t => `<td><div class="cell pending" id="cell-${rowId(p.url)}-${t}" data-tip="${t}">·</div></td>`).join('')}
+    </tr>`).join('');
 }
 
-function goTo(idx) {
-  current = idx;
-  loadPage();
+function rowId(url) { return url.replace(/[^a-z0-9]/gi,'_'); }
+
+// ── Test runner ──────────────────────────────────────────────────────────────
+async function startTests() {
+  if (running) return;
+  running = true;
+  startTime = Date.now();
+  results = {};
+  phoneMap = {};
+
+  document.getElementById('runBtn').textContent = '⏳ Running…';
+  document.getElementById('runBtn').classList.add('running');
+  document.getElementById('runBtn').disabled = true;
+  setPulse('running');
+  buildTable();
+  resetSummary();
+  resetApiCards();
+  log('info', '─── Test run started ───────────────────────────────');
+
+  elapsed = setInterval(() => {
+    const s = ((Date.now() - startTime) / 1000).toFixed(1);
+    document.getElementById('elapsedTime').textContent = `Elapsed: ${s}s`;
+  }, 200);
+
+  // Run page tests concurrently (batches of 5 to avoid hammering)
+  const batches = chunk(PAGES, 5);
+  for (const batch of batches) {
+    await Promise.all(batch.map(p => testPage(p)));
+  }
+
+  // Run API tests
+  await Promise.all([
+    testParkerAPI(),
+    testAPIReachable(),
+    testHeroAsset(),
+    testPrivacyTerms(),
+  ]);
+
+  // Phone consistency
+  buildPhoneTable();
+
+  // Done
+  clearInterval(elapsed);
+  running = false;
+  document.getElementById('runBtn').textContent = '▶ Run Again';
+  document.getElementById('runBtn').classList.remove('running');
+  document.getElementById('runBtn').disabled = false;
+  setPulse('done');
+  updateSummary();
+  const total_s = ((Date.now() - startTime) / 1000).toFixed(1);
+  document.getElementById('elapsedTime').textContent = `Completed in ${total_s}s`;
+  document.getElementById('testTime').textContent = new Date().toLocaleTimeString();
+  log('info', `─── Done in ${total_s}s ───────────────────────────────`);
 }
 
-function loadPage() {
-  const p = PAGES[current];
-  const state = pageStates[current];
+async function testPage(page) {
+  const id = rowId(page.url);
+  setStatus(`Testing ${page.name}…`);
+  markRowRunning(id);
 
-  // Update sidebar active state
-  document.querySelectorAll('.page-item').forEach((el, i) => {
-    el.className = 'page-item' + (i === current ? ' active' : '') +
-      (pageStates[i].status === 'passed' ? ' passed' : '') +
-      (pageStates[i].status === 'failed' ? ' failed' : '');
-  });
+  // Mark all cells as running
+  TESTS.forEach(t => setCell(id, t, 'running', '…'));
 
-  // Header
-  document.getElementById('frameUrl').textContent = p.url;
-  document.getElementById('frameLabel').textContent = p.name;
-  document.getElementById('pageCounter').textContent = `Page ${current + 1} of ${PAGES.length}`;
+  const r = { http: null, parker: null, title: null, desc: null, viewport: null, footer: null, nav: null, phone: null };
 
-  // Show loading
-  const overlay = document.getElementById('iframeOverlay');
-  overlay.classList.remove('hidden');
-  document.getElementById('loadingLbl').textContent = 'Loading page…';
-  document.getElementById('parkerGlobal').className = 'parker-status ps-checking';
-  document.getElementById('parkerGlobal').textContent = '🤖 Parker: checking…';
-
-  // Load iframe
-  document.getElementById('mainFrame').src = p.url;
-
-  // Restore checklist state
-  restoreChecks();
-
-  // Notes
-  document.getElementById('notesIn').value = state.notes || '';
-  document.getElementById('notesStatus').textContent = '';
-
-  // Auto timer
-  resetTimer();
-}
-
-function onFrameLoad() {
-  const overlay = document.getElementById('iframeOverlay');
-  overlay.classList.add('hidden');
-
-  // Check parker after short delay (let scripts init)
-  setTimeout(checkParker, 1200);
-}
-
-function onFrameError() {
-  document.getElementById('loadingLbl').textContent = '⚠️ Failed to load';
-}
-
-function checkParker() {
-  const frame = document.getElementById('mainFrame');
-  let parkerOk = false;
   try {
-    const doc = frame.contentDocument || frame.contentWindow.document;
-    parkerOk = !!(doc.querySelector('.parker-btn') || doc.getElementById('parkerPanel'));
+    const resp = await fetch(BASE + page.url, { cache: 'no-store' });
+    const ok = resp.ok && resp.status === 200;
+    r.http = { pass: ok, detail: `HTTP ${resp.status}` };
+
+    if (ok) {
+      const html = await resp.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+
+      // Parker
+      const hasParker = html.includes('parker-btn') || html.includes('parkerPanel') || html.includes('parker-panel');
+      r.parker = { pass: hasParker, detail: hasParker ? 'parker-btn detected' : 'widget not found in HTML' };
+
+      // Title
+      const titleEl = doc.querySelector('title');
+      const titleText = titleEl ? titleEl.textContent.trim() : '';
+      r.title = { pass: titleText.length > 0, detail: titleText ? `"${titleText.substring(0,40)}"` : 'missing' };
+
+      // Meta description
+      const metaDesc = doc.querySelector('meta[name="description"]');
+      const descText = metaDesc ? metaDesc.getAttribute('content') : '';
+      r.desc = { pass: descText && descText.length > 5, detail: descText ? `"${descText.substring(0,40)}"` : 'missing' };
+
+      // Viewport
+      const metaVP = doc.querySelector('meta[name="viewport"]');
+      r.viewport = { pass: !!metaVP, detail: metaVP ? metaVP.getAttribute('content') : 'missing' };
+
+      // Footer
+      const footerEl = doc.querySelector('footer') || (html.toLowerCase().includes('<footer') ? {} : null);
+      r.footer = { pass: !!footerEl, detail: footerEl ? 'found' : 'no <footer> tag' };
+
+      // Nav links
+      const navEl = doc.querySelector('nav');
+      const navLinks = navEl ? navEl.querySelectorAll('a[href]') : [];
+      r.nav = { pass: navLinks.length >= 2, detail: `${navLinks.length} nav link${navLinks.length !== 1 ? 's' : ''}` };
+
+      // Phone
+      const phoneMatches = html.match(PHONE_REGEX);
+      const phones = phoneMatches ? [...new Set(phoneMatches)] : [];
+      const hasExpected = phones.some(p => p.replace(/\D/g,'') === EXPECTED_PHONE.replace(/\D/g,''));
+      r.phone = {
+        pass: phones.length > 0,
+        warn: phones.length > 0 && !hasExpected,
+        detail: phones.length ? phones.join(', ') : 'no phone found'
+      };
+      phoneMap[page.url] = phones.length ? phones[0] : null;
+
+      log('ok', `✓ ${page.name} — HTTP 200 | Parker:${hasParker?'✓':'✗'} | Phone:${phones[0]||'none'}`);
+    } else {
+      TESTS.filter(t => t !== 'http').forEach(t => { r[t] = { pass: false, detail: 'page did not load' }; });
+      log('err', `✗ ${page.name} — HTTP ${resp.status}`);
+    }
   } catch(e) {
-    // cross-origin fallback
-    parkerOk = false;
+    r.http = { pass: false, detail: e.message };
+    TESTS.filter(t => t !== 'http').forEach(t => { r[t] = { pass: false, detail: 'fetch failed' }; });
+    log('err', `✗ ${page.name} — ${e.message}`);
   }
 
-  pageStates[current].parkerOk = parkerOk;
+  results[page.url] = r;
 
-  // Update global badge
-  const badge = document.getElementById('parkerGlobal');
-  if (parkerOk) {
-    badge.className = 'parker-status ps-ok';
-    badge.textContent = '🤖 Parker: ✓ detected';
-  } else {
-    badge.className = 'parker-status ps-missing';
-    badge.textContent = '🤖 Parker: ✗ missing';
-  }
+  // Update cells
+  TESTS.forEach(t => {
+    const res = r[t];
+    if (!res) { setCell(id, t, 'pending', '·'); return; }
+    if (res.warn) setCell(id, t, 'warn', '⚠', res.detail);
+    else if (res.pass) setCell(id, t, 'pass', '✓', res.detail);
+    else setCell(id, t, 'fail', '✗', res.detail);
+  });
 
-  // Update sidebar dot
-  const dot = document.getElementById(`pd-${current}`);
-  if (dot) {
-    dot.className = 'parker-dot ' + (parkerOk ? 'ok' : 'missing');
-    dot.title = parkerOk ? 'Parker ✓' : 'Parker ✗ missing';
-  }
+  markRowDone(id, r);
+  updateSummary();
+}
 
-  // Auto-tick the parker checklist item
-  const parkerCheck = document.querySelector('[data-check="parker"]');
-  if (parkerCheck) {
-    if (parkerOk) {
-      parkerCheck.classList.add('ticked');
-      pageStates[current].checks['parker'] = true;
+// ── API Tests ────────────────────────────────────────────────────────────────
+async function testParkerAPI() {
+  setBadge('parker', 'running', 'Testing…');
+  setDetail('parker', '');
+  log('info', 'Testing Parker chat API…');
+  try {
+    const start = Date.now();
+    const resp = await fetch('https://answerpointintelligence.ai/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'What is UniPark?', product: 'parker', history: [] })
+    });
+    const ms = Date.now() - start;
+    if (resp.ok) {
+      const data = await resp.json();
+      const reply = data?.reply || data?.message || JSON.stringify(data).substring(0, 80);
+      setBadge('parker', 'pass', `${resp.status} OK · ${ms}ms`);
+      setDetail('parker', `Response (${ms}ms):\n"${reply.substring(0, 120)}"`, 'pass-text');
+      log('ok', `✓ Parker API: ${resp.status} in ${ms}ms`);
     } else {
-      parkerCheck.classList.remove('ticked');
-      pageStates[current].checks['parker'] = false;
+      setBadge('parker', 'fail', `HTTP ${resp.status}`);
+      setDetail('parker', `HTTP ${resp.status} ${resp.statusText}`, 'fail-text');
+      log('err', `✗ Parker API: HTTP ${resp.status}`);
     }
-  }
-
-  // Also auto-tick "loads" check
-  const loadsCheck = document.querySelector('[data-check="loads"]');
-  if (loadsCheck) {
-    loadsCheck.classList.add('ticked');
-    pageStates[current].checks['loads'] = true;
+  } catch(e) {
+    setBadge('parker', 'fail', 'Unreachable');
+    setDetail('parker', e.message, 'fail-text');
+    log('err', `✗ Parker API: ${e.message}`);
   }
 }
 
-// Checklist
-function toggleCheck(el) {
-  el.classList.toggle('ticked');
-  const key = el.dataset.check;
-  pageStates[current].checks[key] = el.classList.contains('ticked');
+async function testAPIReachable() {
+  setBadge('reachable', 'running', 'Testing…');
+  log('info', 'Testing AnswerPoint API reachability…');
+  try {
+    const start = Date.now();
+    const resp = await fetch('https://answerpointintelligence.ai/', { mode: 'no-cors' });
+    const ms = Date.now() - start;
+    setBadge('reachable', 'pass', `Reachable · ${ms}ms`);
+    setDetail('reachable', `Host responded in ${ms}ms\nmode: no-cors (opaque response — expected)`, 'pass-text');
+    log('ok', `✓ AnswerPoint host reachable in ${ms}ms`);
+  } catch(e) {
+    setBadge('reachable', 'fail', 'Unreachable');
+    setDetail('reachable', e.message, 'fail-text');
+    log('err', `✗ AnswerPoint: ${e.message}`);
+  }
 }
 
-function restoreChecks() {
-  const state = pageStates[current];
-  document.querySelectorAll('.check-item').forEach(el => {
-    const key = el.dataset.check;
-    if (state.checks[key]) {
-      el.classList.add('ticked');
+async function testHeroAsset() {
+  setBadge('assets', 'running', 'Testing…');
+  log('info', 'Testing hero-car.jpg…');
+  try {
+    const start = Date.now();
+    const resp = await fetch(BASE + '/assets/hero-car.jpg', { method: 'HEAD', cache: 'no-store' });
+    const ms = Date.now() - start;
+    const size = resp.headers.get('content-length');
+    if (resp.ok) {
+      const sizeStr = size ? `${(parseInt(size)/1024).toFixed(0)} KB` : 'size unknown';
+      setBadge('assets', 'pass', `${resp.status} OK`);
+      setDetail('assets', `HTTP ${resp.status} · ${sizeStr} · ${ms}ms\n/assets/hero-car.jpg`, 'pass-text');
+      log('ok', `✓ hero-car.jpg: ${resp.status} · ${sizeStr}`);
     } else {
-      el.classList.remove('ticked');
+      setBadge('assets', 'fail', `HTTP ${resp.status}`);
+      setDetail('assets', `HTTP ${resp.status} — asset missing`, 'fail-text');
+      log('err', `✗ hero-car.jpg: HTTP ${resp.status}`);
     }
+  } catch(e) {
+    setBadge('assets', 'fail', 'Error');
+    setDetail('assets', e.message, 'fail-text');
+    log('err', `✗ hero-car.jpg: ${e.message}`);
+  }
+}
+
+async function testPrivacyTerms() {
+  setBadge('privacy', 'running', 'Testing…');
+  log('info', 'Testing /privacy/ and /terms/ pages…');
+  try {
+    const [pr, tr] = await Promise.all([
+      fetch(BASE + '/privacy/', { method: 'HEAD', cache: 'no-store' }),
+      fetch(BASE + '/terms/',   { method: 'HEAD', cache: 'no-store' })
+    ]);
+    const bothOk = pr.ok && tr.ok;
+    if (bothOk) {
+      setBadge('privacy', 'pass', 'Both live');
+      setDetail('privacy', `/privacy/ → HTTP ${pr.status} ✓\n/terms/   → HTTP ${tr.status} ✓`, 'pass-text');
+      log('ok', `✓ Privacy: ${pr.status} · Terms: ${tr.status}`);
+    } else {
+      setBadge('privacy', 'fail', 'One or both missing');
+      setDetail('privacy', `/privacy/ → HTTP ${pr.status}${pr.ok?' ✓':' ✗'}\n/terms/   → HTTP ${tr.status}${tr.ok?' ✓':' ✗'}`, 'fail-text');
+      log('err', `✗ Privacy: ${pr.status} · Terms: ${tr.status}`);
+    }
+  } catch(e) {
+    setBadge('privacy', 'fail', 'Error');
+    setDetail('privacy', e.message, 'fail-text');
+    log('err', `✗ Privacy/Terms: ${e.message}`);
+  }
+}
+
+// ── Phone consistency ────────────────────────────────────────────────────────
+function buildPhoneTable() {
+  const tbody = document.getElementById('phoneTable').querySelector('tbody');
+  const phones = Object.values(phoneMap).filter(Boolean);
+  const unique = [...new Set(phones.map(p => p.replace(/\D/g,'')))];
+  const consistent = unique.length <= 1;
+
+  const rows = PAGES.map(p => {
+    const phone = phoneMap[p.url];
+    const normalized = phone ? phone.replace(/\D/g,'') : null;
+    const isExpected = normalized === EXPECTED_PHONE.replace(/\D/g,'');
+    const icon = !phone ? '⚠' : isExpected ? '✓' : '✗';
+    const color = !phone ? 'var(--yellow)' : isExpected ? 'var(--green)' : 'var(--red)';
+    return `<tr>
+      <td>${p.name}</td>
+      <td style="color:${color}">${icon} ${phone || 'not found'}</td>
+    </tr>`;
+  }).join('');
+
+  const summary = consistent
+    ? `<tr style="font-weight:700"><td>Consistency</td><td style="color:var(--green)">✓ All pages match (${unique[0] ? formatPhone(unique[0]) : 'none'})</td></tr>`
+    : `<tr style="font-weight:700"><td>Consistency</td><td style="color:var(--red)">✗ ${unique.length} different numbers found</td></tr>`;
+
+  tbody.innerHTML = rows + summary;
+  log(consistent ? 'ok' : 'warn', `Phone check: ${consistent ? 'consistent' : unique.length + ' different numbers'}`);
+}
+
+function formatPhone(d) { return d.length === 10 ? `${d.slice(0,3)}-${d.slice(3,6)}-${d.slice(6)}` : d; }
+
+// ── UI helpers ───────────────────────────────────────────────────────────────
+function setCell(rowId, test, state, icon, tip) {
+  const el = document.getElementById(`cell-${rowId}-${test}`);
+  if (!el) return;
+  el.className = `cell ${state}`;
+  el.textContent = icon;
+  if (tip) el.setAttribute('data-tip', tip.substring(0, 60));
+  else el.removeAttribute('data-tip');
+}
+
+function markRowRunning(id) {
+  const row = document.getElementById(`row-${id}`);
+  if (row) row.className = 'row-running';
+}
+
+function markRowDone(id, r) {
+  const row = document.getElementById(`row-${id}`);
+  if (!row) return;
+  const allPass = TESTS.every(t => r[t] && (r[t].pass || r[t].warn));
+  row.className = allPass ? 'row-pass' : 'row-fail';
+}
+
+function setBadge(key, state, text) {
+  const el = document.getElementById(`badge-${key}`);
+  if (!el) return;
+  el.className = 'api-badge badge-' + (state === 'running' ? 'running' : state === 'pass' ? 'pass' : 'fail');
+  el.textContent = text;
+}
+
+function setDetail(key, text, cls) {
+  const el = document.getElementById(`detail-${key}`);
+  if (!el) return;
+  el.className = 'api-detail ' + (cls || '');
+  el.textContent = text;
+}
+
+function setPulse(state) {
+  const el = document.getElementById('pulseDot');
+  el.className = 'pulse ' + state;
+}
+
+function setStatus(text) {
+  document.getElementById('statusText').textContent = text;
+}
+
+function resetSummary() {
+  ['scPassed','scFailed','scParker','scApi'].forEach(id => {
+    document.getElementById(id).textContent = '–';
+  });
+  document.getElementById('scPages').textContent = '0 / 15';
+  document.getElementById('scorePassed').textContent = '–';
+  document.getElementById('scoreTotal').textContent = '–';
+  document.getElementById('scorePct').textContent = '';
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('phoneTable').querySelector('tbody').innerHTML =
+    '<tr><td colspan="2" style="color:var(--muted)">Running…</td></tr>';
+}
+
+function resetApiCards() {
+  ['parker','reachable','assets','privacy'].forEach(k => {
+    setBadge(k, 'pending', 'Pending');
+    setDetail(k, 'Waiting…');
   });
 }
 
-// Mark page pass/fail
-function markPage(status) {
-  pageStates[current].status = status;
-  updateProgress();
-  const el = document.getElementById(`pi-${current}`);
-  if (el) {
-    el.className = 'page-item ' + status;
-  }
-  if (autoMode) nextPage();
-}
+function updateSummary() {
+  const testedPages = Object.keys(results).length;
+  const totalTests = testedPages * TESTS.length;
+  let passed = 0, failed = 0, parkerCount = 0;
 
-function updateProgress() {
-  const passed = pageStates.filter(s => s.status === 'passed').length;
-  const total = PAGES.length;
-  const pct = Math.round(passed / total * 100);
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressLbl').textContent = `${passed} of ${total} pages verified`;
-  document.getElementById('scorePill').textContent = `${passed} / ${total} passed`;
-}
-
-// Navigation
-function prevPage() {
-  if (current > 0) { current--; loadPage(); }
-}
-
-function nextPage() {
-  if (current < PAGES.length - 1) { current++; loadPage(); }
-  else { stopAuto(); }
-}
-
-// Auto-cycle
-function toggleAuto() {
-  autoMode ? stopAuto() : startAuto();
-}
-
-function startAuto() {
-  autoMode = true;
-  document.getElementById('autoBtn').textContent = '⏸ Auto';
-  document.getElementById('autoBtn').style.background = '#718096';
-  runAutoStep();
-}
-
-function stopAuto() {
-  autoMode = false;
-  clearTimeout(autoTimer);
-  clearInterval(timerAnim);
-  document.getElementById('timerFill').style.width = '0%';
-  document.getElementById('autoBtn').textContent = '▶ Auto';
-  document.getElementById('autoBtn').style.background = 'var(--orange)';
-}
-
-function runAutoStep() {
-  if (!autoMode) return;
-  resetTimer();
-  autoTimer = setTimeout(() => {
-    if (autoMode) {
-      nextPage();
-      if (autoMode) runAutoStep();
-    }
-  }, AUTO_DURATION);
-}
-
-function resetTimer() {
-  clearInterval(timerAnim);
-  const fill = document.getElementById('timerFill');
-  fill.style.transition = 'none';
-  fill.style.width = '0%';
-  if (autoMode) {
-    requestAnimationFrame(() => {
-      fill.style.transition = `width ${AUTO_DURATION}ms linear`;
-      fill.style.width = '100%';
+  for (const [url, r] of Object.entries(results)) {
+    TESTS.forEach(t => {
+      if (r[t]) {
+        if (r[t].pass || r[t].warn) passed++; else failed++;
+      }
     });
+    if (r.parker && r.parker.pass) parkerCount++;
   }
-}
 
-// Manual check buttons
-function toggleManual(btn) {
-  if (btn.classList.contains('pass')) {
-    btn.classList.remove('pass');
-    btn.classList.add('fail');
-    btn.querySelector('.ms').textContent = '✗ FAILED';
-  } else if (btn.classList.contains('fail')) {
-    btn.classList.remove('fail');
-    btn.querySelector('.ms').textContent = 'click to toggle';
-  } else {
-    btn.classList.add('pass');
-    btn.querySelector('.ms').textContent = '✓ PASSED';
+  document.getElementById('scPages').textContent = `${testedPages} / ${PAGES.length}`;
+  document.getElementById('scPassed').textContent = passed;
+  document.getElementById('scFailed').textContent = failed;
+  document.getElementById('scParker').textContent = `${parkerCount} / ${testedPages}`;
+  document.getElementById('scorePassed').textContent = passed;
+  document.getElementById('scoreTotal').textContent = totalTests;
+  if (totalTests > 0) {
+    const pct = Math.round(passed / totalTests * 100);
+    document.getElementById('scorePct').textContent = `(${pct}%)`;
+    document.getElementById('progressFill').style.width = pct + '%';
   }
+  setStatus(testedPages < PAGES.length ? `Testing page ${testedPages} of ${PAGES.length}…` : 'All tests complete');
 }
 
-// Notes
-function saveNote() {
-  const val = document.getElementById('notesIn').value.trim();
-  pageStates[current].notes = val;
-  const st = document.getElementById('notesStatus');
-  st.textContent = 'Saved ✓';
-  setTimeout(() => st.textContent = '', 1500);
+function log(type, msg) {
+  const body = document.getElementById('logBody');
+  const line = document.createElement('div');
+  const ts = new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  line.className = `log-line ${type}`;
+  line.textContent = `[${ts}] ${msg}`;
+  body.appendChild(line);
+  body.scrollTop = body.scrollHeight;
 }
 
-// Keyboard shortcuts
-document.addEventListener('keydown', e => {
-  if (e.target.tagName === 'INPUT') return;
-  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextPage();
-  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   prevPage();
-  if (e.key === 'p' || e.key === 'P') markPage('passed');
-  if (e.key === 'f' || e.key === 'F') markPage('failed');
-  if (e.key === ' ') { e.preventDefault(); toggleAuto(); }
-});
+function clearLog() {
+  document.getElementById('logBody').innerHTML = '';
+}
+
+function chunk(arr, n) {
+  const out = [];
+  for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n));
+  return out;
+}
 
 // Init
-buildPageList();
-loadPage();
+buildTable();
 </script>
 </body>
 </html>
