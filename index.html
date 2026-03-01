@@ -155,7 +155,7 @@ footer a{color:var(--teal);text-decoration:none}
 
 <!-- NAV with hamburger -->
 <nav class="nav">
-  <a class="nav-brand" href="#">
+  <a class="nav-brand" href="/">
     <svg viewBox="0 0 200 210" width="32" height="34"><defs><linearGradient id="na" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1B2A4A"/><stop offset="100%" stop-color="#2B4C6F"/></linearGradient><linearGradient id="nb" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#E8952E"/><stop offset="100%" stop-color="#F5A623"/></linearGradient></defs><path d="M100,10 L180,40 L180,130 Q100,185 20,130 L20,40 Z" fill="url(#na)"/><path d="M100,26 L166,50 L166,124 Q100,170 34,124 L34,50 Z" fill="none" stroke="#2BA4B5" stroke-width="2.5"/><text x="100" y="112" text-anchor="middle" fill="url(#nb)" font-family="Georgia,serif" font-size="66" font-weight="bold">P</text><circle cx="100" cy="192" r="6" fill="#E8952E"/></svg>
     <span>Uni<span class="tl">Park</span></span>
   </a>
@@ -164,7 +164,7 @@ footer a{color:var(--teal);text-decoration:none}
   </div>
   <div class="nav-cta">
     <a class="btn btn-out" href="/login/">Login</a>
-    <a class="btn btn-pri" href="#demo">Request Demo</a>
+    <a class="btn btn-pri" href="/trial/">Request Demo</a>
   </div>
   <button class="hamburger" onclick="toggleMob()" aria-label="Menu">☰</button>
 </nav>
@@ -179,7 +179,7 @@ footer a{color:var(--teal);text-decoration:none}
   <a href="#contact" onclick="closeMob()">Contact</a>
   <div class="mob-cta">
     <a class="btn btn-out" href="/login/" onclick="closeMob()">Login</a>
-    <a class="btn btn-pri" href="#demo" onclick="closeMob()">Request Demo</a>
+    <a class="btn btn-pri" href="/trial/" onclick="closeMob()">Request Demo</a>
   </div>
 </div>
 
@@ -239,13 +239,13 @@ function closeMob(){document.getElementById('mobOverlay').classList.remove('open
       <h3>Starter</h3>
       <div class="price">$199<span>/mo</span></div>
       <ul><li>Up to 3 facilities</li><li>Online booking</li><li>Basic analytics</li><li>Email support</li><li>Stripe payments</li></ul>
-      <a class="btn btn-out" href="#demo" style="width:100%;text-align:center">Start Free Trial</a>
+      <a class="btn btn-out" href="/trial/" style="width:100%;text-align:center">Start Free Trial</a>
     </div>
     <div class="plan pop">
       <h3>Professional</h3>
       <div class="price">$499<span>/mo</span></div>
       <ul><li>Up to 15 facilities</li><li>Dynamic pricing AI</li><li>IoT sensor integration</li><li>Priority support</li><li>Custom branding</li></ul>
-      <a class="btn btn-pri" href="#demo" style="width:100%;text-align:center">Start Free Trial</a>
+      <a class="btn btn-pri" href="/trial/" style="width:100%;text-align:center">Start Free Trial</a>
     </div>
     <div class="plan">
       <h3>Enterprise</h3>
@@ -289,7 +289,7 @@ function closeMob(){document.getElementById('mobOverlay').classList.remove('open
     <span style="font-family:Montserrat;font-weight:800;color:#FFF">Uni<span style="color:#2BA4B5">Park</span></span>
   </div>
   <div style="margin-bottom:6px">A product of <a href="https://www.answerpoint.com">The AnswerPoint LLC</a> · Cleveland, Ohio</div>
-  <div>© 2026 Universal Parking Systems. All rights reserved. · <a href="#">Privacy</a> · <a href="#">Terms</a></div>
+  <div>© 2026 Universal Parking Systems. All rights reserved. · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></div>
 </footer>
 
 
