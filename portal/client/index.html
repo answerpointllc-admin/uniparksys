@@ -407,5 +407,85 @@ document.getElementById('pageTitle').textContent=titles[id]||id;
 }
 function switchInner(el){el.parentElement.querySelectorAll('.inner-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active')}
 </script>
+
+<!-- PARKER AI WIDGET -->
+<style>
+.parker-btn{position:fixed;bottom:20px;right:20px;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#1B2A4A,#2BA4B5);color:#FFF;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 24px rgba(43,164,181,.4);z-index:9000;font-size:22px;transition:transform .2s;border:none}
+.parker-btn:hover{transform:scale(1.08)}
+.parker-badge{position:absolute;top:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:#E8952E;border:2px solid #FFF}
+.parker-panel{display:none;position:fixed;bottom:88px;right:20px;width:340px;max-height:480px;background:#FFF;border:1px solid #E2E8F0;border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,.15);z-index:9001;overflow:hidden;flex-direction:column}
+.parker-panel.show{display:flex}
+.parker-hdr{background:linear-gradient(135deg,#1B2A4A,#2B4C6F);padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.parker-hdr-info{display:flex;align-items:center;gap:10px}
+.parker-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2BA4B5,#1B8A99);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#FFF}
+.parker-hdr-text .pname{font-size:14px;font-weight:700;color:#FFF}
+.parker-hdr-text .psub{font-size:10px;color:rgba(255,255,255,.5)}
+.parker-close{background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:18px;line-height:1}
+.parker-close:hover{color:#FFF}
+.parker-msgs{flex:1;overflow-y:auto;padding:12px;background:#F7FAFC;min-height:260px;max-height:320px}
+.pmsg-bot{display:flex;gap:8px;margin-bottom:10px}
+.pmsg-bot .pbubble{background:#FFF;border:1px solid #E2E8F0;border-radius:12px;border-bottom-left-radius:4px;padding:10px 12px;font-size:12px;color:#2D3748;line-height:1.6;max-width:230px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.pmsg-user{display:flex;justify-content:flex-end;margin-bottom:10px}
+.pmsg-user .pbubble{background:linear-gradient(135deg,#2BA4B5,#1B8A99);color:#FFF;border-radius:12px;border-bottom-right-radius:4px;padding:10px 12px;font-size:12px;line-height:1.6;max-width:230px}
+.parker-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.parker-chip{padding:5px 10px;background:#EBF8FF;border:1px solid #BEE3F8;border-radius:14px;color:#2BA4B5;font-size:10px;font-weight:600;cursor:pointer;transition:all .15s}
+.parker-chip:hover{background:#BEE3F8}
+.parker-input-row{padding:8px;border-top:1px solid #E2E8F0;display:flex;gap:6px;background:#FFF}
+.parker-input{flex:1;border:1px solid #E2E8F0;border-radius:20px;padding:8px 14px;font-size:12px;font-family:inherit;outline:none;color:#2D3748;background:#F7FAFC;transition:border .2s}
+.parker-input:focus{border-color:#2BA4B5}
+.parker-send{width:34px;height:34px;border-radius:50%;background:#2BA4B5;color:#FFF;border:none;cursor:pointer;font-size:14px;flex-shrink:0;transition:background .15s}
+.parker-send:hover{background:#1B8A99}
+@media(max-width:768px){.parker-panel{width:calc(100% - 32px);right:16px;left:16px}}
+</style>
+<button class="parker-btn" onclick="toggleParker()" aria-label="Chat with Parker">💬<span class="parker-badge"></span></button>
+<div class="parker-panel" id="parkerPanel">
+  <div class="parker-hdr">
+    <div class="parker-hdr-info">
+      <div class="parker-avatar">P</div>
+      <div class="parker-hdr-text"><div class="pname">Parker — UniPark AI</div><div class="psub">AI-powered · Instant answers</div></div>
+    </div>
+    <button class="parker-close" onclick="toggleParker()">✕</button>
+  </div>
+  <div class="parker-msgs" id="parkerMsgs">
+    <div class="pmsg-bot"><div class="pbubble">Hi! I'm Parker, UniPark's AI assistant. Ask me anything about the platform, pricing, or your parking operation.</div></div>
+    <div class="parker-chips">
+      <span class="parker-chip" onclick="parkerQuick('How does dynamic pricing work?')">Dynamic pricing</span>
+      <span class="parker-chip" onclick="parkerQuick('What does the Pro plan include?')">Pro plan</span>
+      <span class="parker-chip" onclick="parkerQuick('How does IoT occupancy work?')">IoT sensors</span>
+      <span class="parker-chip" onclick="parkerQuick('How long does setup take?')">Setup time</span>
+    </div>
+  </div>
+  <div class="parker-input-row">
+    <input class="parker-input" id="parkerIn" placeholder="Ask about UniPark..." onkeydown="if(event.key==='Enter')parkerSend()">
+    <button class="parker-send" onclick="parkerSend()">↑</button>
+  </div>
+</div>
+<script>
+if(!window._parkerLoaded){window._parkerLoaded=true;
+function toggleParker(){document.getElementById('parkerPanel').classList.toggle('show')}
+function parkerQuick(t){document.getElementById('parkerIn').value=t;parkerSend()}
+async function parkerSend(){
+  var inp=document.getElementById('parkerIn'),t=inp.value.trim();if(!t)return;inp.value='';
+  var c=document.getElementById('parkerMsgs');
+  c.innerHTML+='<div class="pmsg-user"><div class="pbubble">'+t+'</div></div>';
+  c.innerHTML+='<div class="pmsg-bot" id="pTyping"><div class="pbubble" style="color:#A0AEC0">Parker is thinking...</div></div>';
+  c.scrollTop=c.scrollHeight;
+  var reply='';
+  try{
+    var r=await fetch('https://answerpointintelligence.ai/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,product:'parker',history:[]})});
+    var d=await r.json();reply=d&&(d.reply||d.message)||'';
+  }catch(e){}
+  if(!reply){
+    var canned={'dynamic pricing':'Our AI-driven dynamic pricing adjusts rates based on real-time demand, events, and competitor pricing. Operators typically see 20-35% revenue uplift in the first 90 days.','pro plan':'The Professional plan ($499/mo) includes up to 15 facilities, dynamic pricing AI, IoT sensor integration, priority support, and custom branding.','iot':'UniPark integrates with standard parking sensors via MQTT. Real-time occupancy data flows into your dashboard across every lot, level, and zone.','setup':'Most operators are live within 2-3 business days. Our onboarding team handles everything — no technical team required on your end.'};
+    var key=Object.keys(canned).find(function(k){return t.toLowerCase().indexOf(k)>=0});
+    reply=canned[key]||'Great question! UniPark covers booking, dynamic pricing, IoT occupancy, and analytics. Would you like to request a demo or learn more about a specific feature?';
+  }
+  var el=document.getElementById('pTyping');if(el)el.remove();
+  c.innerHTML+='<div class="pmsg-bot"><div class="pbubble">'+reply+'</div></div>';
+  c.scrollTop=c.scrollHeight;
+}
+}
+</script>
+
 </body>
 </html>
