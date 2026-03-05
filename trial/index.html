@@ -4,91 +4,78 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Start Your Free Trial — UniPark</title>
-<meta name="description" content="Start your free 15-day UniPark trial. No credit card required.">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--grn:#10B981;--org:#F97316;--slate:#475569;--dk:#1B2A4A;--lt:#f8fafc;--bdr:#e2e8f0;--mut:#64748b;--white:#fff}
-body{font-family:'DM Sans',sans-serif;background:var(--lt);color:var(--dk);min-height:100vh;display:flex;flex-direction:column}
+:root{--grn:#10B981;--org:#F97316;--dk:#1B2A4A;--lt:#f8fafc;--bdr:#e2e8f0;--mut:#64748b;--white:#fff}
+html{font-size:125%;height:100%;font-family:'DM Sans',sans-serif;background:var(--lt);color:var(--dk)}
+body{display:flex;flex-direction:column;height:100vh;overflow:hidden}
 a{text-decoration:none;color:inherit}
 
-/* NAV */
-.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 48px;background:var(--white);border-bottom:1px solid var(--bdr)}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:12px 40px;background:var(--white);border-bottom:1px solid var(--bdr);flex-shrink:0}
 .nav-brand{display:flex;align-items:center;gap:10px}
-.nav-brand svg{width:40px;height:43px}
-.nav-brand span{font-family:'Montserrat',sans-serif;font-weight:800;font-size:20px;color:var(--dk)}
+.nav-brand svg{width:36px;height:38px}
+.nav-brand span{font-family:'Montserrat',sans-serif;font-weight:800;font-size:19px;color:var(--dk)}
 .nav-brand .tl{color:var(--grn)}
-.nav-back{font-size:13px;color:var(--mut);display:flex;align-items:center;gap:6px;transition:color .2s}
+.nav-back{font-size:13px;color:var(--mut);display:flex;align-items:center;gap:5px;transition:color .2s}
 .nav-back:hover{color:var(--dk)}
-.nav-back svg{width:16px;height:16px}
+.nav-back svg{width:15px;height:15px}
 
-/* HERO */
-.hero{text-align:center;padding:56px 24px 40px;background:var(--white);border-bottom:1px solid var(--bdr)}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(16,185,129,0.1);color:var(--grn);border:1px solid rgba(16,185,129,0.25);border-radius:20px;padding:6px 16px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:20px}
+.hero{text-align:center;padding:18px 24px 14px;background:var(--white);border-bottom:1px solid var(--bdr);flex-shrink:0}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(16,185,129,0.1);color:var(--grn);border:1px solid rgba(16,185,129,0.25);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
 .hero-badge span{width:6px;height:6px;border-radius:50%;background:var(--grn);display:inline-block}
-.hero h1{font-family:'Montserrat',sans-serif;font-size:40px;font-weight:800;line-height:1.1;margin-bottom:14px}
+.hero h1{font-family:'Montserrat',sans-serif;font-size:32px;font-weight:800;line-height:1.1;margin-bottom:7px}
 .hero h1 em{color:var(--grn);font-style:normal}
-.hero-sub{font-size:16px;color:var(--mut);max-width:480px;margin:0 auto;line-height:1.7}
-.hero-meta{display:flex;align-items:center;justify-content:center;gap:24px;margin-top:20px;flex-wrap:wrap}
-.hero-meta span{font-size:13px;color:var(--mut);display:flex;align-items:center;gap:6px}
-.hero-meta svg{width:14px;height:14px;color:var(--grn)}
+.hero-sub{font-size:14px;color:var(--mut)}
 
-/* PROGRESS */
-.progress{display:flex;align-items:center;justify-content:center;gap:0;padding:24px;background:var(--lt)}
-.prog-step{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
-.prog-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.progress{display:flex;align-items:center;justify-content:center;padding:11px;background:var(--lt);border-bottom:1px solid var(--bdr);flex-shrink:0}
+.prog-step{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600}
+.prog-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
 .prog-step.active .prog-num{background:var(--grn);color:var(--white)}
 .prog-step.active .prog-label{color:var(--dk)}
 .prog-step.inactive .prog-num{background:var(--bdr);color:var(--mut)}
 .prog-step.inactive .prog-label{color:var(--mut)}
-.prog-line{width:48px;height:2px;background:var(--bdr);margin:0 8px}
+.prog-line{width:40px;height:2px;background:var(--bdr);margin:0 6px}
 
-/* TIERS */
-.tiers-wrap{flex:1;padding:40px 24px 60px;max-width:1100px;margin:0 auto;width:100%}
-.tiers-label{text-align:center;font-size:13px;color:var(--mut);margin-bottom:32px;font-weight:500}
-.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tiers-section{flex:1;display:flex;flex-direction:column;padding:14px 24px 0;justify-content:center;max-width:1100px;margin:0 auto;width:100%;min-height:0}
+.tiers-label{text-align:center;font-size:12px;color:var(--mut);margin-bottom:12px;flex-shrink:0;margin-top:-16px}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
 
-.tier{border:2px solid var(--bdr);border-radius:16px;background:var(--white);padding:32px 28px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-.tier:hover{border-color:var(--grn);box-shadow:0 8px 32px rgba(16,185,129,0.12)}
-.tier.selected{border-color:var(--grn);box-shadow:0 8px 32px rgba(16,185,129,0.15)}
-.tier.selected::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--grn),#34d399)}
-.tier.popular{border-color:#cbd5e1}
-.tier.popular::after{content:'MOST POPULAR';position:absolute;top:16px;right:-28px;background:var(--org);color:var(--white);font-size:9px;font-weight:800;letter-spacing:1.5px;padding:4px 36px;transform:rotate(45deg);transform-origin:center}
+.tier{border:2px solid var(--bdr);border-radius:14px;background:var(--white);cursor:pointer;transition:all .2s;position:relative;overflow:hidden;display:flex;flex-direction:column;padding:24px}
+.tier:hover{border-color:var(--grn);box-shadow:0 6px 24px rgba(16,185,129,0.1)}
+.tier.selected{border-color:var(--grn);box-shadow:0 6px 24px rgba(16,185,129,0.15)}
+.tier.selected::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--grn),#34d399)}
+.tier.popular::after{content:'MOST POPULAR';position:absolute;top:14px;right:-26px;background:var(--org);color:var(--white);font-size:8px;font-weight:800;letter-spacing:1.5px;padding:4px 32px;transform:rotate(45deg)}
 
-.tier-radio{display:flex;align-items:flex-start;gap:14px}
-.radio-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--bdr);flex-shrink:0;margin-top:2px;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.tier-radio{display:flex;align-items:flex-start;gap:12px}
+.radio-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--bdr);flex-shrink:0;margin-top:2px;transition:all .2s;display:flex;align-items:center;justify-content:center}
 .tier.selected .radio-dot{border-color:var(--grn);background:var(--grn)}
-.radio-dot::after{content:'';width:7px;height:7px;border-radius:50%;background:var(--white);opacity:0}
+.radio-dot::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--white);opacity:0}
 .tier.selected .radio-dot::after{opacity:1}
 .tier-content{flex:1}
-.tier-name{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px}
-.tier-desc{font-size:13px;color:var(--mut);line-height:1.6;margin-bottom:20px}
-.tier-features{list-style:none;display:flex;flex-direction:column;gap:9px}
-.tier-features li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--slate)}
-.tier-features li svg{width:15px;height:15px;color:var(--grn);flex-shrink:0;margin-top:1px}
-.tier-features li.dim{color:var(--bdr)}
-.tier-features li.dim svg{color:var(--bdr)}
-.tier-tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:14px}
+.tier-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-bottom:8px}
+.tier-name{font-family:'Montserrat',sans-serif;font-size:20px;font-weight:800;margin-bottom:6px}
+.tier-desc{font-size:13px;color:var(--mut);line-height:1.5;margin-bottom:14px}
+.tier-features{list-style:none;display:flex;flex-direction:column;gap:8px}
+.tier-features li{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#475569}
+.tier-features li svg{width:14px;height:14px;color:var(--grn);flex-shrink:0;margin-top:1px}
+.tier-features li.dim{color:#cbd5e1}
+.tier-features li.dim svg{color:#cbd5e1}
 
-/* CTA */
-.cta-wrap{padding:0 24px 48px;max-width:1100px;margin:0 auto;width:100%}
-.cta-inner{background:var(--white);border:1px solid var(--bdr);border-radius:16px;padding:28px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px}
-.cta-text{font-size:15px;color:var(--mut)}
-.cta-text strong{color:var(--dk);display:block;font-size:17px;margin-bottom:4px}
-.cta-btn{display:flex;align-items:center;gap:8px;background:var(--grn);color:var(--white);border:none;border-radius:10px;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;font-family:'DM Sans',sans-serif}
-.cta-btn:hover{background:#0ea271;transform:translateY(-1px);box-shadow:0 8px 24px rgba(16,185,129,0.3)}
-.cta-btn:disabled{background:var(--bdr);color:var(--mut);cursor:not-allowed;transform:none;box-shadow:none}
-.cta-btn svg{width:18px;height:18px}
+.cta-wrap{flex-shrink:0;padding:12px 24px 14px;max-width:1100px;margin:0 auto;width:100%}
+.cta-inner{background:var(--white);border:1px solid var(--bdr);border-radius:12px;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.cta-text strong{color:var(--dk);display:block;font-size:14px;margin-bottom:2px}
+.cta-text span{font-size:12px;color:var(--mut)}
+.cta-btn{display:flex;align-items:center;gap:8px;background:var(--grn);color:var(--white);border:none;border-radius:8px;padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;font-family:'DM Sans',sans-serif}
+.cta-btn:hover{background:#0ea271;box-shadow:0 6px 20px rgba(16,185,129,0.3)}
+.cta-btn:disabled{background:var(--bdr);color:var(--mut);cursor:not-allowed;box-shadow:none}
+.cta-btn svg{width:16px;height:16px}
 
-/* FOOTER */
-.ftr{border-top:1px solid var(--bdr);padding:20px 48px;display:flex;align-items:center;justify-content:space-between;background:var(--white)}
-.ftr-left{font-size:12px;color:var(--mut)}
+.ftr{flex-shrink:0;border-top:1px solid var(--bdr);padding:10px 40px;display:flex;align-items:center;justify-content:space-between;background:var(--white)}
+.ftr-left{font-size:11px;color:var(--mut)}
 .ftr-links{display:flex;gap:16px}
-.ftr-links a{font-size:12px;color:var(--mut);transition:color .2s}
+.ftr-links a{font-size:11px;color:var(--mut);transition:color .2s}
 .ftr-links a:hover{color:var(--dk)}
-
-@media(max-width:900px){.tiers{grid-template-columns:1fr}.cta-inner{flex-direction:column;text-align:center}}
-@media(max-width:600px){.nav{padding:14px 20px}.hero{padding:40px 20px 32px}.hero h1{font-size:28px}.tiers-wrap{padding:24px 16px 40px}.cta-wrap{padding:0 16px 32px}}
 </style>
 </head>
 <body>
@@ -98,169 +85,69 @@ a{text-decoration:none;color:inherit}
     <svg viewBox="0 0 200 210"><defs><linearGradient id="na" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1B2A4A"/><stop offset="100%" stop-color="#2B4C6F"/></linearGradient><linearGradient id="nb" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F97316"/><stop offset="100%" stop-color="#fb923c"/></linearGradient></defs><path d="M100,10 L180,40 L180,130 Q100,185 20,130 L20,40 Z" fill="url(#na)"/><path d="M100,26 L166,50 L166,124 Q100,170 34,124 L34,50 Z" fill="none" stroke="#10B981" stroke-width="2.5"/><text x="100" y="112" text-anchor="middle" fill="url(#nb)" font-family="Georgia,serif" font-size="66" font-weight="bold">P</text><circle cx="100" cy="192" r="6" fill="#F97316"/></svg>
     <span>Uni<span class="tl">Park</span></span>
   </div>
-  <a class="nav-back" href="/">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-    Back to UniPark
-  </a>
+  <a class="nav-back" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Back to UniPark</a>
 </nav>
 
 <div class="hero">
   <div class="hero-badge"><span></span>15-Day Free Trial</div>
   <h1>Choose your <em>plan</em></h1>
-  <p class="hero-sub">All tiers include full access during your trial. No credit card required. Cancel anytime.</p>
-  <div class="hero-meta">
-    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>No credit card</span>
-    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Full feature access</span>
-    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>15 days free</span>
-    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Cancel anytime</span>
-  </div>
+  <p class="hero-sub">All plans include full access during your trial. No credit card required.</p>
 </div>
 
 <div class="progress">
-  <div class="prog-step active">
-    <div class="prog-num">1</div>
-    <div class="prog-label">Select Tier</div>
-  </div>
+  <div class="prog-step active"><div class="prog-num">1</div><div class="prog-label">Select Plan</div></div>
   <div class="prog-line"></div>
-  <div class="prog-step inactive">
-    <div class="prog-num">2</div>
-    <div class="prog-label">Your Info</div>
-  </div>
+  <div class="prog-step inactive"><div class="prog-num">2</div><div class="prog-label">Your Info</div></div>
   <div class="prog-line"></div>
-  <div class="prog-step inactive">
-    <div class="prog-num">3</div>
-    <div class="prog-label">Get Started</div>
-  </div>
+  <div class="prog-step inactive"><div class="prog-num">3</div><div class="prog-label">Get Started</div></div>
 </div>
 
-<div class="tiers-wrap">
-  <div class="tiers-label">Select the tier that matches your operation — you can upgrade anytime after your trial.</div>
+<div class="tiers-section">
+  <div class="tiers-label">Select the plan that matches your operation — you can upgrade any time after your trial.</div>
   <div class="tiers" id="tierGrid"></div>
 </div>
 
 <div class="cta-wrap">
   <div class="cta-inner">
-    <div class="cta-text">
-      <strong id="ctaTitle">Select a tier to continue</strong>
-      <span id="ctaSub">All tiers are fully unlocked during your 15-day trial.</span>
-    </div>
-    <button class="cta-btn" id="ctaBtn" disabled onclick="proceed()">
-      Continue
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-    </button>
+    <div class="cta-text"><strong id="ctaTitle">Select a plan to continue</strong><span id="ctaSub">All plans are fully unlocked during your 15-day trial.</span></div>
+    <button class="cta-btn" id="ctaBtn" disabled onclick="proceed()">Continue <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
   </div>
 </div>
 
 <footer class="ftr">
   <div class="ftr-left">© 2026 Universal Parking Systems · UniPark</div>
-  <div class="ftr-links">
-    <a href="/privacy/">Privacy</a>
-    <a href="/terms/">Terms</a>
-    <a href="/#contact">Contact</a>
-  </div>
+  <div class="ftr-links"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/#contact">Contact</a></div>
 </footer>
 
 <script>
-const TIERS = [
-  {
-    id:'lite',
-    name:'Lite',
-    tag:'Small Operations',
-    tagColor:'rgba(71,85,105,0.1)',
-    tagText:'#475569',
-    desc:'Perfect for independent lot owners and small parking operations managing up to 3 facilities.',
-    features:[
-      {text:'Consumer Portal — driver-facing app',on:true},
-      {text:'Client Portal — operator dashboard',on:true},
-      {text:'Basic occupancy tracking',on:true},
-      {text:'3 standard reports',on:true},
-      {text:'Email support (48hr SLA)',on:true},
-      {text:'Manual overstay enforcement',on:true},
-      {text:'Local Admin portal',on:false},
-      {text:'Dynamic pricing engine',on:false},
-      {text:'IoT sensor integration',on:false},
-    ]
-  },
-  {
-    id:'regular',
-    name:'Regular',
-    tag:'Most Popular',
-    tagColor:'rgba(249,115,22,0.1)',
-    tagText:'#F97316',
-    popular:true,
-    desc:'The complete parking management suite for growing operators with multiple facilities and advanced needs.',
-    features:[
-      {text:'Everything in Lite, plus:',on:true},
-      {text:'Local Admin portal',on:true},
-      {text:'Dynamic pricing engine',on:true},
-      {text:'Full IoT sensor integration',on:true},
-      {text:'EV charging management',on:true},
-      {text:'Automated overstay enforcement',on:true},
-      {text:'All reports + CSV/PDF exports',on:true},
-      {text:'Read-only API access',on:true},
-      {text:'Priority support (4hr SLA)',on:true},
-    ]
-  },
-  {
-    id:'enterprise',
-    name:'Enterprise',
-    tag:'Unlimited Scale',
-    tagColor:'rgba(16,185,129,0.1)',
-    tagText:'#10B981',
-    desc:'Full-scale deployment for large networks, municipalities, and operators requiring custom integrations and white-labeling.',
-    features:[
-      {text:'Everything in Regular, plus:',on:true},
-      {text:'Global Admin portal',on:true},
-      {text:'Full CRUD API access',on:true},
-      {text:'White-label branding',on:true},
-      {text:'SSO / SAML authentication',on:true},
-      {text:'Custom payment rates',on:true},
-      {text:'Dedicated account manager',on:true},
-      {text:'1-hour SLA · 24/7 support',on:true},
-      {text:'On-premise deployment option',on:true},
-    ]
-  }
+const TIERS=[
+  {id:'lite',name:'Lite',tag:'Small Operations',tagColor:'rgba(71,85,105,0.1)',tagText:'#475569',desc:'For independent lot owners managing up to 3 facilities.',features:[{t:'Consumer Portal — driver-facing app',on:true},{t:'Client Portal — operator dashboard',on:true},{t:'Basic occupancy tracking',on:true},{t:'3 standard reports',on:true},{t:'Email support (48hr SLA)',on:true},{t:'Manual overstay enforcement',on:true},{t:'Local Admin portal',on:false},{t:'Dynamic pricing engine',on:false}]},
+  {id:'regular',name:'Regular',tag:'Most Popular',tagColor:'rgba(249,115,22,0.1)',tagText:'#F97316',popular:true,desc:'Complete suite for growing operators with multiple facilities.',features:[{t:'Everything in Lite, plus:',on:true},{t:'Local Admin portal',on:true},{t:'Dynamic pricing engine',on:true},{t:'Full IoT sensor integration',on:true},{t:'EV charging management',on:true},{t:'Automated overstay enforcement',on:true},{t:'All reports + CSV/PDF exports',on:true},{t:'Priority support (4hr SLA)',on:true}]},
+  {id:'enterprise',name:'Enterprise',tag:'Unlimited Scale',tagColor:'rgba(16,185,129,0.1)',tagText:'#10B981',desc:'Full-scale deployment for large networks and municipalities.',features:[{t:'Everything in Regular, plus:',on:true},{t:'Global Admin portal',on:true},{t:'Full CRUD API access',on:true},{t:'White-label branding',on:true},{t:'SSO / SAML authentication',on:true},{t:'Custom payment rates',on:true},{t:'Dedicated account manager',on:true},{t:'1-hour SLA · 24/7 support',on:true}]}
 ];
-
-let selected = null;
-
-const CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
-const DASH = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
-
-function renderTiers(){
-  document.getElementById('tierGrid').innerHTML = TIERS.map(t => `
-    <div class="tier${t.popular?' popular':''}" id="tier-${t.id}" onclick="selectTier('${t.id}')">
-      <div class="tier-radio">
-        <div class="radio-dot"></div>
-        <div class="tier-content">
-          <span class="tier-tag" style="background:${t.tagColor};color:${t.tagText}">${t.tag}</span>
-          <div class="tier-name">${t.name}</div>
-          <div class="tier-desc">${t.desc}</div>
-          <ul class="tier-features">
-            ${t.features.map(f=>`<li class="${f.on?'':'dim'}">${f.on?CHECK:DASH}${f.text}</li>`).join('')}
-          </ul>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function selectTier(id){
-  selected = id;
-  document.querySelectorAll('.tier').forEach(el => el.classList.remove('selected'));
+const CHK=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+const DSH=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+let sel=null;
+document.getElementById('tierGrid').innerHTML=TIERS.map(t=>`
+<div class="tier${t.popular?' popular':''}" id="tier-${t.id}" onclick="pick('${t.id}')">
+  <div class="tier-radio"><div class="radio-dot"></div><div class="tier-content">
+    <span class="tier-tag" style="background:${t.tagColor};color:${t.tagText}">${t.tag}</span>
+    <div class="tier-name">${t.name}</div>
+    <div class="tier-desc">${t.desc}</div>
+    <ul class="tier-features">${t.features.map(f=>`<li class="${f.on?'':'dim'}">${f.on?CHK:DSH}${f.t}</li>`).join('')}</ul>
+  </div></div>
+</div>`).join('');
+function pick(id){
+  sel=id;
+  document.querySelectorAll('.tier').forEach(e=>e.classList.remove('selected'));
   document.getElementById('tier-'+id).classList.add('selected');
-  const t = TIERS.find(t=>t.id===id);
-  document.getElementById('ctaTitle').textContent = `${t.name} tier selected — ready to continue`;
-  document.getElementById('ctaSub').textContent = 'All features fully unlocked for 15 days. No credit card required.';
-  document.getElementById('ctaBtn').disabled = false;
+  const t=TIERS.find(t=>t.id===id);
+  document.getElementById('ctaTitle').textContent=t.name+' plan selected — ready to continue';
+  document.getElementById('ctaSub').textContent='All features fully unlocked for 15 days. No credit card required.';
+  document.getElementById('ctaBtn').disabled=false;
 }
-
-function proceed(){
-  if(!selected) return;
-  window.location.href = `/trial/signup/?tier=${selected}`;
-}
-
-renderTiers();
+function proceed(){if(sel)window.location.href='/trial/signup/?tier='+sel;}
+pick('regular');
 </script>
 </body>
 </html>
