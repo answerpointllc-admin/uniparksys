@@ -11,11 +11,13 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#0B0F14;--card:#111827;--card2:#1A2332;--border:#1E293B;--teal:#2BA4B5;--green:#22C55E;--red:#EF4444;--orange:#F97316;--yellow:#ECC94B;--muted:#64748B;--text:#E2E8F0;--white:#F8FAFC;--navy:#1B2A4A}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;overflow-x:hidden;overflow-y:auto}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--muted);border-radius:3px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 @keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.cursor-blink{display:inline-block;width:8px;height:14px;background:var(--teal);animation:blink 1s step-end infinite;margin-left:4px;vertical-align:middle}
 </style>
 <script type="text/babel">
 const {useState,useEffect,useRef,useCallback} = React;
@@ -134,6 +136,33 @@ function ResultsChart({results,width=600,height=200}) {
   return <canvas ref={ref} style={{width:'100%',maxWidth:width,height,display:'block'}}/>;
 }
 
+/* ═══ SUITE ACCORDION ═══ */
+function SuiteAccordion({suite, results: sr}) {
+  const [open, setOpen] = useState(false);
+  const sp = sr.filter(r=>r.passed).length;
+  const spct = sr.length?Math.round(sp/sr.length*100):0;
+  return (
+    <div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:8,marginBottom:8,overflow:'hidden'}}>
+      <div onClick={()=>setOpen(!open)} style={{padding:'10px 16px',display:'flex',justifyContent:'space-between',alignItems:'center',cursor:'pointer',userSelect:'none'}}>
+        <span style={{fontWeight:600,fontSize:13}}>{suite.icon} {suite.name}</span>
+        <div style={{display:'flex',gap:12,alignItems:'center'}}>
+          <span style={{fontSize:12,fontWeight:700,color:spct>=90?'var(--green)':spct>=70?'var(--orange)':'var(--red)'}}>{spct}%</span>
+          <span style={{fontSize:11,color:'var(--muted)'}}>{sp}/{sr.length}</span>
+          <span style={{fontSize:10,color:'var(--muted)',transition:'transform .2s',transform:open?'rotate(180deg)':'rotate(0)'}}>▼</span>
+        </div>
+      </div>
+      {open && sr.map(r => (
+        <div key={r.id} style={{display:'flex',gap:12,padding:'4px 16px',borderTop:'1px solid rgba(30,41,59,.3)',fontSize:12,alignItems:'center'}}>
+          <span style={{color:r.passed?'var(--green)':r.warning?'var(--orange)':'var(--red)',fontWeight:700,width:36,fontFamily:'JetBrains Mono',fontSize:10}}>{r.status}</span>
+          <span style={{width:36,fontFamily:'JetBrains Mono',color:'var(--muted)',fontSize:10}}>{r.id}</span>
+          <span style={{flex:1}}>{r.name}</span>
+          <span style={{color:'var(--muted)',fontSize:10,fontFamily:'JetBrains Mono'}}>{r.duration}ms</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ═══ MAIN APP ═══ */
 function App() {
   const [view, setView] = useState('config');
@@ -185,7 +214,7 @@ function App() {
   const pct = results.length ? Math.round(passed/results.length*100) : 0;
 
   return (
-    <div style={{minHeight:'100vh',display:'flex',flexDirection:'column'}}>
+    <div style={{display:'flex',flexDirection:'column'}}>
       {/* HEADER */}
       <div style={{background:'var(--navy)',padding:'12px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:`2px solid ${PRODUCT.color}`}}>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
@@ -257,15 +286,18 @@ function App() {
           <div style={{maxWidth:900,margin:'0 auto'}}>
             <h2 style={{fontSize:22,fontWeight:700,marginBottom:20,color:'#fff'}}>
               Running... <span style={{color:PRODUCT.color,animation:'pulse 1s infinite'}}>Cycle {currentCycle}/{cycles}</span>
+              <span style={{fontSize:13,color:'var(--muted)',marginLeft:12}}>{results.length}/{totalSelected} tests</span>
             </h2>
-            <div style={{display:'flex',flexDirection:'column',gap:4,maxHeight:'60vh',overflow:'auto',fontFamily:'JetBrains Mono',fontSize:12}}>
+            <div style={{background:'#080C10',border:'1px solid var(--border)',borderRadius:8,padding:12,maxHeight:'65vh',overflow:'auto',fontFamily:'JetBrains Mono',fontSize:12}} ref={el=>{if(el)requestAnimationFrame(()=>el.scrollTop=el.scrollHeight)}}>
               {results.map((r,i) => (
-                <div key={i} style={{display:'flex',gap:12,padding:'4px 8px',background:i%2===0?'var(--card)':'transparent',borderRadius:4}}>
+                <div key={i} style={{display:'flex',gap:12,padding:'3px 4px',opacity:i===results.length-1?1:0.7}}>
                   <span style={{color:r.passed?'var(--green)':r.warning?'var(--orange)':'var(--red)',fontWeight:700,width:40}}>{r.status}</span>
-                  <span style={{flex:1,color:'var(--text)'}}>{r.id} {r.name}</span>
+                  <span style={{color:'var(--muted)',width:40}}>{r.id}</span>
+                  <span style={{flex:1,color:i===results.length-1?'#fff':'var(--text)'}}>{r.name}</span>
                   <span style={{color:'var(--muted)',width:50,textAlign:'right'}}>{r.duration}ms</span>
                 </div>
               ))}
+              {running && <div style={{padding:'3px 4px',color:'var(--teal)'}}>{'>'} <span className="cursor-blink"></span></div>}
             </div>
           </div>
         )}
@@ -286,23 +318,27 @@ function App() {
             </div>
 
             {/* Score card */}
-            <div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:12,padding:24,marginBottom:24,textAlign:'center'}}>
-              <div style={{fontSize:64,fontWeight:700,color:pct>=90?'var(--green)':pct>=70?'var(--orange)':'var(--red)'}}>{pct}%</div>
-              <div style={{fontSize:14,color:'var(--muted)',marginBottom:16}}>{passed}/{results.length} passed across {cycles} cycle{cycles>1?'s':''}</div>
-              <div style={{display:'flex',justifyContent:'center',gap:32}}>
-                <div><span style={{fontSize:28,fontWeight:700,color:'var(--green)'}}>{passed}</span><div style={{fontSize:11,color:'var(--muted)'}}>Passed</div></div>
-                <div><span style={{fontSize:28,fontWeight:700,color:'var(--orange)'}}>{warned}</span><div style={{fontSize:11,color:'var(--muted)'}}>Warnings</div></div>
-                <div><span style={{fontSize:28,fontWeight:700,color:'var(--red)'}}>{failed}</span><div style={{fontSize:11,color:'var(--muted)'}}>Failed</div></div>
+            <div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:12,padding:16,marginBottom:16,textAlign:'center'}}>
+              <div style={{display:'flex',justifyContent:'center',alignItems:'center',gap:32}}>
+                <div style={{fontSize:48,fontWeight:700,color:pct>=90?'var(--green)':pct>=70?'var(--orange)':'var(--red)'}}>{pct}%</div>
+                <div style={{display:'flex',gap:24}}>
+                  <div><span style={{fontSize:22,fontWeight:700,color:'var(--green)'}}>{passed}</span><div style={{fontSize:10,color:'var(--muted)'}}>Passed</div></div>
+                  <div><span style={{fontSize:22,fontWeight:700,color:'var(--orange)'}}>{warned}</span><div style={{fontSize:10,color:'var(--muted)'}}>Warn</div></div>
+                  <div><span style={{fontSize:22,fontWeight:700,color:'var(--red)'}}>{failed}</span><div style={{fontSize:10,color:'var(--muted)'}}>Failed</div></div>
+                </div>
               </div>
+              <div style={{fontSize:11,color:'var(--muted)',marginTop:4}}>{passed}/{results.length} passed | {cycles} cycle{cycles>1?'s':''}</div>
             </div>
 
             {/* Chart */}
             {(reportType==='regular'||reportType==='both') && (
-              <div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:12,padding:20,marginBottom:24}}>
-                <h3 style={{fontSize:14,color:PRODUCT.color,marginBottom:12}}>Suite Breakdown</h3>
-                <ResultsChart results={results}/>
+              <div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:12,padding:12,marginBottom:12}}>
+                <ResultsChart results={results} height={140}/>
               </div>
             )}
+
+            {/* Suite list - scrollable */}
+            <div style={{maxHeight:'35vh',overflow:'auto',marginBottom:12}}>
 
             {/* Certificate */}
             {(reportType==='certificate'||reportType==='both') && (
@@ -327,27 +363,13 @@ function App() {
               </div>
             )}
 
-            {/* Detailed results table */}
+            {/* Detailed results - collapsible */}
             {(reportType==='regular'||reportType==='both') && SUITES.filter(s=>selectedSuites.includes(s.id)).map(suite => {
               const sr = results.filter(r => suite.tests.some(t=>t.id===r.id));
               if (!sr.length) return null;
-              return (
-                <div key={suite.id} style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:8,marginBottom:16,overflow:'hidden'}}>
-                  <div style={{padding:'10px 16px',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                    <span style={{fontWeight:600}}>{suite.icon} {suite.name}</span>
-                    <span style={{fontSize:12,color:'var(--muted)'}}>{sr.filter(r=>r.passed).length}/{sr.length} passed</span>
-                  </div>
-                  {sr.map(r => (
-                    <div key={r.id} style={{display:'flex',gap:12,padding:'6px 16px',borderBottom:'1px solid rgba(30,41,59,.5)',fontSize:13,alignItems:'center'}}>
-                      <span style={{color:r.passed?'var(--green)':r.warning?'var(--orange)':'var(--red)',fontWeight:700,width:40,fontFamily:'JetBrains Mono',fontSize:11}}>{r.status}</span>
-                      <span style={{width:40,fontFamily:'JetBrains Mono',color:'var(--muted)',fontSize:11}}>{r.id}</span>
-                      <span style={{flex:1}}>{r.name}</span>
-                      <span style={{color:'var(--muted)',fontSize:11,fontFamily:'JetBrains Mono'}}>{r.duration}ms</span>
-                    </div>
-                  ))}
-                </div>
-              );
+              return <SuiteAccordion key={suite.id} suite={suite} results={sr}/>;
             })}
+            </div>
 
             <button onClick={()=>{setView('config');setResults([])}} style={{background:'var(--card)',border:'1px solid var(--border)',color:'var(--text)',padding:'10px 20px',borderRadius:6,cursor:'pointer',fontSize:13}}>
               ← Back to Config
@@ -380,10 +402,11 @@ function App() {
       </div>
 
       {/* FOOTER */}
-      <div style={{background:'var(--card)',borderTop:'1px solid var(--border)',padding:'8px 24px',display:'flex',justifyContent:'space-between',fontSize:11,color:'var(--muted)'}}>
+      <div style={{background:'var(--card)',borderTop:'1px solid var(--border)',padding:'8px 24px',display:'flex',justifyContent:'space-between',fontSize:11,color:'var(--muted)',position:'fixed',bottom:0,left:0,right:0,zIndex:10}}>
         <span>{PRODUCT.icon} {PRODUCT.name} Test Harness v{PRODUCT.version} | {TOTAL_TESTS} tests across {SUITES.length} suites</span>
-        <span>Universal Parking Systems | The AnswerPoint LLC</span>
+        <span>Universal Parking Systems</span>
       </div>
+      <div style={{height:50}}/>
     </div>
   );
 }

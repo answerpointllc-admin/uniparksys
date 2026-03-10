@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Start Your Trial — UniPark</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--grn:#10B981;--org:#F97316;--slate:#475569;--dk:#1B2A4A;--lt:#f8fafc;--bdr:#e2e8f0;--mut:#64748b;--white:#fff;--err:#ef4444}
+body{font-family:'DM Sans',sans-serif;background:var(--lt);color:var(--dk);min-height:100vh;display:flex;flex-direction:column}
+a{text-decoration:none;color:inherit}
+
+.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 48px;background:var(--white);border-bottom:1px solid var(--bdr)}
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-brand svg{width:40px;height:43px}
+.nav-brand span{font-family:'Montserrat',sans-serif;font-weight:800;font-size:20px;color:var(--dk)}
+.nav-brand .tl{color:var(--grn)}
+.nav-back{font-size:13px;color:var(--mut);display:flex;align-items:center;gap:6px;transition:color .2s;cursor:pointer}
+.nav-back:hover{color:var(--dk)}
+.nav-back svg{width:16px;height:16px}
+
+.progress{display:flex;align-items:center;justify-content:center;gap:0;padding:24px;background:var(--white);border-bottom:1px solid var(--bdr)}
+.prog-step{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.prog-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.prog-step.done .prog-num{background:var(--grn);color:var(--white)}
+.prog-step.done .prog-label{color:var(--mut)}
+.prog-step.active .prog-num{background:var(--dk);color:var(--white)}
+.prog-step.active .prog-label{color:var(--dk)}
+.prog-step.inactive .prog-num{background:var(--bdr);color:var(--mut)}
+.prog-step.inactive .prog-label{color:var(--mut)}
+.prog-line{width:48px;height:2px;margin:0 8px}
+.prog-line.done{background:var(--grn)}
+.prog-line.inactive{background:var(--bdr)}
+
+.main{flex:1;padding:48px 24px 60px;display:flex;gap:32px;max-width:1000px;margin:0 auto;width:100%}
+
+/* LEFT — tier summary */
+.tier-summary{width:280px;flex-shrink:0}
+.ts-card{background:var(--white);border:1px solid var(--bdr);border-radius:16px;overflow:hidden;position:sticky;top:24px}
+.ts-accent{height:4px;background:linear-gradient(90deg,var(--grn),#34d399)}
+.ts-body{padding:24px}
+.ts-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:12px}
+.ts-tier{font-family:'Montserrat',sans-serif;font-size:24px;font-weight:800;margin-bottom:6px}
+.ts-desc{font-size:13px;color:var(--mut);line-height:1.6;margin-bottom:20px}
+.ts-features{list-style:none;display:flex;flex-direction:column;gap:8px}
+.ts-features li{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--slate)}
+.ts-features li svg{width:13px;height:13px;color:var(--grn);flex-shrink:0}
+.ts-change{display:block;font-size:12px;color:var(--grn);margin-top:16px;padding-top:16px;border-top:1px solid var(--bdr);cursor:pointer}
+.ts-change:hover{text-decoration:underline}
+.ts-trial-badge{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:12px 14px;margin-top:16px;text-align:center}
+.ts-trial-badge strong{display:block;font-size:20px;font-weight:800;color:var(--grn)}
+.ts-trial-badge span{font-size:11px;color:var(--mut)}
+
+/* RIGHT — form */
+.form-wrap{flex:1}
+.form-title{font-family:'Montserrat',sans-serif;font-size:28px;font-weight:800;margin-bottom:6px}
+.form-sub{font-size:14px;color:var(--mut);margin-bottom:32px;line-height:1.6}
+.form-card{background:var(--white);border:1px solid var(--bdr);border-radius:16px;padding:32px}
+.form-section{margin-bottom:28px}
+.form-section:last-child{margin-bottom:0}
+.section-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--bdr)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-row.full{grid-template-columns:1fr}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:600;color:var(--dk)}
+.field label span{color:var(--err);margin-left:2px}
+.field input,.field select,.field textarea{padding:11px 14px;border:1.5px solid var(--bdr);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--dk);background:var(--white);transition:border-color .2s;outline:none;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--grn);box-shadow:0 0 0 3px rgba(16,185,129,0.1)}
+.field input.error,.field select.error,.field textarea.error{border-color:var(--err)}
+.field .err-msg{font-size:11px;color:var(--err);display:none}
+.field input.error ~ .err-msg,.field select.error ~ .err-msg{display:block}
+.field textarea{resize:vertical;min-height:100px;line-height:1.6}
+.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+
+.submit-wrap{margin-top:24px}
+.submit-btn{width:100%;padding:15px;background:var(--grn);color:var(--white);border:none;border-radius:10px;font-size:16px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s}
+.submit-btn:hover{background:#0ea271;box-shadow:0 8px 24px rgba(16,185,129,0.3);transform:translateY(-1px)}
+.submit-btn svg{width:18px;height:18px}
+.submit-note{text-align:center;font-size:12px;color:var(--mut);margin-top:12px}
+
+/* SUCCESS */
+.success{display:none;text-align:center;padding:60px 32px}
+.success-icon{width:72px;height:72px;background:rgba(16,185,129,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:32px}
+.success h2{font-family:'Montserrat',sans-serif;font-size:28px;font-weight:800;margin-bottom:12px}
+.success p{font-size:15px;color:var(--mut);max-width:400px;margin:0 auto 28px;line-height:1.7}
+.success-btn{display:inline-flex;align-items:center;gap:8px;background:var(--grn);color:var(--white);padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;transition:all .2s}
+.success-btn:hover{background:#0ea271}
+
+.ftr{border-top:1px solid var(--bdr);padding:20px 48px;display:flex;align-items:center;justify-content:space-between;background:var(--white)}
+.ftr-left{font-size:12px;color:var(--mut)}
+.ftr-links{display:flex;gap:16px}
+.ftr-links a{font-size:12px;color:var(--mut);transition:color .2s}
+.ftr-links a:hover{color:var(--dk)}
+
+@media(max-width:768px){.main{flex-direction:column}.tier-summary{width:100%}.ts-card{position:static}.form-row{grid-template-columns:1fr}.nav{padding:14px 20px}.ftr{padding:16px 20px;flex-direction:column;gap:12px}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">
+    <svg viewBox="0 0 200 210"><defs><linearGradient id="na" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1B2A4A"/><stop offset="100%" stop-color="#2B4C6F"/></linearGradient><linearGradient id="nb" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F97316"/><stop offset="100%" stop-color="#fb923c"/></linearGradient></defs><path d="M100,10 L180,40 L180,130 Q100,185 20,130 L20,40 Z" fill="url(#na)"/><path d="M100,26 L166,50 L166,124 Q100,170 34,124 L34,50 Z" fill="none" stroke="#10B981" stroke-width="2.5"/><text x="100" y="112" text-anchor="middle" fill="url(#nb)" font-family="Georgia,serif" font-size="66" font-weight="bold">P</text><circle cx="100" cy="192" r="6" fill="#F97316"/></svg>
+    <span>Uni<span class="tl">Park</span></span>
+  </div>
+  <a class="nav-back" onclick="history.back()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Back to Tier Selection
+  </a>
+</nav>
+
+<div class="progress">
+  <div class="prog-step done"><div class="prog-num">✓</div><div class="prog-label">Select Tier</div></div>
+  <div class="prog-line done"></div>
+  <div class="prog-step active"><div class="prog-num">2</div><div class="prog-label">Your Info</div></div>
+  <div class="prog-line inactive"></div>
+  <div class="prog-step inactive"><div class="prog-num">3</div><div class="prog-label">Get Started</div></div>
+</div>
+
+<div class="main">
+  <div class="tier-summary">
+    <div class="ts-card">
+      <div class="ts-accent"></div>
+      <div class="ts-body">
+        <div class="ts-label">Selected Tier</div>
+        <div class="ts-tier" id="sumTier">Regular</div>
+        <div class="ts-desc" id="sumDesc">The complete parking management suite for growing operators.</div>
+        <ul class="ts-features" id="sumFeatures"></ul>
+        <a class="ts-change" href="/trial/">← Change tier</a>
+        <div class="ts-trial-badge">
+          <strong>15 Days</strong>
+          <span>Full access · No credit card</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-wrap">
+    <div class="form-title">Tell us about yourself</div>
+    <div class="form-sub">We'll set up your trial environment and have you parking in minutes.</div>
+
+    <div class="form-card" id="formCard">
+      <div class="form-section">
+        <div class="section-label">Contact Information</div>
+        <div class="form-row">
+          <div class="field">
+            <label>First Name <span>*</span></label>
+            <input type="text" id="firstName" placeholder="Glenn">
+            <div class="err-msg">Required</div>
+          </div>
+          <div class="field">
+            <label>Last Name <span>*</span></label>
+            <input type="text" id="lastName" placeholder="McGregor">
+            <div class="err-msg">Required</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Work Email <span>*</span></label>
+            <input type="email" id="email" placeholder="you@company.com">
+            <div class="err-msg">Valid email required</div>
+          </div>
+          <div class="field">
+            <label>Phone Number</label>
+            <input type="tel" id="phone" placeholder="216-350-8108">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label">Your Operation</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Company / Organization <span>*</span></label>
+            <input type="text" id="company" placeholder="Metro Parking Group">
+            <div class="err-msg">Required</div>
+          </div>
+          <div class="field">
+            <label>Job Title</label>
+            <input type="text" id="title" placeholder="VP of Operations">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Number of Facilities <span>*</span></label>
+            <select id="facilities">
+              <option value="">Select...</option>
+              <option value="1">1 facility</option>
+              <option value="2-3">2–3 facilities</option>
+              <option value="4-10">4–10 facilities</option>
+              <option value="11-25">11–25 facilities</option>
+              <option value="26+">26+ facilities</option>
+            </select>
+            <div class="err-msg">Required</div>
+          </div>
+          <div class="field">
+            <label>Total Parking Spots (est.)</label>
+            <select id="spots">
+              <option value="">Select...</option>
+              <option value="<100">Under 100</option>
+              <option value="100-500">100–500</option>
+              <option value="500-2000">500–2,000</option>
+              <option value="2000-10000">2,000–10,000</option>
+              <option value="10000+">10,000+</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="field">
+            <label>Tell us about your parking operation</label>
+            <textarea id="message" placeholder="Describe your current setup, biggest challenges, or what you're hoping UniPark can help with..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="submit-wrap">
+        <button class="submit-btn" onclick="submitForm()">
+          Start My Free Trial
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <div class="submit-note">By starting your trial you agree to our <a href="/terms/" style="color:var(--grn)">Terms of Service</a> and <a href="/privacy/" style="color:var(--grn)">Privacy Policy</a>.</div>
+      </div>
+    </div>
+
+    <div class="success" id="successMsg">
+      <div class="success-icon">🎉</div>
+      <h2>You're all set!</h2>
+      <p>We've received your trial request. Check your email — your login credentials and getting started guide will arrive within a few minutes.</p>
+      <a class="success-btn" href="/login/">
+        Go to Login
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+<footer class="ftr">
+  <div class="ftr-left">© 2026 Universal Parking Systems · UniPark</div>
+  <div class="ftr-links">
+    <a href="/privacy/">Privacy</a>
+    <a href="/terms/">Terms</a>
+    <a href="/#contact">Contact</a>
+  </div>
+</footer>
+
+<script>
+const TIER_DATA = {
+  lite:{name:'Lite',desc:'Perfect for independent lot owners managing up to 3 facilities.',features:['Consumer & Client Portals','Basic occupancy tracking','3 standard reports','Email support (48hr SLA)']},
+  regular:{name:'Regular',desc:'Complete suite for growing operators with multiple facilities.',features:['Everything in Lite','Local Admin portal','Dynamic pricing engine','IoT sensor integration','Priority support (4hr SLA)']},
+  enterprise:{name:'Enterprise',desc:'Full-scale deployment for large networks and municipalities.',features:['Everything in Regular','Global Admin portal','Full CRUD API access','White-label branding','Dedicated account manager']}
+};
+
+const CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+function initTierSummary(){
+  const params = new URLSearchParams(window.location.search);
+  const tier = params.get('tier') || 'regular';
+  const d = TIER_DATA[tier] || TIER_DATA.regular;
+  document.getElementById('sumTier').textContent = d.name;
+  document.getElementById('sumDesc').textContent = d.desc;
+  document.getElementById('sumFeatures').innerHTML = d.features.map(f=>`<li>${CHECK}${f}</li>`).join('');
+}
+
+function validate(){
+  let ok = true;
+  const fields = [
+    {id:'firstName',check:v=>v.trim().length>0},
+    {id:'lastName',check:v=>v.trim().length>0},
+    {id:'email',check:v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)},
+    {id:'company',check:v=>v.trim().length>0},
+    {id:'facilities',check:v=>v!==''}
+  ];
+  fields.forEach(f=>{
+    const el = document.getElementById(f.id);
+    if(!f.check(el.value)){el.classList.add('error');ok=false;}
+    else el.classList.remove('error');
+  });
+  return ok;
+}
+
+function submitForm(){
+  if(!validate()) return;
+  const params = new URLSearchParams(window.location.search);
+  const payload = {
+    tier: params.get('tier') || 'regular',
+    firstName: document.getElementById('firstName').value,
+    lastName: document.getElementById('lastName').value,
+    email: document.getElementById('email').value,
+    phone: document.getElementById('phone').value,
+    company: document.getElementById('company').value,
+    title: document.getElementById('title').value,
+    facilities: document.getElementById('facilities').value,
+    spots: document.getElementById('spots').value,
+    message: document.getElementById('message').value
+  };
+
+  // POST to API
+  fetch('/api/v1/trials/submit', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  }).then(()=>{}).catch(()=>{});
+
+  // Show success regardless (API wired separately)
+  document.getElementById('formCard').style.display = 'none';
+  document.getElementById('successMsg').style.display = 'block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+initTierSummary();
+</script>
+</body>
+</html>
